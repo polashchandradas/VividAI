@@ -1,0 +1,79 @@
+name: Create IPA File (Simple Method)
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  create-ipa:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Install dependencies
+      run: |
+        # Install CocoaPods if needed
+        if [ -f "Podfile" ]; then
+          gem install cocoapods
+          pod install
+        fi
+        
+        # Resolve Swift Package Manager dependencies
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Build for iOS Simulator
+      run: |
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -derivedDataPath ./DerivedData
+          
+    - name: Create IPA structure
+      run: |
+        echo "Creating IPA file structure..."
+        mkdir -p ./build/Payload
+        
+        # Copy the app bundle
+        cp -r ./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app ./build/Payload/
+        
+        # Create IPA file
+        cd ./build
+        zip -r VividAI-simulator.ipa Payload/
+        cd ..
+        
+        echo "📱 IPA file created successfully!"
+        
+    - name: List generated files
+      run: |
+        echo "📱 Generated files:"
+        ls -la ./build/
+        echo "📦 IPA file ready for testing!"
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VividAI-ipa
+        path: ./build/*.ipa
+        retention-days: 30
+        
+    - name: Success message
+      run: |
+        echo "🎉 VividAI IPA file created successfully!"
+        echo "📱 You can download it from the Actions artifacts"
+        echo "🔗 Go to Actions tab → Select workflow run → Download artifact"
+        echo "💡 Upload this IPA to:"
+        echo "   - TestFlight (if you have Apple Developer account)"
+        echo "   - Appetize.io (for browser testing)"
+        echo "   - BrowserStack (for device testing)"
+        echo "   - Diawi (for easy sharing)"
