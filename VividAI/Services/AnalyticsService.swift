@@ -1,5 +1,4 @@
 import Foundation
-import FirebaseAnalytics
 
 class AnalyticsService: ObservableObject {
     static var shared = AnalyticsService()
@@ -9,34 +8,34 @@ class AnalyticsService: ObservableObject {
     // MARK: - Event Tracking
     
     func track(event: String, parameters: [String: Any] = [:]) {
-        Analytics.logEvent(event, parameters: parameters)
+        // Mock analytics for testing - in production, this would connect to Firebase
         print("📊 Analytics: \(event) - \(parameters)")
     }
     
     // MARK: - Screen Tracking
     
     func trackScreenView(_ screenName: String) {
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [
-            AnalyticsParameterScreenName: screenName
-        ])
+        track(event: "screen_view", parameters: ["screen_name": screenName])
     }
     
     // MARK: - User Properties
     
     func setUserProperty(_ value: String?, forName name: String) {
-        Analytics.setUserProperty(value, forName: name)
+        // Mock user property setting
+        print("📊 User Property: \(name) = \(value ?? "nil")")
     }
     
     func setUserId(_ userId: String) {
-        Analytics.setUserID(userId)
+        // Mock user ID setting
+        print("📊 User ID: \(userId)")
     }
     
     // MARK: - Conversion Tracking
     
     func trackConversion(event: String, value: Double, currency: String = "USD") {
-        Analytics.logEvent(event, parameters: [
-            AnalyticsParameterValue: value,
-            AnalyticsParameterCurrency: currency
+        track(event: event, parameters: [
+            "value": value,
+            "currency": currency
         ])
     }
     
