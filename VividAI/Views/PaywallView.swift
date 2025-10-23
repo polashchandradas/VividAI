@@ -5,7 +5,7 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
-    @State private var selectedPlan: SubscriptionPlan = .annual
+    @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
     @State private var showingTrial = false
     
     var body: some View {
@@ -223,7 +223,7 @@ struct PaywallView: View {
 // MARK: - Supporting Views
 
 struct SubscriptionPlanCard: View {
-    let plan: SubscriptionPlan
+    let plan: SubscriptionManager.SubscriptionPlan
     let isSelected: Bool
     let onTap: () -> Void
     
