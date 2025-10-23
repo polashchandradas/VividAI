@@ -223,6 +223,58 @@ class SubscriptionManager: NSObject, ObservableObject {
         let daysRemaining = Calendar.current.dateComponents([.day], from: Date(), to: trialEndDate).day ?? 0
         return max(0, daysRemaining)
     }
+    
+    // MARK: - SubscriptionPlan Enum
+    
+    enum SubscriptionPlan: String, CaseIterable {
+        case annual = "annual"
+        case weekly = "weekly"
+        case lifetime = "lifetime"
+        
+        var productID: String {
+            switch self {
+            case .annual: return "com.vividai.annual"
+            case .weekly: return "com.vividai.weekly"
+            case .lifetime: return "com.vividai.lifetime"
+            }
+        }
+        
+        var price: String {
+            switch self {
+            case .annual: return "$39.99"
+            case .weekly: return "$4.99"
+            case .lifetime: return "$99.99"
+            }
+        }
+        
+        var title: String {
+            switch self {
+            case .annual: return "ANNUAL PLAN"
+            case .weekly: return "WEEKLY PLAN"
+            case .lifetime: return "LIFETIME ACCESS"
+            }
+        }
+        
+        var savings: String? {
+            switch self {
+            case .annual: return "Save 67% ($3.33/mo)"
+            case .weekly: return "Cancel anytime"
+            case .lifetime: return "Pay once, use forever"
+            }
+        }
+        
+        var isRecommended: Bool {
+            return self == .annual
+        }
+        
+        var period: String {
+            switch self {
+            case .annual: return "year"
+            case .weekly: return "week"
+            case .lifetime: return "one-time"
+            }
+        }
+    }
 }
 
 // MARK: - Data Models
@@ -234,35 +286,7 @@ enum SubscriptionStatus {
     case expired
 }
 
-enum SubscriptionPlan: String, CaseIterable {
-    case annual = "annual"
-    case weekly = "weekly"
-    case lifetime = "lifetime"
-    
-    var productID: String {
-        switch self {
-        case .annual: return "com.vividai.annual"
-        case .weekly: return "com.vividai.weekly"
-        case .lifetime: return "com.vividai.lifetime"
-        }
-    }
-    
-    var price: String {
-        switch self {
-        case .annual: return "$39.99"
-        case .weekly: return "$4.99"
-        case .lifetime: return "$99.99"
-        }
-    }
-    
-    var period: String {
-        switch self {
-        case .annual: return "year"
-        case .weekly: return "week"
-        case .lifetime: return "one-time"
-        }
-    }
-}
+// SubscriptionPlan enum moved inside SubscriptionManager class
 
 struct SubscriptionInfo {
     let isPremium: Bool
