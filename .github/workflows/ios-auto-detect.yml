@@ -1,0 +1,58 @@
+name: VividAI Auto-Detect iOS Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: List available simulators
+      run: |
+        echo "=== Available iOS Simulators ==="
+        xcrun simctl list devices available | grep iPhone
+        echo "=== End of Simulator List ==="
+        
+    - name: Find best iPhone simulator
+      id: find-simulator
+      run: |
+        # Find the first available iPhone simulator
+        SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
+        if [ -z "$SIMULATOR" ]; then
+          # Fallback to any available simulator
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
+        fi
+        echo "simulator=$SIMULATOR" >> $GITHUB_OUTPUT
+        echo "Using simulator: $SIMULATOR"
+        
+    - name: Build VividAI app
+      run: |
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination "platform=iOS Simulator,id=${{ steps.find-simulator.outputs.simulator }}" \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+          
+    - name: Test VividAI app
+      run: |
+        xcodebuild test \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination "platform=iOS Simulator,id=${{ steps.find-simulator.outputs.simulator }}" \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
