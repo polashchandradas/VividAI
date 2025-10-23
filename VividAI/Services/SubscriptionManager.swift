@@ -1,0 +1,297 @@
+import Foundation
+import StoreKit
+import Combine
+
+class SubscriptionManager: NSObject, ObservableObject {
+    static let shared = SubscriptionManager()
+    
+    @Published var isPremiumUser = false
+    @Published var subscriptionStatus: SubscriptionStatus = .none
+    @Published var availableProducts: [Product] = []
+    @Published var isLoading = false
+    
+    private var productRequest: Task<Void, Error>?
+    private var updateListenerTask: Task<Void, Error>?
+    
+    // Product IDs
+    private let productIDs = [
+        "com.vividai.annual": "Annual Subscription",
+        "com.vividai.weekly": "Weekly Subscription",
+        "com.vividai.lifetime": "Lifetime Access"
+    ]
+    
+    override init() {
+        super.init()
+        
+        // Start listening for transaction updates
+        updateListenerTask = listenForTransactions()
+        
+        // Load products
+        loadProducts()
+        
+        // Check current subscription status
+        checkSubscriptionStatus()
+    }
+    
+    deinit {
+        productRequest?.cancel()
+        updateListenerTask?.cancel()
+    }
+    
+    // MARK: - Product Loading
+    
+    private func loadProducts() {
+        isLoading = true
+        
+        productRequest = Task {
+            do {
+                let products = try await Product.products(for: Array(productIDs.keys))
+                
+                await MainActor.run {
+                    self.availableProducts = products
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
+                    print("Failed to load products: \(error)")
+                }
+            }
+        }
+    }
+    
+    // MARK: - Purchase Methods
+    
+    func purchase(product: Product) async throws -> Transaction? {
+        let result = try await product.purchase()
+        
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            await transaction.finish()
+            
+            await MainActor.run {
+                self.updateSubscriptionStatus()
+            }
+            
+            return transaction
+        case .userCancelled:
+            throw SubscriptionError.userCancelled
+        case .pending:
+            throw SubscriptionError.pending
+        @unknown default:
+            throw SubscriptionError.unknown
+        }
+    }
+    
+    func startFreeTrial(plan: SubscriptionPlan) {
+        // Start 3-day free trial
+        UserDefaults.standard.set(Date(), forKey: "free_trial_start_date")
+        UserDefaults.standard.set(true, forKey: "is_free_trial_active")
+        
+        // Update status
+        isPremiumUser = true
+        subscriptionStatus = .trial
+        
+        // Track analytics
+        AnalyticsService.shared.track(event: "free_trial_started", parameters: [
+            "plan": plan.rawValue
+        ])
+    }
+    
+    func restorePurchases() {
+        Task {
+            do {
+                try await AppStore.sync()
+                await MainActor.run {
+                    self.updateSubscriptionStatus()
+                }
+            } catch {
+                print("Failed to restore purchases: \(error)")
+            }
+        }
+    }
+    
+    // MARK: - Subscription Status
+    
+    private func checkSubscriptionStatus() {
+        // Check for active subscription
+        Task {
+            for await result in Transaction.currentEntitlements {
+                if case .verified(let transaction) = result {
+                    if transaction.productType == .autoRenewable {
+                        await MainActor.run {
+                            self.isPremiumUser = true
+                            self.subscriptionStatus = .active
+                        }
+                        return
+                    }
+                }
+            }
+            
+            // Check for free trial
+            if isFreeTrialActive() {
+                await MainActor.run {
+                    self.isPremiumUser = true
+                    self.subscriptionStatus = .trial
+                }
+            }
+        }
+    }
+    
+    private func updateSubscriptionStatus() {
+        Task {
+            var hasActiveSubscription = false
+            
+            for await result in Transaction.currentEntitlements {
+                if case .verified(let transaction) = result {
+                    if transaction.productType == .autoRenewable {
+                        hasActiveSubscription = true
+                        break
+                    }
+                }
+            }
+            
+            await MainActor.run {
+                self.isPremiumUser = hasActiveSubscription || self.isFreeTrialActive()
+                self.subscriptionStatus = hasActiveSubscription ? .active : (self.isFreeTrialActive() ? .trial : .none)
+            }
+        }
+    }
+    
+    private func isFreeTrialActive() -> Bool {
+        guard UserDefaults.standard.bool(forKey: "is_free_trial_active") else { return false }
+        
+        if let trialStartDate = UserDefaults.standard.object(forKey: "free_trial_start_date") as? Date {
+            let trialEndDate = trialStartDate.addingTimeInterval(3 * 24 * 60 * 60) // 3 days
+            return Date() < trialEndDate
+        }
+        
+        return false
+    }
+    
+    // MARK: - Transaction Listening
+    
+    private func listenForTransactions() -> Task<Void, Error> {
+        return Task.detached {
+            for await result in Transaction.updates {
+                do {
+                    let transaction = try self.checkVerified(result)
+                    await transaction.finish()
+                    
+                    await MainActor.run {
+                        self.updateSubscriptionStatus()
+                    }
+                } catch {
+                    print("Transaction verification failed: \(error)")
+                }
+            }
+        }
+    }
+    
+    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+        switch result {
+        case .unverified:
+            throw SubscriptionError.unverified
+        case .verified(let safe):
+            return safe
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    func getProduct(for plan: SubscriptionPlan) -> Product? {
+        let productID = plan.productID
+        return availableProducts.first { $0.id == productID }
+    }
+    
+    func getSubscriptionInfo() -> SubscriptionInfo {
+        return SubscriptionInfo(
+            isPremium: isPremiumUser,
+            status: subscriptionStatus,
+            trialDaysRemaining: getTrialDaysRemaining()
+        )
+    }
+    
+    private func getTrialDaysRemaining() -> Int {
+        guard isFreeTrialActive(),
+              let trialStartDate = UserDefaults.standard.object(forKey: "free_trial_start_date") as? Date else {
+            return 0
+        }
+        
+        let trialEndDate = trialStartDate.addingTimeInterval(3 * 24 * 60 * 60)
+        let daysRemaining = Calendar.current.dateComponents([.day], from: Date(), to: trialEndDate).day ?? 0
+        return max(0, daysRemaining)
+    }
+}
+
+// MARK: - Data Models
+
+enum SubscriptionStatus {
+    case none
+    case trial
+    case active
+    case expired
+}
+
+enum SubscriptionPlan: String, CaseIterable {
+    case annual = "annual"
+    case weekly = "weekly"
+    case lifetime = "lifetime"
+    
+    var productID: String {
+        switch self {
+        case .annual: return "com.vividai.annual"
+        case .weekly: return "com.vividai.weekly"
+        case .lifetime: return "com.vividai.lifetime"
+        }
+    }
+    
+    var price: String {
+        switch self {
+        case .annual: return "$39.99"
+        case .weekly: return "$4.99"
+        case .lifetime: return "$99.99"
+        }
+    }
+    
+    var period: String {
+        switch self {
+        case .annual: return "year"
+        case .weekly: return "week"
+        case .lifetime: return "one-time"
+        }
+    }
+}
+
+struct SubscriptionInfo {
+    let isPremium: Bool
+    let status: SubscriptionStatus
+    let trialDaysRemaining: Int
+}
+
+enum SubscriptionError: Error, LocalizedError {
+    case userCancelled
+    case pending
+    case unverified
+    case unknown
+    case productNotFound
+    case purchaseFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .userCancelled:
+            return "Purchase was cancelled"
+        case .pending:
+            return "Purchase is pending approval"
+        case .unverified:
+            return "Purchase could not be verified"
+        case .unknown:
+            return "An unknown error occurred"
+        case .productNotFound:
+            return "Product not found"
+        case .purchaseFailed:
+            return "Purchase failed"
+        }
+    }
+}
