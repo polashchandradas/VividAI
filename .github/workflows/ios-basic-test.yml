@@ -1,4 +1,4 @@
-name: VividAI Simple iOS Test
+name: VividAI Basic iOS Test (No Firebase)
 
 on:
   push:
@@ -20,11 +20,7 @@ jobs:
     - name: List available simulators
       run: xcrun simctl list devices available
       
-    - name: Resolve Swift Package Manager dependencies
-      run: |
-        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
-      
-    - name: Build VividAI app
+    - name: Build VividAI app (without Firebase)
       run: |
         xcodebuild clean build \
           -project VividAI.xcodeproj \
@@ -33,9 +29,10 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -skipPackagePluginValidation
           
-    - name: Test VividAI app
+    - name: Test VividAI app (without Firebase)
       run: |
         xcodebuild test \
           -project VividAI.xcodeproj \
@@ -44,4 +41,5 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -skipPackagePluginValidation

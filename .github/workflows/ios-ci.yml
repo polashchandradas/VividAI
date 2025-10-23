@@ -44,7 +44,7 @@ jobs:
         fi
         
         # Resolve Swift Package Manager dependencies
-        swift package resolve
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
     - name: Build VividAI app
       run: |
