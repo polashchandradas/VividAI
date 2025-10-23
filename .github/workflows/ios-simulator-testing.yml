@@ -1,0 +1,81 @@
+name: VividAI iOS Simulator Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-multiple-simulators:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        simulator: 
+          - 'iPhone 15,OS=17.0'
+          - 'iPhone 14,OS=16.0'
+          - 'iPhone 13,OS=15.0'
+          - 'iPad Pro (12.9-inch),OS=17.0'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: List available simulators
+      run: xcrun simctl list devices available
+      
+    - name: Install dependencies
+      run: |
+        gem install cocoapods
+        if [ -f "Podfile" ]; then pod install; fi
+        swift package resolve
+        
+    - name: Build VividAI for ${{ matrix.simulator }}
+      run: |
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=${{ matrix.simulator }}' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+          
+    - name: Test VividAI on ${{ matrix.simulator }}
+      run: |
+        xcodebuild test \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=${{ matrix.simulator }}' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+          
+    - name: Test CoreML functionality
+      run: |
+        # Test CoreML models are properly loaded
+        xcodebuild test \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=${{ matrix.simulator }}' \
+          -configuration Debug \
+          -only-testing:VividAITests/CoreMLTests \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+          
+    - name: Test Firebase integration
+      run: |
+        # Test Firebase services are properly configured
+        xcodebuild test \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=${{ matrix.simulator }}' \
+          -configuration Debug \
+          -only-testing:VividAITests/FirebaseTests \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
