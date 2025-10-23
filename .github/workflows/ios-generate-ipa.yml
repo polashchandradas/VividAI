@@ -1,0 +1,66 @@
+name: Generate IPA File
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  generate-ipa:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Install dependencies
+      run: |
+        # Install CocoaPods if needed
+        if [ -f "Podfile" ]; then
+          gem install cocoapods
+          pod install
+        fi
+        
+        # Resolve Swift Package Manager dependencies
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Build and archive VividAI
+      run: |
+        xcodebuild clean archive \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'generic/platform=iOS' \
+          -archivePath VividAI.xcarchive \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+          
+    - name: Export IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath VividAI.xcarchive \
+          -exportOptionsPlist ExportOptions.plist \
+          -exportPath ./build
+          
+    - name: List generated files
+      run: |
+        echo "📱 Generated files:"
+        ls -la ./build/
+        echo "📦 IPA file ready for testing!"
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VividAI-ipa
+        path: ./build/*.ipa
+        retention-days: 30
+        
+    - name: Success message
+      run: |
+        echo "🎉 VividAI IPA file generated successfully!"
+        echo "📱 You can download it from the Actions artifacts"
+        echo "🔗 Go to Actions tab → Select workflow run → Download artifact"
