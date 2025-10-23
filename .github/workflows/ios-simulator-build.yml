@@ -1,4 +1,4 @@
-name: Generate IPA File
+name: Generate Simulator Build
 
 on:
   workflow_dispatch:  # Manual trigger
@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  generate-ipa:
+  generate-simulator-build:
     runs-on: macos-latest
     
     steps:
@@ -27,42 +27,40 @@ jobs:
         # Resolve Swift Package Manager dependencies
         xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
-    - name: Build and archive VividAI
+    - name: Build for iOS Simulator
       run: |
-        xcodebuild clean archive \
+        xcodebuild clean build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
-          -destination 'generic/platform=iOS' \
-          -archivePath VividAI.xcarchive \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
           -configuration Release \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          DEVELOPMENT_TEAM="" \
-          PROVISIONING_PROFILE_SPECIFIER=""
+          -derivedDataPath ./DerivedData
           
-    - name: Export IPA
+    - name: Create app bundle
       run: |
-        xcodebuild -exportArchive \
-          -archivePath VividAI.xcarchive \
-          -exportOptionsPlist ExportOptions.plist \
-          -exportPath ./build
-          
+        mkdir -p ./build
+        cp -r ./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app ./build/
+        echo "📱 VividAI.app created successfully!"
+        
     - name: List generated files
       run: |
         echo "📱 Generated files:"
         ls -la ./build/
-        echo "📦 IPA file ready for testing!"
+        echo "📦 App bundle ready for simulator testing!"
         
-    - name: Upload IPA artifact
+    - name: Upload app bundle artifact
       uses: actions/upload-artifact@v4
       with:
-        name: VividAI-ipa
-        path: ./build/*.ipa
+        name: VividAI-simulator-app
+        path: ./build/VividAI.app
         retention-days: 30
         
     - name: Success message
       run: |
-        echo "🎉 VividAI IPA file generated successfully!"
-        echo "📱 You can download it from the Actions artifacts"
+        echo "🎉 VividAI simulator build generated successfully!"
+        echo "📱 You can download the .app bundle from the Actions artifacts"
         echo "🔗 Go to Actions tab → Select workflow run → Download artifact"
+        echo "💡 Use this .app file with iOS Simulator or Xcode"
