@@ -57,16 +57,7 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
           
-    - name: Test VividAI app
-      run: |
-        xcodebuild test \
-          -project VividAI.xcodeproj \
-          -scheme VividAI \
-          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
-          -configuration Debug \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+    # Test step removed - project doesn't have test target configured
           
     - name: Build for release (optional)
       if: github.ref == 'refs/heads/main'
