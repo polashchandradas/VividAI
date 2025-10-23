@@ -165,7 +165,7 @@ struct PaywallView: View {
                 .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
             }
             
-            Text("3 days free, then \(selectedPlan.priceText)")
+            Text("3 days free, then \(selectedPlan.price)")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -263,7 +263,7 @@ struct SubscriptionPlanCard: View {
                         Spacer()
                     }
                     
-                    Text(plan.priceText)
+                    Text(plan.price)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.secondary)
                     
