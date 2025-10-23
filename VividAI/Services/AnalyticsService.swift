@@ -3,7 +3,7 @@ import Foundation
 class AnalyticsService: ObservableObject {
     static var shared = AnalyticsService()
     
-    private init() {}
+    init() {}
     
     // MARK: - Event Tracking
     

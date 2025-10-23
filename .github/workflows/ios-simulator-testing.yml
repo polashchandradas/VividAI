@@ -13,10 +13,10 @@ jobs:
     strategy:
       matrix:
         simulator: 
-          - 'iPhone 15,OS=17.0'
-          - 'iPhone 14,OS=16.0'
-          - 'iPhone 13,OS=15.0'
-          - 'iPad Pro (12.9-inch),OS=17.0'
+          - 'iPhone 16,OS=18.4'
+          - 'iPhone 16 Plus,OS=18.4'
+          - 'iPhone 16 Pro,OS=18.4'
+          - 'iPhone SE (3rd generation),OS=18.4'
     
     steps:
     - name: Checkout repository

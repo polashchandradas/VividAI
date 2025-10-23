@@ -299,39 +299,7 @@ struct Benefit {
     let description: String
 }
 
-enum SubscriptionPlan: String, CaseIterable {
-    case annual = "annual"
-    case weekly = "weekly"
-    case lifetime = "lifetime"
-    
-    var title: String {
-        switch self {
-        case .annual: return "ANNUAL PLAN"
-        case .weekly: return "WEEKLY PLAN"
-        case .lifetime: return "LIFETIME ACCESS"
-        }
-    }
-    
-    var priceText: String {
-        switch self {
-        case .annual: return "$39.99/year"
-        case .weekly: return "$4.99/week"
-        case .lifetime: return "$99.99 one-time"
-        }
-    }
-    
-    var savings: String? {
-        switch self {
-        case .annual: return "Save 67% ($3.33/mo)"
-        case .weekly: return "Cancel anytime"
-        case .lifetime: return "Pay once, use forever"
-        }
-    }
-    
-    var isRecommended: Bool {
-        return self == .annual
-    }
-}
+// SubscriptionPlan enum moved to SubscriptionManager.swift to avoid duplication
 
 #Preview {
     PaywallView()

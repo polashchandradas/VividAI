@@ -104,10 +104,17 @@ class VideoGenerationService: ObservableObject {
             // Append frame
             if videoInput.isReadyForMoreMediaData {
                 let presentationTime = currentTime
-                videoInput.append(AVAssetWriterInputPixelBufferAdaptor(
+                let adaptor = AVAssetWriterInputPixelBufferAdaptor(
                     assetWriterInput: videoInput,
                     sourcePixelBufferAttributes: nil
-                ).pixelBufferPool?.makePixelBuffer() ?? pixelBuffer, withPresentationTime: presentationTime)
+                )
+                if let pixelBufferPool = adaptor.pixelBufferPool {
+                    var newPixelBuffer: CVPixelBuffer?
+                    CVPixelBufferPoolCreatePixelBuffer(nil, pixelBufferPool, &newPixelBuffer)
+                    if let newPixelBuffer = newPixelBuffer {
+                        adaptor.append(newPixelBuffer, withPresentationTime: presentationTime)
+                    }
+                }
             }
         }
         
