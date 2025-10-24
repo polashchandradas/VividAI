@@ -237,22 +237,6 @@ class PhotoEnhancementService: ObservableObject {
 
 // MARK: - Data Models
 
-enum ImageQuality {
-    case low
-    case medium
-    case high
-    
-    var description: String {
-        switch self {
-        case .low:
-            return "Low Quality"
-        case .medium:
-            return "Medium Quality"
-        case .high:
-            return "High Quality"
-        }
-    }
-}
 
 enum EnhancementType {
     case general

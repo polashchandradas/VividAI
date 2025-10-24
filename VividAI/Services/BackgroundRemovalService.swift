@@ -51,22 +51,6 @@ struct ImageQualityAnalysis {
     }
 }
 
-enum ImageQuality {
-    case poor
-    case fair
-    case good
-    
-    var description: String {
-        switch self {
-        case .poor:
-            return "Poor Quality"
-        case .fair:
-            return "Fair Quality"
-        case .good:
-            return "Good Quality"
-        }
-    }
-}
 
 class BackgroundRemovalService: ObservableObject {
     static let shared = BackgroundRemovalService()

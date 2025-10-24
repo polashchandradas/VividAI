@@ -68,7 +68,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     // MARK: - Purchase Methods
     
-    func purchase(product: Product) async throws -> Transaction? {
+    func purchase(product: Product) async throws -> StoreKit.Transaction? {
         let result = try await product.purchase()
         
         switch result {
@@ -123,7 +123,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     private func checkSubscriptionStatus() {
         // Check for active subscription
         Task {
-            for await result in Transaction.currentEntitlements {
+            for await result in StoreKit.Transaction.currentEntitlements {
                 if case .verified(let transaction) = result {
                     if transaction.productType == .autoRenewable {
                         await MainActor.run {
@@ -149,7 +149,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         Task {
             var hasActiveSubscription = false
             
-            for await result in Transaction.currentEntitlements {
+            for await result in StoreKit.Transaction.currentEntitlements {
                 if case .verified(let transaction) = result {
                     if transaction.productType == .autoRenewable {
                         hasActiveSubscription = true
@@ -180,7 +180,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     private func listenForTransactions() -> Task<Void, Error> {
         return Task.detached {
-            for await result in Transaction.updates {
+            for await result in StoreKit.Transaction.updates {
                 do {
                     let transaction = try self.checkVerified(result)
                     await transaction.finish()
