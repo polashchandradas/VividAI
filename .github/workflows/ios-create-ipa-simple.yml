@@ -45,8 +45,19 @@ jobs:
         echo "Creating IPA file structure..."
         mkdir -p ./build/Payload
         
+        # Find the app bundle in DerivedData
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found in DerivedData"
+          echo "Available files:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          exit 1
+        fi
+        
+        echo "📱 Found app bundle at: $APP_PATH"
+        
         # Copy the app bundle
-        cp -r ./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app ./build/Payload/
+        cp -r "$APP_PATH" ./build/Payload/
         
         # Create IPA file
         cd ./build

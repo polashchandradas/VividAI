@@ -43,7 +43,18 @@ jobs:
     - name: Create app bundle
       run: |
         mkdir -p ./build
-        cp -r ./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app ./build/
+        
+        # Find the app bundle in DerivedData
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found in DerivedData"
+          echo "Available files:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          exit 1
+        fi
+        
+        echo "📱 Found app bundle at: $APP_PATH"
+        cp -r "$APP_PATH" ./build/
         echo "📱 VividAI.app created successfully!"
         
     - name: List generated files
