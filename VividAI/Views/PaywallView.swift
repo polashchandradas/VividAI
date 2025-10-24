@@ -2,7 +2,8 @@ import SwiftUI
 import StoreKit
 
 struct PaywallView: View {
-    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
     @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
@@ -42,7 +43,7 @@ struct PaywallView: View {
             .navigationBarHidden(true)
             .alert("Free Trial Started", isPresented: $showingTrial) {
                 Button("OK") {
-                    dismiss()
+                    navigationCoordinator.navigateBack()
                 }
             } message: {
                 Text("Your 3-day free trial has started. You can cancel anytime.")
@@ -56,7 +57,9 @@ struct PaywallView: View {
     private var headerSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Button(action: { dismiss() }) {
+                Button(action: { 
+                    navigationCoordinator.navigateBack()
+                }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.primary)
@@ -215,7 +218,7 @@ struct PaywallView: View {
     
     private func startFreeTrial() {
         // Start free trial logic
-        subscriptionManager.startFreeTrial(plan: selectedPlan)
+        appCoordinator.handleSubscriptionAction(.startFreeTrial(selectedPlan))
         showingTrial = true
     }
 }

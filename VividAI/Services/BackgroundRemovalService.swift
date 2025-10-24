@@ -3,6 +3,65 @@ import UIKit
 import Vision
 import CoreML
 
+enum BackgroundRemovalError: Error, LocalizedError {
+    case invalidImage
+    case processingFailed
+    case segmentationFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidImage:
+            return "Invalid image provided"
+        case .processingFailed:
+            return "Background removal processing failed"
+        case .segmentationFailed:
+            return "Image segmentation failed"
+        }
+    }
+}
+
+struct ImageQualityAnalysis {
+    let quality: ImageQuality
+    let issues: [String]
+    
+    var isGood: Bool {
+        return quality == .good && issues.isEmpty
+    }
+    
+    var recommendations: [String] {
+        var recommendations: [String] = []
+        
+        if issues.contains("Low resolution") {
+            recommendations.append("Try using a higher resolution photo")
+        }
+        if issues.contains("Image appears blurry") {
+            recommendations.append("Ensure good lighting and hold the camera steady")
+        }
+        if issues.contains("Medium resolution") {
+            recommendations.append("Higher resolution photos will produce better results")
+        }
+        
+        return recommendations
+    }
+}
+
+enum ImageQuality {
+    case poor
+    case fair
+    case good
+    
+    var description: String {
+        switch self {
+        case .poor:
+            return "Poor Quality"
+        case .fair:
+            return "Fair Quality"
+        case .good:
+            return "Good Quality"
+        }
+    }
+}
+
 class BackgroundRemovalService: ObservableObject {
     static let shared = BackgroundRemovalService()
     
@@ -47,20 +106,26 @@ class BackgroundRemovalService: ObservableObject {
     }
     
     private func processBackgroundRemoval(image: UIImage) throws -> UIImage {
-        // Simulate processing steps
-        let steps = 5
-        for step in 0..<steps {
-            DispatchQueue.main.async {
-                self.processingProgress = Double(step + 1) / Double(steps)
-            }
-            
-            // Simulate processing time
-            Thread.sleep(forTimeInterval: 0.2)
+        guard let cgImage = image.cgImage else {
+            throw BackgroundRemovalError.invalidImage
         }
         
-        // In production, this would use CoreML to segment the image
-        // For now, return the original image with a mock background removal effect
-        return createMockBackgroundRemoval(image: image)
+        // Use Vision framework for person segmentation
+        let request = VNGenerateForegroundInstanceMaskRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        
+        try handler.perform([request])
+        
+        guard let result = request.results?.first else {
+            // Fallback to mock processing if segmentation fails
+            return createMockBackgroundRemoval(image: image)
+        }
+        
+        // Create mask from segmentation result
+        let mask = createMaskFromSegmentation(result, size: image.size)
+        
+        // Apply mask to remove background
+        return applyMaskToImage(image, mask: mask)
     }
     
     private func createMockBackgroundRemoval(image: UIImage) -> UIImage {
@@ -90,14 +155,64 @@ class BackgroundRemovalService: ObservableObject {
             return
         }
         
-        let request = VNDetectFaceRectanglesRequest { request, error in
-            guard let observations = request.results as? [VNFaceObservation] else {
-                completion([])
-                return
+        // Create multiple face detection requests for better accuracy
+        let faceRectanglesRequest = VNDetectFaceRectanglesRequest()
+        let faceLandmarksRequest = VNDetectFaceLandmarksRequest()
+        
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                try handler.perform([faceRectanglesRequest, faceLandmarksRequest])
+                
+                // Get face rectangles (more reliable for basic detection)
+                let faceObservations = faceRectanglesRequest.results as? [VNFaceObservation] ?? []
+                
+                DispatchQueue.main.async {
+                    completion(faceObservations)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion([])
+                }
+            }
+        }
+    }
+    
+    func analyzeImageQuality(_ image: UIImage, completion: @escaping (ImageQualityAnalysis) -> Void) {
+        guard let cgImage = image.cgImage else {
+            completion(ImageQualityAnalysis(quality: .poor, issues: ["Invalid image"]))
+            return
+        }
+        
+        let request = VNClassifyImageRequest { request, error in
+            var issues: [String] = []
+            var quality: ImageQuality = .good
+            
+            // Analyze image properties
+            let imageSize = image.size
+            let megapixels = (imageSize.width * imageSize.height) / 1_000_000
+            
+            if megapixels < 0.5 {
+                issues.append("Low resolution")
+                quality = .poor
+            } else if megapixels < 1.0 {
+                issues.append("Medium resolution")
+                quality = .fair
+            }
+            
+            // Check for blur (simplified)
+            if let observations = request.results as? [VNClassificationObservation] {
+                for observation in observations {
+                    if observation.identifier.contains("blur") && observation.confidence > 0.5 {
+                        issues.append("Image appears blurry")
+                        quality = quality == .good ? .fair : .poor
+                    }
+                }
             }
             
             DispatchQueue.main.async {
-                completion(observations)
+                completion(ImageQualityAnalysis(quality: quality, issues: issues))
             }
         }
         
@@ -108,7 +223,7 @@ class BackgroundRemovalService: ObservableObject {
                 try handler.perform([request])
             } catch {
                 DispatchQueue.main.async {
-                    completion([])
+                    completion(ImageQualityAnalysis(quality: .poor, issues: ["Analysis failed"]))
                 }
             }
         }
@@ -164,6 +279,58 @@ extension BackgroundRemovalService {
             
             // Draw the original image
             image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    
+    private func createMaskFromSegmentation(_ result: VNPixelBufferObservation, size: CGSize) -> UIImage {
+        let pixelBuffer = result.pixelBuffer
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+            // Fallback to simple mask
+            return createSimpleMask(size: size)
+        }
+        
+        return UIImage(cgImage: cgImage)
+    }
+    
+    private func applyMaskToImage(_ image: UIImage, mask: UIImage) -> UIImage {
+        guard let cgImage = image.cgImage,
+              let maskCGImage = mask.cgImage else {
+            return image
+        }
+        
+        let size = image.size
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        return renderer.image { context in
+            // Set up clipping with the mask
+            context.cgContext.clip(to: CGRect(origin: .zero, size: size), mask: maskCGImage)
+            
+            // Draw the original image
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    
+    private func createSimpleMask(size: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        return renderer.image { context in
+            // Create a simple circular mask
+            UIColor.white.setFill()
+            context.cgContext.fill(CGRect(origin: .zero, size: size))
+            
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let radius = min(size.width, size.height) / 3
+            
+            context.cgContext.setFillColor(UIColor.black.cgColor)
+            context.cgContext.fillEllipse(in: CGRect(
+                x: center.x - radius,
+                y: center.y - radius,
+                width: radius * 2,
+                height: radius * 2
+            ))
         }
     }
 }

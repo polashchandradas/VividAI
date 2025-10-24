@@ -2,6 +2,36 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- 
+		FIREBASE CONFIGURATION REQUIRED
+		================================
+		
+		To configure Firebase for VividAI:
+		
+		1. Go to https://console.firebase.google.com/
+		2. Create a new project or select existing project
+		3. Add iOS app with bundle ID: com.vividai.app
+		4. Download GoogleService-Info.plist
+		5. Replace this file with the downloaded one
+		6. Enable the following services in Firebase Console:
+		   - Authentication (Email/Password, Apple Sign-In)
+		   - Firestore Database
+		   - Analytics
+		   - Storage (for image uploads)
+		
+		REPLICATE API CONFIGURATION
+		============================
+		
+		To configure Replicate API:
+		
+		1. Go to https://replicate.com/
+		2. Create account and get API token
+		3. Add REPLICATE_API_KEY to your Info.plist or environment variables
+		
+		Current configuration status: NOT CONFIGURED
+		Replace the placeholder values below with your actual Firebase credentials.
+	-->
+	
 	<key>API_KEY</key>
 	<string>YOUR_FIREBASE_API_KEY</string>
 	<key>GCM_SENDER_ID</key>

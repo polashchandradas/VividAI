@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProcessingView: View {
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
     @State private var progress: Double = 0.0
     @State private var currentStep = 0
@@ -37,6 +38,18 @@ struct ProcessingView: View {
         }
         .onAppear {
             startProcessing()
+        }
+        .onReceive(appCoordinator.$processingProgress) { newProgress in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                self.progress = newProgress
+            }
+        }
+        .onReceive(appCoordinator.$processingStep) { newStep in
+            withAnimation(.easeInOut(duration: 0.3)) {
+                if let stepIndex = processingSteps.firstIndex(of: newStep) {
+                    self.currentStep = stepIndex
+                }
+            }
         }
     }
     
@@ -179,37 +192,8 @@ struct ProcessingView: View {
     private func startProcessing() {
         analyticsService.track(event: "processing_started")
         
-        // Simulate processing steps
-        let totalSteps = processingSteps.count
-        let stepDuration: TimeInterval = 2.0
-        
-        for step in 0..<totalSteps {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(step) * stepDuration) {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    self.currentStep = step
-                    self.progress = Double(step + 1) / Double(totalSteps)
-                }
-            }
-        }
-        
-        // Complete processing
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double(totalSteps) * stepDuration) {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                self.processingComplete = true
-                self.progress = 1.0
-            }
-            
-            // Navigate to results after a brief delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.navigateToResults()
-            }
-        }
-    }
-    
-    private func navigateToResults() {
-        analyticsService.track(event: "processing_completed")
-        // Navigation to results would be handled by the parent view
-        // This is a placeholder for the actual navigation logic
+        // The actual processing is handled by the app coordinator
+        // This view just displays the progress
     }
 }
 

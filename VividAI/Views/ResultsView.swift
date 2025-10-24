@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ResultsView: View {
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
     @State private var selectedHeadshot: HeadshotStyle?
@@ -8,17 +10,17 @@ struct ResultsView: View {
     @State private var showingShareView = false
     @State private var showingFullScreen = false
     
-    // Mock data for headshot styles
-    @State private var headshotStyles: [HeadshotStyle] = [
-        HeadshotStyle(id: 1, name: "Corporate Professional", image: "corporate", isPremium: false),
-        HeadshotStyle(id: 2, name: "Creative Director", image: "creative", isPremium: true),
-        HeadshotStyle(id: 3, name: "Casual Business", image: "casual", isPremium: false),
-        HeadshotStyle(id: 4, name: "Executive", image: "executive", isPremium: true),
-        HeadshotStyle(id: 5, name: "Tech Professional", image: "tech", isPremium: true),
-        HeadshotStyle(id: 6, name: "Consultant", image: "consultant", isPremium: true),
-        HeadshotStyle(id: 7, name: "Entrepreneur", image: "entrepreneur", isPremium: true),
-        HeadshotStyle(id: 8, name: "LinkedIn Ready", image: "linkedin", isPremium: true)
-    ]
+    // Get headshot styles from navigation coordinator
+    private var headshotStyles: [HeadshotStyle] {
+        navigationCoordinator.processingResults.map { result in
+            HeadshotStyle(
+                id: result.id,
+                name: result.style,
+                image: result.imageURL,
+                isPremium: result.isPremium
+            )
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -64,7 +66,9 @@ struct ResultsView: View {
     
     private var headerSection: some View {
         HStack {
-            Button(action: { /* Navigate back */ }) {
+            Button(action: { 
+                navigationCoordinator.navigateBack()
+            }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
@@ -78,7 +82,9 @@ struct ResultsView: View {
             
             Spacer()
             
-            Button(action: { /* Settings */ }) {
+            Button(action: { 
+                navigationCoordinator.showSettings()
+            }) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
@@ -100,7 +106,7 @@ struct ResultsView: View {
                         onTap: {
                             selectedHeadshot = headshot
                             if headshot.isPremium && !subscriptionManager.isPremiumUser {
-                                showingPaywall = true
+                                navigationCoordinator.showPaywall()
                             } else {
                                 showingFullScreen = true
                             }
@@ -139,7 +145,7 @@ struct ResultsView: View {
             // Primary CTA - Remove Watermark
             Button(action: {
                 analyticsService.track(event: "remove_watermark_tapped")
-                showingPaywall = true
+                navigationCoordinator.showPaywall()
             }) {
                 HStack(spacing: 12) {
                     Image(systemName: "lock.open.fill")
@@ -169,7 +175,13 @@ struct ResultsView: View {
             HStack(spacing: 16) {
                 Button(action: {
                     analyticsService.track(event: "share_tapped")
-                    showingShareView = true
+                    // Generate video and show share view
+                    if let originalImage = navigationCoordinator.selectedImage,
+                       let firstResult = navigationCoordinator.processingResults.first {
+                        // Create a mock enhanced image for video generation
+                        let enhancedImage = UIImage(systemName: "person.crop.circle.fill") ?? originalImage
+                        appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
+                    }
                 }) {
                     HStack(spacing: 8) {
                         Image(systemName: "square.and.arrow.up")

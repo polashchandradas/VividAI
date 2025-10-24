@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
     @State private var notificationsEnabled = false
@@ -50,7 +51,9 @@ struct SettingsView: View {
     
     private var headerSection: some View {
         HStack {
-            Button(action: { dismiss() }) {
+            Button(action: { 
+                navigationCoordinator.navigateBack()
+            }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
@@ -100,7 +103,7 @@ struct SettingsView: View {
                     if !subscriptionManager.isPremiumUser {
                         Button(action: {
                             analyticsService.track(event: "upgrade_tapped_from_settings")
-                            // Navigate to paywall
+                            navigationCoordinator.showPaywall()
                         }) {
                             Text("⭐ Upgrade to Pro")
                                 .font(.system(size: 14, weight: .semibold))
@@ -158,7 +161,7 @@ struct SettingsView: View {
                     title: "Restore Purchases",
                     action: {
                         analyticsService.track(event: "restore_purchases_tapped")
-                        subscriptionManager.restorePurchases()
+                        appCoordinator.handleSubscriptionAction(.restorePurchases)
                     }
                 )
             }

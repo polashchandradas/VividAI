@@ -99,51 +99,108 @@ class PhotoEnhancementService: ObservableObject {
     }
     
     private func applyEnhancementEffects(to image: UIImage) -> UIImage {
-        let size = image.size
-        let renderer = UIGraphicsImageRenderer(size: size)
+        guard let cgImage = image.cgImage else { return image }
         
-        return renderer.image { context in
-            // Draw the original image
-            image.draw(in: CGRect(origin: .zero, size: size))
-            
-            // Apply enhancement effects
-            context.cgContext.setBlendMode(.overlay)
-            context.cgContext.setAlpha(0.3)
-            
-            // Enhance contrast and saturation
-            UIColor.white.withAlphaComponent(0.1).setFill()
-            context.cgContext.fill(CGRect(origin: .zero, size: size))
-            
-            // Add subtle sharpening effect
-            context.cgContext.setBlendMode(.multiply)
-            context.cgContext.setAlpha(0.1)
-            UIColor.blue.withAlphaComponent(0.05).setFill()
-            context.cgContext.fill(CGRect(origin: .zero, size: size))
+        let ciImage = CIImage(cgImage: cgImage)
+        let context = CIContext()
+        
+        // Apply Core Image filters for real enhancement
+        var outputImage = ciImage
+        
+        // 1. Auto adjust (exposure, contrast, saturation)
+        if let autoAdjustFilter = CIFilter(name: "CIColorControls") {
+            autoAdjustFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            autoAdjustFilter.setValue(1.1, forKey: kCIInputContrastKey) // Increase contrast
+            autoAdjustFilter.setValue(1.2, forKey: kCIInputSaturationKey) // Increase saturation
+            autoAdjustFilter.setValue(0.1, forKey: kCIInputBrightnessKey) // Slight brightness increase
+            if let result = autoAdjustFilter.outputImage {
+                outputImage = result
+            }
         }
+        
+        // 2. Sharpen the image
+        if let sharpenFilter = CIFilter(name: "CISharpenLuminance") {
+            sharpenFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            sharpenFilter.setValue(0.4, forKey: kCIInputSharpnessKey)
+            if let result = sharpenFilter.outputImage {
+                outputImage = result
+            }
+        }
+        
+        // 3. Reduce noise
+        if let noiseReductionFilter = CIFilter(name: "CINoiseReduction") {
+            noiseReductionFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            noiseReductionFilter.setValue(0.02, forKey: "inputNoiseLevel")
+            noiseReductionFilter.setValue(0.4, forKey: "inputSharpness")
+            if let result = noiseReductionFilter.outputImage {
+                outputImage = result
+            }
+        }
+        
+        // Convert back to UIImage
+        guard let outputCGImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+            return image
+        }
+        
+        return UIImage(cgImage: outputCGImage)
     }
     
     private func applyRestorationEffects(to image: UIImage) -> UIImage {
-        let size = image.size
-        let renderer = UIGraphicsImageRenderer(size: size)
+        guard let cgImage = image.cgImage else { return image }
         
-        return renderer.image { context in
-            // Draw the original image
-            image.draw(in: CGRect(origin: .zero, size: size))
-            
-            // Apply restoration effects
-            context.cgContext.setBlendMode(.softLight)
-            context.cgContext.setAlpha(0.4)
-            
-            // Reduce noise and enhance details
-            UIColor.white.withAlphaComponent(0.2).setFill()
-            context.cgContext.fill(CGRect(origin: .zero, size: size))
-            
-            // Add color correction
-            context.cgContext.setBlendMode(.colorBurn)
-            context.cgContext.setAlpha(0.1)
-            UIColor.orange.withAlphaComponent(0.1).setFill()
-            context.cgContext.fill(CGRect(origin: .zero, size: size))
+        let ciImage = CIImage(cgImage: cgImage)
+        let context = CIContext()
+        
+        // Apply Core Image filters for photo restoration
+        var outputImage = ciImage
+        
+        // 1. Reduce noise and artifacts
+        if let noiseReductionFilter = CIFilter(name: "CINoiseReduction") {
+            noiseReductionFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            noiseReductionFilter.setValue(0.05, forKey: "inputNoiseLevel")
+            noiseReductionFilter.setValue(0.6, forKey: "inputSharpness")
+            if let result = noiseReductionFilter.outputImage {
+                outputImage = result
+            }
         }
+        
+        // 2. Enhance contrast for old photos
+        if let contrastFilter = CIFilter(name: "CIColorControls") {
+            contrastFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            contrastFilter.setValue(1.3, forKey: kCIInputContrastKey) // Higher contrast for old photos
+            contrastFilter.setValue(1.1, forKey: kCIInputSaturationKey) // Restore color saturation
+            contrastFilter.setValue(0.2, forKey: kCIInputBrightnessKey) // Brighten old photos
+            if let result = contrastFilter.outputImage {
+                outputImage = result
+            }
+        }
+        
+        // 3. Apply unsharp mask for detail enhancement
+        if let unsharpMaskFilter = CIFilter(name: "CIUnsharpMask") {
+            unsharpMaskFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            unsharpMaskFilter.setValue(0.5, forKey: kCIInputIntensityKey)
+            unsharpMaskFilter.setValue(1.0, forKey: kCIInputRadiusKey)
+            if let result = unsharpMaskFilter.outputImage {
+                outputImage = result
+            }
+        }
+        
+        // 4. Color correction for faded photos
+        if let colorCorrectionFilter = CIFilter(name: "CITemperatureAndTint") {
+            colorCorrectionFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            colorCorrectionFilter.setValue(CIVector(x: 6500, y: 0), forKey: "inputNeutral")
+            colorCorrectionFilter.setValue(CIVector(x: 0, y: 0), forKey: "inputTargetNeutral")
+            if let result = colorCorrectionFilter.outputImage {
+                outputImage = result
+            }
+        }
+        
+        // Convert back to UIImage
+        guard let outputCGImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+            return image
+        }
+        
+        return UIImage(cgImage: outputCGImage)
     }
     
     func detectImageQuality(_ image: UIImage) -> ImageQuality {

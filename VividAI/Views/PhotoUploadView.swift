@@ -3,13 +3,15 @@ import PhotosUI
 import AVFoundation
 
 struct PhotoUploadView: View {
-    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
     @State private var showingPermissionAlert = false
     @State private var permissionAlertMessage = ""
+    @State private var isDetectingFaces = false
     
     var body: some View {
         NavigationView {
@@ -60,8 +62,10 @@ struct PhotoUploadView: View {
     
     private var headerSection: some View {
         HStack {
-            Button(action: { dismiss() }) {
-                Image(systemName: "xmark")
+            Button(action: { 
+                navigationCoordinator.navigateBack()
+            }) {
+                Image(systemName: "arrow.left")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
             }
@@ -102,6 +106,7 @@ struct PhotoUploadView: View {
                     Button("Continue to Processing") {
                         proceedToProcessing()
                     }
+                    .disabled(isDetectingFaces)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -140,7 +145,16 @@ struct PhotoUploadView: View {
                     }
                     
                     // Face Detection Indicator
-                    if selectedImage != nil {
+                    if isDetectingFaces {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                            
+                            Text("Detecting faces...")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.blue)
+                        }
+                    } else if selectedImage != nil {
                         HStack(spacing: 8) {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
@@ -269,23 +283,131 @@ struct PhotoUploadView: View {
             "image_height": image.size.height
         ])
         
-        // Navigate to processing screen
-        // This would typically be handled by a navigation coordinator
-        // For now, we'll dismiss and show a placeholder
-        dismiss()
+        // Start processing with the app coordinator
+        appCoordinator.processPhoto(image)
+    }
+    
+    private func detectFacesInImage(_ image: UIImage) {
+        isDetectingFaces = true
+        
+        // First analyze image quality
+        appCoordinator.backgroundRemovalService.analyzeImageQuality(image) { [weak self] qualityAnalysis in
+            DispatchQueue.main.async {
+                if !qualityAnalysis.isGood {
+                    self?.isDetectingFaces = false
+                    self?.permissionAlertMessage = "Image quality issues detected: \(qualityAnalysis.issues.joined(separator: ", ")). \(qualityAnalysis.recommendations.joined(separator: " "))"
+                    self?.showingPermissionAlert = true
+                    return
+                }
+                
+                // If quality is good, proceed with face detection
+                self?.appCoordinator.backgroundRemovalService.detectFaces(in: image) { [weak self] observations in
+                    DispatchQueue.main.async {
+                        self?.isDetectingFaces = false
+                        
+                        if observations.isEmpty {
+                            // No faces detected - show warning
+                            self?.permissionAlertMessage = "No faces detected in the image. Please try a photo with a clear face."
+                            self?.showingPermissionAlert = true
+                        } else {
+                            // Faces detected - proceed
+                            analyticsService.track(event: "faces_detected", parameters: [
+                                "face_count": observations.count,
+                                "image_quality": qualityAnalysis.quality.description
+                            ])
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 // MARK: - Supporting Views
 
 struct CameraPreviewView: UIViewRepresentable {
+    @Binding var selectedImage: UIImage?
+    @State private var isCapturing = false
+    
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
-        // Camera preview implementation would go here
+        let captureSession = AVCaptureSession()
+        
+        // Configure capture session
+        captureSession.sessionPreset = .photo
+        
+        // Add video input
+        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
+              let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
+              captureSession.canAddInput(videoInput) else {
+            return view
+        }
+        
+        captureSession.addInput(videoInput)
+        
+        // Add photo output
+        let photoOutput = AVCapturePhotoOutput()
+        if captureSession.canAddOutput(photoOutput) {
+            captureSession.addOutput(photoOutput)
+        }
+        
+        // Create preview layer
+        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.videoGravity = .resizeAspectFill
+        previewLayer.frame = view.bounds
+        
+        view.layer.addSublayer(previewLayer)
+        
+        // Start session
+        DispatchQueue.global(qos: .background).async {
+            captureSession.startRunning()
+        }
+        
+        // Store references in coordinator
+        context.coordinator.captureSession = captureSession
+        context.coordinator.photoOutput = photoOutput
+        context.coordinator.previewLayer = previewLayer
+        
         return view
     }
     
-    func updateUIView(_ uiView: UIView, context: Context) {}
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // Update preview layer frame when view bounds change
+        if let previewLayer = context.coordinator.previewLayer {
+            previewLayer.frame = uiView.bounds
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
+        let parent: CameraPreviewView
+        var captureSession: AVCaptureSession?
+        var photoOutput: AVCapturePhotoOutput?
+        var previewLayer: AVCaptureVideoPreviewLayer?
+        
+        init(_ parent: CameraPreviewView) {
+            self.parent = parent
+        }
+        
+        func capturePhoto() {
+            guard let photoOutput = photoOutput else { return }
+            
+            let settings = AVCapturePhotoSettings()
+            photoOutput.capturePhoto(with: settings, delegate: self)
+        }
+        
+        func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+            guard let imageData = photo.fileDataRepresentation(),
+                  let image = UIImage(data: imageData) else { return }
+            
+            DispatchQueue.main.async {
+                self.parent.selectedImage = image
+            }
+        }
+    }
 }
 
 struct ImagePicker: UIViewControllerRepresentable {
@@ -323,7 +445,10 @@ struct ImagePicker: UIViewControllerRepresentable {
             if provider.canLoadObject(ofClass: UIImage.self) {
                 provider.loadObject(ofClass: UIImage.self) { image, _ in
                     DispatchQueue.main.async {
-                        self.parent.selectedImage = image as? UIImage
+                        if let selectedImage = image as? UIImage {
+                            self.parent.selectedImage = selectedImage
+                            self.parent.detectFacesInImage(selectedImage)
+                        }
                     }
                 }
             }
@@ -340,6 +465,9 @@ struct CameraView: UIViewControllerRepresentable {
         picker.delegate = context.coordinator
         picker.sourceType = .camera
         picker.allowsEditing = true
+        picker.cameraDevice = .front // Use front camera for selfies
+        picker.cameraFlashMode = .auto
+        picker.cameraCaptureMode = .photo
         return picker
     }
     
@@ -359,8 +487,10 @@ struct CameraView: UIViewControllerRepresentable {
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[.editedImage] as? UIImage {
                 parent.selectedImage = image
+                parent.detectFacesInImage(image)
             } else if let image = info[.originalImage] as? UIImage {
                 parent.selectedImage = image
+                parent.detectFacesInImage(image)
             }
             
             parent.dismiss()

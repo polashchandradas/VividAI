@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
-    @State private var showingPhotoUpload = false
-    @State private var showingSettings = false
     
     var body: some View {
         NavigationView {
@@ -32,12 +32,6 @@ struct HomeView: View {
                 }
             }
             .navigationBarHidden(true)
-            .sheet(isPresented: $showingPhotoUpload) {
-                PhotoUploadView()
-            }
-            .sheet(isPresented: $showingSettings) {
-                SettingsView()
-            }
         }
         .onAppear {
             analyticsService.track(event: "home_screen_viewed")
@@ -58,7 +52,9 @@ struct HomeView: View {
             
             Spacer()
             
-            Button(action: { showingSettings = true }) {
+            Button(action: { 
+                navigationCoordinator.showSettings()
+            }) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 20))
                     .foregroundColor(.primary)
@@ -87,7 +83,7 @@ struct HomeView: View {
             // Primary CTA Button
             Button(action: {
                 analyticsService.track(event: "create_headshot_tapped")
-                showingPhotoUpload = true
+                navigationCoordinator.startPhotoUpload()
             }) {
                 HStack(spacing: 12) {
                     Image(systemName: "camera.fill")
@@ -183,7 +179,7 @@ struct HomeView: View {
                 // Background Removal
                 Button(action: {
                     analyticsService.track(event: "background_removal_tapped")
-                    showingPhotoUpload = true
+                    navigationCoordinator.startPhotoUpload()
                 }) {
                     VStack(spacing: 8) {
                         Image(systemName: "photo.on.rectangle.angled")
@@ -207,7 +203,7 @@ struct HomeView: View {
                 // Photo Enhancement
                 Button(action: {
                     analyticsService.track(event: "photo_enhancement_tapped")
-                    showingPhotoUpload = true
+                    navigationCoordinator.startPhotoUpload()
                 }) {
                     VStack(spacing: 8) {
                         Image(systemName: "wand.and.stars")

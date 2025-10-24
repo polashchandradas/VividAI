@@ -3,7 +3,8 @@ import AVFoundation
 import AVKit
 
 struct ShareView: View {
-    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
     @State private var isGeneratingVideo = false
     @State private var generatedVideoURL: URL?
@@ -42,13 +43,20 @@ struct ShareView: View {
         }
         .onAppear {
             analyticsService.track(event: "share_screen_viewed")
-            generateTransformationVideo()
+            // Get video URL from navigation coordinator
+            if let videoURL = navigationCoordinator.generatedVideoURL {
+                generatedVideoURL = videoURL
+            } else {
+                generateTransformationVideo()
+            }
         }
     }
     
     private var headerSection: some View {
         HStack {
-            Button(action: { dismiss() }) {
+            Button(action: { 
+                navigationCoordinator.navigateBack()
+            }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
