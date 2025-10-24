@@ -10,7 +10,7 @@ import CoreData
 class WatermarkService: ObservableObject {
     static let shared = WatermarkService()
     
-    private init() {}
+    init() {}
     
     func addWatermark(to image: UIImage, text: String = "VividAI.app", position: WatermarkPosition = .bottomRight) -> UIImage {
         let size = image.size

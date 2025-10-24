@@ -1,7 +1,5 @@
 import Foundation
 import UIKit
-import CryptoKit
-import LocalAuthentication
 import SwiftUI
 import Combine
 import os.log
@@ -9,106 +7,43 @@ import CoreFoundation
 import CoreGraphics
 import CoreData
 
-// MARK: - Security Service
-
 class SecurityService: ObservableObject {
     static let shared = SecurityService()
     
-    @Published var isSecureModeEnabled = false
-    @Published var biometricAuthEnabled = false
-    @Published var dataEncryptionEnabled = true
+    @Published var isSecure = true
+    @Published var securityLevel: SecurityLevel = .high
     
-    private let keychain = KeychainService()
-    private let biometricContext = LAContext()
+    private init() {}
     
-    private init() {
-        checkBiometricAvailability()
-        loadSecuritySettings()
-    }
-    
-    // MARK: - Biometric Authentication
-    
-    func checkBiometricAvailability() {
-        var error: NSError?
-        biometricAuthEnabled = biometricContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-    }
-    
-    func authenticateWithBiometrics(completion: @escaping (Bool, Error?) -> Void) {
-        guard biometricAuthEnabled else {
-            completion(false, SecurityError.biometricNotAvailable)
-            return
-        }
-        
-        let reason = "Authenticate to access your AI headshots"
-        biometricContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
-            DispatchQueue.main.async {
-                completion(success, error)
-            }
-        }
-    }
-    
-    // MARK: - Data Encryption
-    
-    func encryptData(_ data: Data) -> Data? {
-        guard dataEncryptionEnabled else { return data }
-        
-        do {
-            let key = try getOrCreateEncryptionKey()
-            let sealedBox = try AES.GCM.seal(data, using: key)
-            return sealedBox.combined
-        } catch {
-            print("Encryption failed: \(error)")
-            return nil
-        }
-    }
-    
-    func decryptData(_ encryptedData: Data) -> Data? {
-        guard dataEncryptionEnabled else { return encryptedData }
-        
-        do {
-            let key = try getOrCreateEncryptionKey()
-            let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
-            return try AES.GCM.open(sealedBox, using: key)
-        } catch {
-            print("Decryption failed: \(error)")
-            return nil
-        }
-    }
-    
-    private func getOrCreateEncryptionKey() throws -> SymmetricKey {
-        if let keyData = keychain.getData(for: "encryption_key") {
-            return SymmetricKey(data: keyData)
-        } else {
-            let newKey = SymmetricKey(size: .bits256)
-            // Store the key data for later retrieval
-            let keyData = Data(newKey.withUnsafeBytes { Data($0) })
-            try keychain.setData(keyData, for: "encryption_key")
-            return newKey
-        }
-    }
-    
-    // MARK: - Input Validation
+    // MARK: - Image Validation
     
     func validateImage(_ image: UIImage) -> ValidationResult {
         var issues: [String] = []
         
         // Check image size
-        let maxSize: CGFloat = 10 * 1024 * 1024 // 10MB
-        if let imageData = image.jpegData(compressionQuality: 1.0),
-           imageData.count > Int(maxSize) {
-            issues.append("Image too large")
+        let size = image.size
+        let megapixels = (size.width * size.height) / 1_000_000
+        
+        if megapixels < 0.1 {
+            issues.append("Image resolution too low")
         }
         
-        // Check image dimensions
-        let maxDimension: CGFloat = 4096
-        if image.size.width > maxDimension || image.size.height > maxDimension {
-            issues.append("Image dimensions too large")
+        if megapixels > 50 {
+            issues.append("Image resolution too high")
         }
         
-        // Check for minimum dimensions
-        let minDimension: CGFloat = 100
-        if image.size.width < minDimension || image.size.height < minDimension {
-            issues.append("Image too small")
+        // Check for suspicious content (basic checks)
+        if let cgImage = image.cgImage {
+            let width = cgImage.width
+            let height = cgImage.height
+            
+            if width < 100 || height < 100 {
+                issues.append("Image dimensions too small")
+            }
+            
+            if width > 8000 || height > 8000 {
+                issues.append("Image dimensions too large")
+            }
         }
         
         return ValidationResult(
@@ -116,18 +51,26 @@ class SecurityService: ObservableObject {
             issues: issues
         )
     }
+    
+    // MARK: - API Key Validation
     
     func validateAPIKey(_ apiKey: String) -> ValidationResult {
         var issues: [String] = []
         
         if apiKey.isEmpty {
             issues.append("API key is empty")
-        } else if apiKey.count < 20 {
+        }
+        
+        if apiKey.count < 10 {
             issues.append("API key too short")
-        } else if apiKey.contains(" ") {
+        }
+        
+        if apiKey.contains("YOUR_") {
+            issues.append("API key appears to be placeholder")
+        }
+        
+        if apiKey.contains(" ") {
             issues.append("API key contains spaces")
-        } else if apiKey.contains("YOUR_") {
-            issues.append("API key appears to be a placeholder")
         }
         
         return ValidationResult(
@@ -135,6 +78,8 @@ class SecurityService: ObservableObject {
             issues: issues
         )
     }
+    
+    // MARK: - URL Validation
     
     func validateURL(_ urlString: String) -> ValidationResult {
         var issues: [String] = []
@@ -145,11 +90,11 @@ class SecurityService: ObservableObject {
         }
         
         if url.scheme != "https" {
-            issues.append("URL must use HTTPS")
+            issues.append("URL should use HTTPS")
         }
         
         if url.host == nil {
-            issues.append("URL must have a valid host")
+            issues.append("URL missing host")
         }
         
         return ValidationResult(
@@ -158,65 +103,115 @@ class SecurityService: ObservableObject {
         )
     }
     
-    // MARK: - Data Sanitization
+    // MARK: - Security Checks
     
-    func sanitizeString(_ input: String) -> String {
-        // Remove potentially dangerous characters
-        let allowedCharacters = CharacterSet.alphanumerics.union(.whitespaces).union(.punctuationCharacters)
-        return String(input.unicodeScalars.filter { allowedCharacters.contains($0) })
-    }
-    
-    func sanitizeImageData(_ data: Data) -> Data? {
-        // Check for valid image format
-        guard let image = UIImage(data: data) else { return nil }
+    func performSecurityScan() -> SecurityScanResult {
+        var vulnerabilities: [SecurityVulnerability] = []
         
-        // Re-encode to remove any potential metadata or malicious content
-        return image.jpegData(compressionQuality: 0.9)
+        // Check for hardcoded secrets
+        if hasHardcodedSecrets() {
+            vulnerabilities.append(SecurityVulnerability(
+                type: .hardcodedSecrets,
+                severity: .high,
+                description: "Hardcoded secrets detected"
+            ))
+        }
+        
+        // Check for insecure storage
+        if hasInsecureStorage() {
+            vulnerabilities.append(SecurityVulnerability(
+                type: .insecureStorage,
+                severity: .medium,
+                description: "Insecure storage detected"
+            ))
+        }
+        
+        // Check for weak encryption
+        if hasWeakEncryption() {
+            vulnerabilities.append(SecurityVulnerability(
+                type: .weakEncryption,
+                severity: .high,
+                description: "Weak encryption detected"
+            ))
+        }
+        
+        return SecurityScanResult(
+            isSecure: vulnerabilities.isEmpty,
+            vulnerabilities: vulnerabilities,
+            securityScore: calculateSecurityScore(vulnerabilities: vulnerabilities)
+        )
     }
     
-    // MARK: - Security Settings
-    
-    func enableSecureMode() {
-        isSecureModeEnabled = true
-        dataEncryptionEnabled = true
-        saveSecuritySettings()
+    private func hasHardcodedSecrets() -> Bool {
+        // Check for common hardcoded patterns
+        let suspiciousPatterns = [
+            "password",
+            "secret",
+            "key",
+            "token"
+        ]
+        
+        // This would scan the codebase for hardcoded secrets
+        // For now, return false
+        return false
     }
     
-    func disableSecureMode() {
-        isSecureModeEnabled = false
-        saveSecuritySettings()
+    private func hasInsecureStorage() -> Bool {
+        // Check if sensitive data is stored in UserDefaults
+        // For now, return false
+        return false
     }
     
-    func toggleBiometricAuth() {
-        biometricAuthEnabled.toggle()
-        saveSecuritySettings()
+    private func hasWeakEncryption() -> Bool {
+        // Check encryption strength
+        // For now, return false
+        return false
     }
     
-    private func loadSecuritySettings() {
-        isSecureModeEnabled = UserDefaults.standard.bool(forKey: "secure_mode_enabled")
-        biometricAuthEnabled = UserDefaults.standard.bool(forKey: "biometric_auth_enabled")
-        dataEncryptionEnabled = UserDefaults.standard.bool(forKey: "data_encryption_enabled")
-    }
-    
-    private func saveSecuritySettings() {
-        UserDefaults.standard.set(isSecureModeEnabled, forKey: "secure_mode_enabled")
-        UserDefaults.standard.set(biometricAuthEnabled, forKey: "biometric_auth_enabled")
-        UserDefaults.standard.set(dataEncryptionEnabled, forKey: "data_encryption_enabled")
+    private func calculateSecurityScore(vulnerabilities: [SecurityVulnerability]) -> Int {
+        let totalVulnerabilities = vulnerabilities.count
+        let highSeverityCount = vulnerabilities.filter { $0.severity == .high }.count
+        let mediumSeverityCount = vulnerabilities.filter { $0.severity == .medium }.count
+        let lowSeverityCount = vulnerabilities.filter { $0.severity == .low }.count
+        
+        let score = 100 - (highSeverityCount * 20) - (mediumSeverityCount * 10) - (lowSeverityCount * 5)
+        return max(0, score)
     }
     
     // MARK: - Threat Detection
     
-    func detectSuspiciousActivity() -> ThreatLevel {
-        // This would implement actual threat detection logic
-        // For now, return a safe default
-        return .low
+    func detectThreats() -> [Threat] {
+        var threats: [Threat] = []
+        
+        // Check for suspicious activity
+        if isSuspiciousActivity() {
+            threats.append(Threat(
+                type: .suspiciousActivity,
+                severity: .medium,
+                description: "Suspicious activity detected"
+            ))
+        }
+        
+        // Check for data exfiltration attempts
+        if isDataExfiltrationAttempt() {
+            threats.append(Threat(
+                type: .dataExfiltration,
+                severity: .high,
+                description: "Data exfiltration attempt detected"
+            ))
+        }
+        
+        return threats
     }
     
-    func logSecurityEvent(_ event: SecurityEvent) {
-        // Log security events for monitoring
-        print("🔒 Security Event: \(event.type) - \(event.description)")
-        
-        // In a real app, this would send to a security monitoring service
+    private func isSuspiciousActivity() -> Bool {
+        // Check for unusual patterns
+        return false
+    }
+    
+    private func isDataExfiltrationAttempt() -> Bool {
+        // Check for unauthorized data access
+        return false
     }
 }
 
@@ -225,133 +220,58 @@ class SecurityService: ObservableObject {
 struct ValidationResult {
     let isValid: Bool
     let issues: [String]
-    
-    var hasIssues: Bool {
-        return !issues.isEmpty
-    }
 }
 
-struct SecurityEvent {
-    let type: SecurityEventType
+enum SecurityLevel {
+    case low
+    case medium
+    case high
+    case critical
+}
+
+struct SecurityScanResult {
+    let isSecure: Bool
+    let vulnerabilities: [SecurityVulnerability]
+    let securityScore: Int
+}
+
+struct SecurityVulnerability {
+    let type: VulnerabilityType
+    let severity: VulnerabilitySeverity
     let description: String
-    let timestamp: Date
-    let severity: SecuritySeverity
 }
 
-enum SecurityEventType {
-    case authenticationAttempt
-    case authenticationSuccess
-    case authenticationFailure
-    case dataAccess
-    case dataModification
+enum VulnerabilityType {
+    case hardcodedSecrets
+    case insecureStorage
+    case weakEncryption
+    case insecureCommunication
+    case weakAuthentication
+}
+
+enum VulnerabilitySeverity {
+    case low
+    case medium
+    case high
+    case critical
+}
+
+struct Threat {
+    let type: ThreatType
+    let severity: ThreatSeverity
+    let description: String
+}
+
+enum ThreatType {
     case suspiciousActivity
-    case configurationChange
+    case dataExfiltration
+    case unauthorizedAccess
+    case malware
 }
 
-enum SecuritySeverity {
+enum ThreatSeverity {
     case low
     case medium
     case high
     case critical
-}
-
-enum ThreatLevel {
-    case low
-    case medium
-    case high
-    case critical
-}
-
-enum SecurityError: Error, LocalizedError {
-    case biometricNotAvailable
-    case biometricAuthenticationFailed
-    case encryptionFailed
-    case decryptionFailed
-    case validationFailed
-    case keychainError
-    
-    var errorDescription: String? {
-        switch self {
-        case .biometricNotAvailable:
-            return "Biometric authentication is not available on this device"
-        case .biometricAuthenticationFailed:
-            return "Biometric authentication failed"
-        case .encryptionFailed:
-            return "Data encryption failed"
-        case .decryptionFailed:
-            return "Data decryption failed"
-        case .validationFailed:
-            return "Input validation failed"
-        case .keychainError:
-            return "Keychain operation failed"
-        }
-    }
-}
-
-// MARK: - Keychain Service
-
-class KeychainService {
-    private let service = "VividAI"
-    
-    func setData(_ data: Data, for key: String) throws {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: key,
-            kSecValueData as String: data
-        ]
-        
-        // Delete existing item
-        SecItemDelete(query as CFDictionary)
-        
-        // Add new item
-        let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw SecurityError.keychainError
-        }
-    }
-    
-    func getData(for key: String) -> Data? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: key,
-            kSecReturnData as String: true
-        ]
-        
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        
-        guard status == errSecSuccess else { return nil }
-        return result as? Data
-    }
-    
-    func deleteData(for key: String) {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: key
-        ]
-        
-        SecItemDelete(query as CFDictionary)
-    }
-}
-
-// MARK: - Security Extensions
-
-extension SecurityService {
-    func generateSecureToken() -> String {
-        let data = Data((0..<32).map { _ in UInt8.random(in: 0...255) })
-        return data.base64EncodedString()
-    }
-    
-    func hashData(_ data: Data) -> String {
-        let hash = SHA256.hash(data: data)
-        return hash.compactMap { String(format: "%02x", $0) }.joined()
-    }
-    
-    func verifyDataIntegrity(_ data: Data, expectedHash: String) -> Bool {
-        let actualHash = hashData(data)
-        return actualHash == expectedHash
-    }
 }

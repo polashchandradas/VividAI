@@ -14,7 +14,7 @@ class VideoGenerationService: ObservableObject {
     @Published var isGenerating = false
     @Published var generationProgress: Double = 0.0
     
-    private init() {}
+    init() {}
     
     func generateTransformationVideo(
         from originalImage: UIImage,

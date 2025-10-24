@@ -14,7 +14,7 @@ class ReferralService: ObservableObject {
     @Published var referralCount: Int = 0
     @Published var availableRewards: Int = 0
     
-    private init() {
+    init() {
         loadReferralData()
     }
     
