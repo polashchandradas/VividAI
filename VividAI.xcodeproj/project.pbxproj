@@ -27,9 +27,6 @@
 		A1234567890ABCDEF036 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF035 /* WatermarkService.swift */; };
 		A1234567890ABCDEF038 /* ReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF037 /* ReferralService.swift */; };
 		A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF039 /* AnalyticsService.swift */; };
-		A1234567890ABCDEF042 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF041 /* FirebaseAuth */; };
-		A1234567890ABCDEF044 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF043 /* FirebaseFirestore */; };
-		A1234567890ABCDEF046 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF045 /* FirebaseAnalytics */; };
 		A1234567890ABCDEF048 /* StoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF047 /* StoreKit */; };
 		A1234567890ABCDEF050 /* CoreML in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF049 /* CoreML */; };
 		A1234567890ABCDEF052 /* Vision in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF051 /* Vision */; };
@@ -67,11 +64,7 @@
 		A1234567890ABCDEF060 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
-			files = (
-				A1234567890ABCDEF042 /* FirebaseAuth in Frameworks */,
-				A1234567890ABCDEF044 /* FirebaseFirestore in Frameworks */,
-				A1234567890ABCDEF046 /* FirebaseAnalytics in Frameworks */,
-				A1234567890ABCDEF048 /* StoreKit in Frameworks */,
+			files = (A1234567890ABCDEF048 /* StoreKit in Frameworks */,
 				A1234567890ABCDEF050 /* CoreML in Frameworks */,
 				A1234567890ABCDEF052 /* Vision in Frameworks */,
 				A1234567890ABCDEF054 /* AVFoundation in Frameworks */,
@@ -167,12 +160,7 @@
 			dependencies = (
 			);
 			name = VividAI;
-			packageProductDependencies = (
-				A1234567890ABCDEF081 /* FirebaseAnalytics */,
-				A1234567890ABCDEF082 /* FirebaseAuth */,
-				A1234567890ABCDEF083 /* FirebaseFirestore */,
-				A1234567890ABCDEF084 /* FirebaseCore */,
-			);
+			packageProductDependencies = ();
 			productName = VividAI;
 			productReference = A1234567890ABCDEF057 /* VividAI.app */;
 			productType = "com.apple.product-type.application";
@@ -225,26 +213,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A1234567890ABCDEF081 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		A1234567890ABCDEF082 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		A1234567890ABCDEF083 /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestore;
-		};
-		A1234567890ABCDEF084 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCore;
-		};
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
