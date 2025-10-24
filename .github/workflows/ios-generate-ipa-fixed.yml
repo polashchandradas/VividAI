@@ -55,37 +55,37 @@ jobs:
         </plist>
         EOF
         
-    - name: Build and archive VividAI
+    - name: Build for iOS Simulator (for testing)
       run: |
-        xcodebuild clean archive \
+        xcodebuild clean build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
-          -destination 'generic/platform=iOS' \
-          -archivePath VividAI.xcarchive \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
           -configuration Release \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          DEVELOPMENT_TEAM="" \
-          PROVISIONING_PROFILE_SPECIFIER=""
+          -derivedDataPath ./DerivedData \
+          -resolvePackageDependencies
           
-    - name: Export IPA with custom options
-      run: |
-        # Try to export with custom options
-        xcodebuild -exportArchive \
-          -archivePath VividAI.xcarchive \
-          -exportOptionsPlist ExportOptions.plist \
-          -exportPath ./build \
-          -allowProvisioningUpdates || echo "Export failed, trying alternative method"
-          
-    - name: Alternative - Create unsigned IPA
-      if: failure()
+    - name: Create unsigned IPA for testing
       run: |
         echo "Creating unsigned IPA for testing purposes..."
         mkdir -p ./build
         
-        # Extract the app from archive
-        cp -r VividAI.xcarchive/Products/Applications/VividAI.app ./build/
+        # Find the app bundle in DerivedData
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found in DerivedData"
+          echo "Available files:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          exit 1
+        fi
+        
+        echo "📱 Found app bundle at: $APP_PATH"
+        
+        # Copy the app bundle
+        cp -r "$APP_PATH" ./build/
         
         # Create a simple IPA structure
         mkdir -p ./build/Payload
