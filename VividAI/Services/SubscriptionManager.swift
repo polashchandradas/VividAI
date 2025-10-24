@@ -1,6 +1,12 @@
 import Foundation
 import StoreKit
 import Combine
+import SwiftUI
+import UIKit
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 class SubscriptionManager: NSObject, ObservableObject {
     static let shared = SubscriptionManager()

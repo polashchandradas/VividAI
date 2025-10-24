@@ -1,5 +1,11 @@
 import SwiftUI
 import Combine
+import StoreKit
+import UIKit
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 class AppCoordinator: ObservableObject {
     @Published var navigationCoordinator = NavigationCoordinator()

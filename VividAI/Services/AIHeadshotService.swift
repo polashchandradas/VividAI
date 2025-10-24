@@ -1,6 +1,11 @@
 import Foundation
 import UIKit
 import Combine
+import SwiftUI
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 class AIHeadshotService: ObservableObject {
     static let shared = AIHeadshotService()

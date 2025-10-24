@@ -1,5 +1,11 @@
 import Foundation
 import UIKit
+import SwiftUI
+import Combine
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 class ReferralService: ObservableObject {
     static let shared = ReferralService()

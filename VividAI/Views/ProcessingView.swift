@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ProcessingView: View {
     @EnvironmentObject var appCoordinator: AppCoordinator

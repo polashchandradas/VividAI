@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SplashScreenView: View {
     @State private var size = 0.8

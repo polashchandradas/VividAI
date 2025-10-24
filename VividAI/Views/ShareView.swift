@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import AVKit
+import UIKit
 
 struct ShareView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator

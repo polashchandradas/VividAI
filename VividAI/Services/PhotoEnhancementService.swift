@@ -2,6 +2,12 @@ import Foundation
 import UIKit
 import CoreML
 import Vision
+import SwiftUI
+import Combine
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 class PhotoEnhancementService: ObservableObject {
     static let shared = PhotoEnhancementService()

@@ -3,6 +3,7 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseAnalytics
+import UIKit
 
 @main
 struct VividAIApp: App {

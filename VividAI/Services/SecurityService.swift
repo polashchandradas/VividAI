@@ -2,6 +2,12 @@ import Foundation
 import UIKit
 import CryptoKit
 import LocalAuthentication
+import SwiftUI
+import Combine
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 // MARK: - Security Service
 

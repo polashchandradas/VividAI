@@ -1,4 +1,10 @@
 import Foundation
+import SwiftUI
+import UIKit
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 class ConfigurationService: ObservableObject {
     static let shared = ConfigurationService()

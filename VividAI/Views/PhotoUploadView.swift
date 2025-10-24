@@ -1,6 +1,8 @@
 import SwiftUI
 import PhotosUI
 import AVFoundation
+import Vision
+import CoreML
 
 struct PhotoUploadView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator

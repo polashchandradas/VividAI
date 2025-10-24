@@ -2,6 +2,12 @@ import Foundation
 import UIKit
 import Vision
 import CoreML
+import SwiftUI
+import Combine
+import os.log
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 enum BackgroundRemovalError: Error, LocalizedError {
     case invalidImage

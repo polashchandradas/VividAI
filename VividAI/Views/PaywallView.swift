@@ -1,5 +1,6 @@
 import SwiftUI
 import StoreKit
+import UIKit
 
 struct PaywallView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator

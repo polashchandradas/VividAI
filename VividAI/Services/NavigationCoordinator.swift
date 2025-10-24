@@ -1,5 +1,10 @@
 import SwiftUI
 import Combine
+import UIKit
+import Foundation
+import os.log
+import CoreFoundation
+import CoreGraphics
 
 class NavigationCoordinator: ObservableObject {
     @Published var currentView: AppView = .splash

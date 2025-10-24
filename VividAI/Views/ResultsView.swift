@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ResultsView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
