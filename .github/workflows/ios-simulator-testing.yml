@@ -32,7 +32,7 @@ jobs:
       run: |
         gem install cocoapods
         if [ -f "Podfile" ]; then pod install; fi
-        swift package resolve
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
     - name: Build VividAI for ${{ matrix.simulator }}
       run: |
@@ -43,7 +43,8 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies
           
     - name: Test VividAI on ${{ matrix.simulator }}
       run: |
@@ -54,7 +55,8 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies
           
     - name: Test CoreML functionality
       run: |
@@ -66,7 +68,8 @@ jobs:
           -configuration Debug \
           -only-testing:VividAITests/CoreMLTests \
           CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGNING_REQUIRED=NO \
+          -resolvePackageDependencies
           
     - name: Test Firebase integration
       run: |
@@ -78,4 +81,5 @@ jobs:
           -configuration Debug \
           -only-testing:VividAITests/FirebaseTests \
           CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGNING_REQUIRED=NO \
+          -resolvePackageDependencies

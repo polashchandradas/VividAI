@@ -20,7 +20,7 @@ jobs:
       run: |
         gem install cocoapods
         if [ -f "Podfile" ]; then pod install; fi
-        swift package resolve
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
     - name: Build and archive VividAI
       run: |

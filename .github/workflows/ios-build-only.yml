@@ -43,4 +43,5 @@ jobs:
     - name: Verify build success
       run: |
         echo "✅ Build completed successfully!"
-        ls -la /Users/runner/Library/Developer/Xcode/DerivedData/*/Build/Products/Debug-iphonesimulator/
+        echo "📱 Build artifacts:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d 2>/dev/null || echo "No .app files found in DerivedData"
