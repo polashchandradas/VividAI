@@ -27,6 +27,9 @@ jobs:
         # Resolve Swift Package Manager dependencies
         xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
+        # Clean derived data to ensure fresh build
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        
     - name: Build for iOS Simulator (No Code Signing Required)
       run: |
         xcodebuild clean build \
@@ -37,7 +40,8 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          -derivedDataPath ./DerivedData
+          -derivedDataPath ./DerivedData \
+          -resolvePackageDependencies
           
     - name: Create app bundle for simulator
       run: |

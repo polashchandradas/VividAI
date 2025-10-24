@@ -26,6 +26,10 @@ jobs:
     - name: Find best iPhone simulator
       id: find-simulator
       run: |
+        # Boot the default simulator first
+        xcrun simctl boot "iPhone 16" || true
+        sleep 5
+        
         # Find the first available iPhone simulator
         SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
         if [ -z "$SIMULATOR" ]; then
@@ -34,6 +38,10 @@ jobs:
         fi
         echo "simulator=$SIMULATOR" >> $GITHUB_OUTPUT
         echo "Using simulator: $SIMULATOR"
+        
+    - name: Resolve dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
     - name: Build VividAI app
       run: |
@@ -44,7 +52,8 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies
           
     - name: Test VividAI app
       run: |
@@ -55,4 +64,5 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies

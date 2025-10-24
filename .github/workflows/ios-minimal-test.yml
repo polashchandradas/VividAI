@@ -26,6 +26,10 @@ jobs:
         xcrun simctl boot "iPhone 16" || true
         sleep 15
         
+    - name: Resolve dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
     - name: Build VividAI app
       run: |
         xcodebuild clean build \
@@ -36,7 +40,7 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          -skipPackagePluginValidation
+          -resolvePackageDependencies
           
     # Test step removed - project doesn't have test target configured
           
