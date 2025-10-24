@@ -121,7 +121,7 @@ struct PhotoUploadView: View {
                 VStack(spacing: 20) {
                     // Live Camera Preview (if available)
                     if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
-                        CameraPreviewView()
+                        CameraPreviewView(selectedImage: $selectedImage)
                             .frame(height: 200)
                             .cornerRadius(16)
                             .overlay(
@@ -293,7 +293,7 @@ struct PhotoUploadView: View {
         isDetectingFaces = true
         
         // First analyze image quality
-        appCoordinator.backgroundRemovalService.analyzeImageQuality(image) { [weak self] qualityAnalysis in
+        appCoordinator.backgroundRemovalService.analyzeImageQuality(image) { [weak self] (qualityAnalysis: ImageQualityAnalysis) in
             DispatchQueue.main.async {
                 if !qualityAnalysis.isGood {
                     self?.isDetectingFaces = false
@@ -303,7 +303,7 @@ struct PhotoUploadView: View {
                 }
                 
                 // If quality is good, proceed with face detection
-                self?.appCoordinator.backgroundRemovalService.detectFaces(in: image) { [weak self] observations in
+                self?.appCoordinator.backgroundRemovalService.detectFaces(in: image) { [weak self] (observations: [VNFaceObservation]) in
                     DispatchQueue.main.async {
                         self?.isDetectingFaces = false
                         
@@ -416,6 +416,11 @@ struct ImagePicker: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     @Environment(\.dismiss) private var dismiss
     
+    func detectFacesInImage(_ image: UIImage) {
+        // This method is called from the coordinator
+        // The actual face detection is handled by the parent view
+    }
+    
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration()
         config.filter = .images
@@ -461,6 +466,11 @@ struct ImagePicker: UIViewControllerRepresentable {
 struct CameraView: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     @Environment(\.dismiss) private var dismiss
+    
+    func detectFacesInImage(_ image: UIImage) {
+        // This method is called from the coordinator
+        // The actual face detection is handled by the parent view
+    }
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()

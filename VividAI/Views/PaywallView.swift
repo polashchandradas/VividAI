@@ -219,7 +219,7 @@ struct PaywallView: View {
     
     private func startFreeTrial() {
         // Start free trial logic
-        appCoordinator.handleSubscriptionAction(.startFreeTrial(selectedPlan))
+        appCoordinator.handleSubscriptionAction(.startFreeTrial(SubscriptionManager.SubscriptionPlan(rawValue: selectedPlan.rawValue) ?? .monthly))
         showingTrial = true
     }
 }
