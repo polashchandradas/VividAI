@@ -16,7 +16,7 @@ class LoggingService: ObservableObject {
     private let logger = Logger(subsystem: "VividAI", category: "LoggingService")
     private var logEntries: [LogEntry] = []
     
-    private init() {
+    init() {
         setupLogging()
     }
     

@@ -13,7 +13,7 @@ class SecurityService: ObservableObject {
     @Published var isSecure = true
     @Published var securityLevel: SecurityLevel = .high
     
-    private init() {}
+    init() {}
     
     // MARK: - Image Validation
     

@@ -77,6 +77,10 @@ class NavigationCoordinator: ObservableObject {
     func goHome() {
         navigateToRoot()
     }
+    
+    func showRealTimePreview() {
+        navigateTo(.realTimePreview)
+    }
 }
 
 // MARK: - App View Enum
@@ -85,6 +89,7 @@ enum AppView: String, CaseIterable {
     case splash = "splash"
     case home = "home"
     case photoUpload = "photoUpload"
+    case realTimePreview = "realTimePreview"
     case processing = "processing"
     case results = "results"
     case paywall = "paywall"
@@ -99,6 +104,8 @@ enum AppView: String, CaseIterable {
             return "Home"
         case .photoUpload:
             return "Upload Photo"
+        case .realTimePreview:
+            return "Real-Time Preview"
         case .processing:
             return "Processing"
         case .results:

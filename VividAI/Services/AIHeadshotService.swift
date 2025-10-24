@@ -14,6 +14,7 @@ class AIHeadshotService: ObservableObject {
     @Published var processingProgress: Double = 0.0
     
     private let configuration = ConfigurationService.shared
+    private let realTimeService = RealTimeGenerationService.shared
     private var baseURL: String {
         configuration.replicateBaseURL
     }
@@ -336,6 +337,32 @@ class AIHeadshotService: ObservableObject {
     func getCostEstimate() -> Double {
         // Cost per headshot generation via Replicate API
         return 0.008 // $0.008 per generation
+    }
+    
+    // MARK: - Real-Time Generation Methods
+    
+    func generateRealTimePreview(from image: UIImage, style: AvatarStyle) async throws -> UIImage {
+        return try await realTimeService.generateInstantPreview(from: image, style: style)
+    }
+    
+    func generateMultiplePreviews(from image: UIImage, styles: [AvatarStyle]) async throws -> [StylePreview] {
+        return try await realTimeService.generateMultiplePreviews(from: image, styles: styles)
+    }
+    
+    func switchStyleInstantly(from currentImage: UIImage, to newStyle: AvatarStyle) async throws -> UIImage {
+        return try await realTimeService.switchStyleInstantly(from: currentImage, to: newStyle)
+    }
+    
+    func getAvailableStyles() -> [AvatarStyle] {
+        return AvatarStyle.allStyles
+    }
+    
+    func getRealTimeGenerationTime() -> TimeInterval {
+        return realTimeService.getAverageGenerationTime()
+    }
+    
+    func clearRealTimeCache() {
+        realTimeService.clearPreviewCache()
     }
 }
 

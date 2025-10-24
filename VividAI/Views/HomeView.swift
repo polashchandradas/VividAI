@@ -177,6 +177,30 @@ struct HomeView: View {
                 .foregroundColor(.primary)
             
             HStack(spacing: 16) {
+                // Real-Time Preview
+                Button(action: {
+                    analyticsService.track(event: "realtime_preview_tapped")
+                    navigationCoordinator.showRealTimePreview()
+                }) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "bolt.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.orange)
+                        
+                        Text("Real-Time")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                        
+                        Text("Preview")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 80)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                }
+                
                 // Background Removal
                 Button(action: {
                     analyticsService.track(event: "background_removal_tapped")
@@ -200,7 +224,9 @@ struct HomeView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
                 }
-                
+            }
+            
+            HStack(spacing: 16) {
                 // Photo Enhancement
                 Button(action: {
                     analyticsService.track(event: "photo_enhancement_tapped")
@@ -216,6 +242,30 @@ struct HomeView: View {
                             .foregroundColor(.primary)
                         
                         Text("Enhance")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 80)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                }
+                
+                // Video Generation
+                Button(action: {
+                    analyticsService.track(event: "video_generation_tapped")
+                    navigationCoordinator.startPhotoUpload()
+                }) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "video.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.green)
+                        
+                        Text("Video")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                        
+                        Text("Generation")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.primary)
                     }

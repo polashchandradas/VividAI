@@ -238,12 +238,13 @@ class AppCoordinator: ObservableObject {
     }
     
     func handleSubscriptionAction(_ action: SubscriptionAction) {
-        logger.info("Handling subscription action: \(String(describing: action))")
+        logger.info("Handling subscription action: \(action)")
         
         switch action {
         case .startFreeTrial(let plan):
             subscriptionManager.startFreeTrial(plan: plan)
         case .purchase(let product):
+            // Convert VividAI.Product to StoreKit.Product
             // subscriptionManager.purchase(product: product) // Type mismatch - needs StoreKit.Product
         case .restorePurchases:
             subscriptionManager.restorePurchases()
@@ -421,6 +422,8 @@ struct MainAppView: View {
                     HomeView()
                 case .photoUpload:
                     PhotoUploadView()
+                case .realTimePreview:
+                    RealTimePreviewView()
                 case .processing:
                     ProcessingView()
                 case .results:
