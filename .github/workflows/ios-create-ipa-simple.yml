@@ -27,8 +27,18 @@ jobs:
         # Resolve Swift Package Manager dependencies
         xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
+    - name: Clean DerivedData
+      run: |
+        echo "🧹 Cleaning DerivedData to prevent conflicts..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf ./DerivedData
+        
     - name: Build for iOS Simulator
       run: |
+        echo "🔨 Building for iOS Simulator..."
+        echo "📱 Target: iPhone 16, iOS 18.4"
+        
+        # Build with verbose output to catch any issues
         xcodebuild clean build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
@@ -38,7 +48,29 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
           -derivedDataPath ./DerivedData \
-          -resolvePackageDependencies
+          -resolvePackageDependencies \
+          -verbose
+        
+        echo "✅ Build completed!"
+        
+    - name: Verify build output
+      run: |
+        echo "🔍 Verifying build output..."
+        echo "📁 DerivedData contents:"
+        find ./DerivedData -name "*.app" -type d || echo "No .app files found in DerivedData"
+        
+        echo "📁 Default DerivedData contents:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found in default DerivedData"
+        
+        # Check if build actually succeeded
+        if [ ! -d "./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app" ]; then
+          echo "❌ Build failed - no app bundle found"
+          echo "📋 Build logs:"
+          find ./DerivedData -name "*.log" -exec tail -50 {} \;
+          exit 1
+        fi
+        
+        echo "✅ App bundle found at: ./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app"
           
     - name: Create IPA structure
       run: |

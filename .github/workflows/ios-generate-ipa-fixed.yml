@@ -55,8 +55,17 @@ jobs:
         </plist>
         EOF
         
+    - name: Clean DerivedData
+      run: |
+        echo "🧹 Cleaning DerivedData to prevent conflicts..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        
     - name: Build for iOS Simulator (for testing)
       run: |
+        echo "🔨 Building for iOS Simulator..."
+        echo "📱 Target: iPhone 16, iOS 18.4"
+        
+        # Build with verbose output to catch any issues
         xcodebuild clean build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
@@ -65,7 +74,27 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          -resolvePackageDependencies
+          -resolvePackageDependencies \
+          -verbose
+        
+        echo "✅ Build completed!"
+        
+    - name: Verify build output
+      run: |
+        echo "🔍 Verifying build output..."
+        echo "📁 Default DerivedData contents:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found in default DerivedData"
+        
+        # Check if build actually succeeded
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "VividAI.app" -type d | head -1)
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ Build failed - no app bundle found"
+          echo "📋 Build logs:"
+          find ~/Library/Developer/Xcode/DerivedData -name "*.log" -exec tail -50 {} \;
+          exit 1
+        fi
+        
+        echo "✅ App bundle found at: $APP_PATH"
           
     - name: Create unsigned IPA for testing
       run: |
