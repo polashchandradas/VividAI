@@ -1,0 +1,121 @@
+name: iOS Diagnostic Build
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  diagnostic-build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Xcode version info
+      run: |
+        echo "🔍 Xcode version:"
+        xcodebuild -version
+        echo "🔍 Xcode path:"
+        xcode-select -p
+        
+    - name: List available simulators
+      run: |
+        echo "📱 Available simulators:"
+        xcrun simctl list devices available | grep iPhone
+        
+    - name: Install dependencies
+      run: |
+        echo "📦 Resolving dependencies..."
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Clean environment
+      run: |
+        echo "🧹 Cleaning build environment..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf ./DerivedData
+        rm -rf ./build
+        
+    - name: Boot simulator
+      run: |
+        echo "🚀 Booting iPhone 16 simulator..."
+        xcrun simctl boot "iPhone 16" || true
+        sleep 10
+        
+    - name: Diagnostic build
+      run: |
+        echo "🔨 Running diagnostic build..."
+        
+        # Build with maximum verbosity
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies \
+          -verbose \
+          -showBuildTimingSummary \
+          -showBuildSettings \
+          -derivedDataPath ~/Library/Developer/Xcode/DerivedData \
+          2>&1 | tee build.log
+        
+        echo "✅ Build command completed"
+        
+    - name: Analyze build results
+      run: |
+        echo "🔍 Analyzing build results..."
+        
+        # Check if build actually succeeded
+        if grep -q "BUILD SUCCEEDED" build.log; then
+          echo "✅ Build reported success"
+        else
+          echo "❌ Build did not report success"
+        fi
+        
+        # Check for errors
+        if grep -q "error:" build.log; then
+          echo "❌ Errors found in build:"
+          grep "error:" build.log | head -10
+        else
+          echo "✅ No errors found in build"
+        fi
+        
+        # Check for warnings
+        if grep -q "warning:" build.log; then
+          echo "⚠️ Warnings found in build:"
+          grep "warning:" build.log | head -10
+        else
+          echo "✅ No warnings found in build"
+        fi
+        
+    - name: Check DerivedData structure
+      run: |
+        echo "📁 DerivedData structure:"
+        find ~/Library/Developer/Xcode/DerivedData -type d | head -20
+        
+        echo "📁 Looking for .app files:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found"
+        
+        echo "📁 Build products:"
+        find ~/Library/Developer/Xcode/DerivedData -path "*/Build/Products/*" -type d || echo "No Build/Products found"
+        
+    - name: Check build logs
+      run: |
+        echo "📋 Build log analysis:"
+        echo "Total lines: $(wc -l < build.log)"
+        echo "Error lines: $(grep -c "error:" build.log || echo 0)"
+        echo "Warning lines: $(grep -c "warning:" build.log || echo 0)"
+        echo "Success lines: $(grep -c "BUILD SUCCEEDED" build.log || echo 0)"
+        
+    - name: Upload diagnostic files
+      uses: actions/upload-artifact@v4
+      with:
+        name: diagnostic-files
+        path: |
+          build.log
+        retention-days: 7
