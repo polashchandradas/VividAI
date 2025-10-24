@@ -334,6 +334,10 @@ struct RealTimePreviewView: View {
         isGenerating = true
         generationProgress = 0.0
         
+        // Use hybrid processing service for real-time preview
+        appCoordinator.generateRealTimePreview(image, style: style)
+        
+        // For now, use the existing real-time service as fallback
         Task {
             do {
                 let preview = try await realTimeService.generateInstantPreview(from: image, style: style)

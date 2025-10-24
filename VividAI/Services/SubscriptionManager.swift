@@ -91,9 +91,15 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     func startFreeTrial(plan: SubscriptionPlan) {
-        // Start 3-day free trial
-        UserDefaults.standard.set(Date(), forKey: "free_trial_start_date")
-        UserDefaults.standard.set(true, forKey: "is_free_trial_active")
+        // Start 3-day free trial with secure storage
+        let deviceId = SecureStorageService.shared.getDeviceId()
+        let trialData = TrialData(
+            startDate: Date(),
+            isActive: true,
+            deviceId: deviceId
+        )
+        
+        SecureStorageService.shared.storeTrialData(trialData)
         
         // Update status
         isPremiumUser = true
@@ -101,7 +107,8 @@ class SubscriptionManager: NSObject, ObservableObject {
         
         // Track analytics
         AnalyticsService.shared.track(event: "free_trial_started", parameters: [
-            "plan": plan.rawValue
+            "plan": plan.rawValue,
+            "device_id": deviceId
         ])
     }
     
@@ -166,14 +173,11 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     private func isFreeTrialActive() -> Bool {
-        guard UserDefaults.standard.bool(forKey: "is_free_trial_active") else { return false }
+        guard let trialData = SecureStorageService.shared.getTrialData() else { return false }
         
-        if let trialStartDate = UserDefaults.standard.object(forKey: "free_trial_start_date") as? Date {
-            let trialEndDate = trialStartDate.addingTimeInterval(3 * 24 * 60 * 60) // 3 days
-            return Date() < trialEndDate
-        }
-        
-        return false
+        // Check if trial is expired
+        let trialEndDate = trialData.startDate.addingTimeInterval(3 * 24 * 60 * 60) // 3 days
+        return Date() < trialEndDate && trialData.isActive
     }
     
     // MARK: - Transaction Listening
@@ -220,12 +224,9 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     private func getTrialDaysRemaining() -> Int {
-        guard isFreeTrialActive(),
-              let trialStartDate = UserDefaults.standard.object(forKey: "free_trial_start_date") as? Date else {
-            return 0
-        }
+        guard let trialData = SecureStorageService.shared.getTrialData() else { return 0 }
         
-        let trialEndDate = trialStartDate.addingTimeInterval(3 * 24 * 60 * 60)
+        let trialEndDate = trialData.startDate.addingTimeInterval(3 * 24 * 60 * 60)
         let daysRemaining = Calendar.current.dateComponents([.day], from: Date(), to: trialEndDate).day ?? 0
         return max(0, daysRemaining)
     }

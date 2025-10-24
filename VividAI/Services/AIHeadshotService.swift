@@ -22,6 +22,18 @@ class AIHeadshotService: ObservableObject {
     init() {}
     
     func generateHeadshots(from image: UIImage, completion: @escaping (Result<[HeadshotResult], Error>) -> Void) {
+        generateHeadshotsInternal(from: image, completion: completion)
+    }
+    
+    func generateHeadshots(from image: UIImage) async throws -> [HeadshotResult] {
+        return try await withCheckedThrowingContinuation { continuation in
+            generateHeadshotsInternal(from: image) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+    
+    private func generateHeadshotsInternal(from image: UIImage, completion: @escaping (Result<[HeadshotResult], Error>) -> Void) {
         // Check if API is configured
         guard configuration.isReplicateConfigured else {
             DispatchQueue.main.async {
@@ -57,11 +69,67 @@ class AIHeadshotService: ObservableObject {
         
         let base64String = imageData.base64EncodedString()
         
-        // For demo purposes, return a mock URL
-        // In production, you would upload to a cloud storage service
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            completion(.success("https://example.com/uploaded-image.jpg"))
+        // Upload to Replicate's file upload endpoint
+        uploadToReplicate(base64String: base64String, completion: completion)
+    }
+    
+    private func uploadToReplicate(base64String: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/files") else {
+            completion(.failure(AIHeadshotError.invalidURL))
+            return
         }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Token \(configuration.replicateAPIKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody: [String: Any] = [
+            "data": "data:image/jpeg;base64,\(base64String)"
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        } catch {
+            completion(.failure(AIHeadshotError.jsonSerializationFailed))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    completion(.failure(AIHeadshotError.networkError(error.localizedDescription)))
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    completion(.failure(AIHeadshotError.invalidResponse))
+                    return
+                }
+                
+                guard httpResponse.statusCode == 201 else {
+                    completion(.failure(AIHeadshotError.apiError("HTTP \(httpResponse.statusCode)")))
+                    return
+                }
+                
+                guard let data = data else {
+                    completion(.failure(AIHeadshotError.noData))
+                    return
+                }
+                
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let url = json["urls"] as? [String: String],
+                       let uploadURL = url["upload"] {
+                        completion(.success(uploadURL))
+                    } else {
+                        completion(.failure(AIHeadshotError.invalidResponse))
+                    }
+                } catch {
+                    completion(.failure(AIHeadshotError.jsonParsingFailed))
+                }
+            }
+        }.resume()
     }
     
     private func processHeadshots(imageURL: String, completion: @escaping (Result<[HeadshotResult], Error>) -> Void) {

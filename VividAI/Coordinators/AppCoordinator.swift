@@ -21,6 +21,7 @@ class AppCoordinator: ObservableObject {
     let navigationCoordinator = NavigationCoordinator()
     let subscriptionManager = SubscriptionManager()
     let analyticsService = AnalyticsService()
+    let hybridProcessingService = HybridProcessingService.shared
     let backgroundRemovalService = BackgroundRemovalService()
     let photoEnhancementService = PhotoEnhancementService()
     let aiHeadshotService = AIHeadshotService()
@@ -118,6 +119,17 @@ class AppCoordinator: ObservableObject {
         analyticsService.track(event: "processing_completed")
     }
     
+    func completeProcessing(with results: [HeadshotResult]) {
+        logger.info("Processing completed with \(results.count) results")
+        isProcessing = false
+        currentProcessingStep = "Complete"
+        processingProgress = 1.0
+        navigationCoordinator.showResults(with: results)
+        analyticsService.track(event: "processing_completed", parameters: [
+            "result_count": results.count
+        ])
+    }
+    
     func showPaywall() {
         logger.info("Showing paywall")
         navigationCoordinator.showPaywall()
@@ -192,34 +204,59 @@ class AppCoordinator: ObservableObject {
     // MARK: - Processing Methods
     
     func processImage(_ image: UIImage) {
-        logger.info("Processing image")
+        logger.info("Processing image with hybrid approach")
         
         startProcessing()
         
-        // Process image through pipeline
-        Task {
-            do {
-                // Step 1: Background removal
-                updateProcessingStep("Removing background...", progress: 0.2)
-                let processedImage = try await backgroundRemovalService.removeBackground(from: image)
-                
-                // Step 2: Photo enhancement
-                updateProcessingStep("Enhancing photo...", progress: 0.6)
-                let enhancedImage = try await photoEnhancementService.enhancePhoto(processedImage)
-                
-                // Step 3: AI headshot generation
-                updateProcessingStep("Generating AI headshot...", progress: 0.8)
-                let headshotResult = try await aiHeadshotService.generateHeadshot(from: enhancedImage)
-                
-                // Step 4: Final processing
-                updateProcessingStep("Finalizing...", progress: 1.0)
-                
-                DispatchQueue.main.async {
-                    self.completeProcessing()
+        // Use hybrid processing service for intelligent routing
+        hybridProcessingService.processImage(image, quality: .standard) { [weak self] result in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let headshotResults):
+                    self.completeProcessing(with: headshotResults)
+                case .failure(let error):
+                    self.handleError(error)
                 }
-                
-            } catch {
-                DispatchQueue.main.async {
+            }
+        }
+    }
+    
+    func processImageWithQuality(_ image: UIImage, quality: HybridProcessingService.QualityLevel) {
+        logger.info("Processing image with quality: \(quality)")
+        
+        startProcessing()
+        
+        // Use hybrid processing service with specific quality
+        hybridProcessingService.processImage(image, quality: quality) { [weak self] result in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let headshotResults):
+                    self.completeProcessing(with: headshotResults)
+                case .failure(let error):
+                    self.handleError(error)
+                }
+            }
+        }
+    }
+    
+    func generateRealTimePreview(_ image: UIImage, style: AvatarStyle) {
+        logger.info("Generating real-time preview for style: \(style.name)")
+        
+        hybridProcessingService.generateRealTimePreview(image, style: style) { [weak self] result in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let preview):
+                    // Handle successful preview generation
+                    self.analyticsService.track(event: "realtime_preview_generated", parameters: [
+                        "style": style.name
+                    ])
+                case .failure(let error):
                     self.handleError(error)
                 }
             }

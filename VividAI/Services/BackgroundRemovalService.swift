@@ -133,6 +133,14 @@ class BackgroundRemovalService: ObservableObject {
         }
     }
     
+    func removeBackground(from image: UIImage) async throws -> UIImage {
+        return try await withCheckedThrowingContinuation { continuation in
+            removeBackground(from: image) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+    
     private func processBackgroundRemoval(image: UIImage) throws -> UIImage {
         guard let cgImage = image.cgImage else {
             throw BackgroundRemovalError.invalidImage
@@ -157,24 +165,60 @@ class BackgroundRemovalService: ObservableObject {
     }
     
     private func createMockBackgroundRemoval(image: UIImage) -> UIImage {
-        // Create a mock background removal effect
-        // In production, this would be replaced with actual CoreML processing
-        
-        let size = image.size
-        let renderer = UIGraphicsImageRenderer(size: size)
-        
-        return renderer.image { context in
-            // Draw the original image
-            image.draw(in: CGRect(origin: .zero, size: size))
-            
-            // Apply a subtle effect to simulate background removal
-            context.cgContext.setBlendMode(.multiply)
-            context.cgContext.setAlpha(0.8)
-            
-            // Draw a subtle overlay to simulate segmentation
-            UIColor.blue.withAlphaComponent(0.1).setFill()
-            context.cgContext.fill(CGRect(origin: .zero, size: size))
+        // Fallback to real AI segmentation if available
+        guard let model = segmentationModel else {
+            // If no AI model available, use Vision framework segmentation
+            return performVisionSegmentation(image: image)
         }
+        
+        // Use real AI segmentation model
+        return performAISegmentation(image: image, model: model)
+    }
+    
+    private func performVisionSegmentation(image: UIImage) -> UIImage {
+        guard let cgImage = image.cgImage else { return image }
+        
+        let request = VNGenerateForegroundInstanceMaskRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        
+        do {
+            try handler.perform([request])
+            
+            if let result = request.results?.first {
+                let mask = createMaskFromSegmentation(result, size: image.size)
+                return applyMaskToImage(image, mask: mask)
+            }
+        } catch {
+            print("Vision segmentation failed: \(error.localizedDescription)")
+        }
+        
+        return image
+    }
+    
+    private func performAISegmentation(image: UIImage, model: VNCoreMLModel) -> UIImage {
+        guard let cgImage = image.cgImage else { return image }
+        
+        let request = VNCoreMLRequest(model: model) { request, error in
+            if let error = error {
+                print("AI segmentation failed: \(error.localizedDescription)")
+            }
+        }
+        
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        
+        do {
+            try handler.perform([request])
+            
+            if let results = request.results as? [VNPixelBufferObservation],
+               let pixelBuffer = results.first?.pixelBuffer {
+                let mask = UIImage(ciImage: CIImage(cvPixelBuffer: pixelBuffer))
+                return applyMaskToImage(image, mask: mask)
+            }
+        } catch {
+            print("AI segmentation failed: \(error.localizedDescription)")
+        }
+        
+        return image
     }
     
     func detectFaces(in image: UIImage, completion: @escaping ([VNFaceObservation]) -> Void) {

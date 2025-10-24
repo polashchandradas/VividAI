@@ -22,7 +22,16 @@ class ReferralService: ObservableObject {
     
     func generateReferralCode() -> String {
         let code = generateRandomCode()
-        UserDefaults.standard.set(code, forKey: "referral_code")
+        let deviceId = SecureStorageService.shared.getDeviceId()
+        
+        let referralData = ReferralData(
+            referralCode: code,
+            referralCount: 0,
+            availableRewards: 0,
+            deviceId: deviceId
+        )
+        
+        SecureStorageService.shared.storeReferralData(referralData)
         referralCode = code
         return code
     }
@@ -56,16 +65,19 @@ class ReferralService: ObservableObject {
     }
     
     func processReferralReward() {
-        // Give reward to referrer
-        let currentRewards = UserDefaults.standard.integer(forKey: "available_rewards")
-        UserDefaults.standard.set(currentRewards + 3, forKey: "available_rewards") // 3 watermark-free exports
+        // Give reward to referrer with secure storage
+        guard let referralData = SecureStorageService.shared.getReferralData() else { return }
+        
+        let newRewardCount = referralData.availableRewards + 3 // 3 watermark-free exports
+        SecureStorageService.shared.updateReferralRewards(newRewardCount)
         
         // Update published property
-        availableRewards = currentRewards + 3
+        availableRewards = newRewardCount
         
         // Track analytics
         AnalyticsService.shared.track(event: "referral_reward_earned", parameters: [
-            "reward_count": 3
+            "reward_count": 3,
+            "device_id": referralData.deviceId
         ])
     }
     
@@ -75,7 +87,7 @@ class ReferralService: ObservableObject {
         guard availableRewards > 0 else { return false }
         
         let newCount = availableRewards - 1
-        UserDefaults.standard.set(newCount, forKey: "available_rewards")
+        SecureStorageService.shared.updateReferralRewards(newCount)
         availableRewards = newCount
         
         AnalyticsService.shared.track(event: "reward_used", parameters: [
@@ -108,9 +120,16 @@ class ReferralService: ObservableObject {
     // MARK: - Data Loading
     
     private func loadReferralData() {
-        referralCode = UserDefaults.standard.string(forKey: "referral_code") ?? ""
-        referralCount = UserDefaults.standard.integer(forKey: "referral_count")
-        availableRewards = UserDefaults.standard.integer(forKey: "available_rewards")
+        guard let referralData = SecureStorageService.shared.getReferralData() else {
+            referralCode = ""
+            referralCount = 0
+            availableRewards = 0
+            return
+        }
+        
+        referralCode = referralData.referralCode
+        referralCount = referralData.referralCount
+        availableRewards = referralData.availableRewards
     }
     
     // MARK: - Referral Validation

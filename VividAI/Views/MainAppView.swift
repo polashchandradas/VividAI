@@ -14,6 +14,10 @@ struct MainAppView: View {
                 HomeView()
             case .photoUpload:
                 PhotoUploadView()
+            case .qualitySelection:
+                QualitySelectionView(selectedImage: $navigationCoordinator.selectedImage)
+            case .realTimePreview:
+                RealTimePreviewView()
             case .processing:
                 ProcessingView()
             case .results:

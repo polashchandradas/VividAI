@@ -61,10 +61,18 @@ class RealTimeGenerationService: ObservableObject {
     }
     
     private func loadStyleTransferModel() {
-        // In production, load actual CoreML style transfer model
-        // For now, simulate model loading
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.logger.info("Style transfer model loaded")
+        // Load actual CoreML style transfer model
+        guard let modelURL = Bundle.main.url(forResource: "StyleTransferModel", withExtension: "mlmodelc") else {
+            logger.error("Style transfer model not found in bundle")
+            return
+        }
+        
+        do {
+            let model = try MLModel(contentsOf: modelURL)
+            self.styleTransferModel = try VNCoreMLModel(for: model)
+            logger.info("Style transfer model loaded successfully")
+        } catch {
+            logger.error("Failed to load style transfer model: \(error.localizedDescription)")
         }
     }
     
@@ -214,11 +222,13 @@ class RealTimeGenerationService: ObservableObject {
     }
     
     private func applyStyleTransfer(_ image: UIImage, style: AvatarStyle) throws -> UIImage {
-        // Apply CoreML style transfer model
-        // This would use the actual CoreML model in production
+        // Apply real CoreML style transfer model
+        guard let model = styleTransferModel else {
+            throw RealTimeGenerationError.modelNotLoaded
+        }
         
-        // For now, create a mock style transfer effect
-        return createMockStyleTransfer(image, style: style)
+        // Use actual CoreML model for style transfer
+        return try performRealStyleTransfer(image: image, style: style, model: model)
     }
     
     private func postProcessPreview(_ image: UIImage, style: AvatarStyle) throws -> UIImage {
@@ -226,32 +236,35 @@ class RealTimeGenerationService: ObservableObject {
         return enhancePreviewImage(image, style: style)
     }
     
-    // MARK: - Mock Implementation (Replace with Real CoreML)
+    // MARK: - Real AI Implementation
     
-    private func createMockStyleTransfer(_ image: UIImage, style: AvatarStyle) -> UIImage {
-        let size = image.size
-        let renderer = UIGraphicsImageRenderer(size: size)
+    private func performRealStyleTransfer(image: UIImage, style: AvatarStyle, model: VNCoreMLModel) throws -> UIImage {
+        guard let cgImage = image.cgImage else {
+            throw RealTimeGenerationError.invalidImage
+        }
         
-        return renderer.image { context in
-            // Draw original image
-            image.draw(in: CGRect(origin: .zero, size: size))
-            
-            // Apply style-specific effects
-            switch style.name {
-            case "Professional Headshot":
-                applyProfessionalEffect(context: context, size: size)
-            case "Anime/Cartoon Style":
-                applyAnimeEffect(context: context, size: size)
-            case "Renaissance Art":
-                applyRenaissanceEffect(context: context, size: size)
-            case "Cyberpunk Future":
-                applyCyberpunkEffect(context: context, size: size)
-            case "Disney/Pixar Style":
-                applyDisneyEffect(context: context, size: size)
-            default:
-                applyDefaultEffect(context: context, size: size)
+        let request = VNCoreMLRequest(model: model) { request, error in
+            if let error = error {
+                self.logger.error("Style transfer request failed: \(error.localizedDescription)")
             }
         }
+        
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try handler.perform([request])
+        
+        guard let results = request.results as? [VNPixelBufferObservation],
+              let pixelBuffer = results.first?.pixelBuffer else {
+            throw RealTimeGenerationError.processingFailed
+        }
+        
+        // Convert pixel buffer back to UIImage
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        guard let outputCGImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+            throw RealTimeGenerationError.processingFailed
+        }
+        
+        return UIImage(cgImage: outputCGImage)
     }
     
     private func applyProfessionalEffect(context: UIGraphicsImageRendererContext, size: CGSize) {

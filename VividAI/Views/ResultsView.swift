@@ -179,8 +179,8 @@ struct ResultsView: View {
                     // Generate video and show share view
                     if let originalImage = navigationCoordinator.selectedImage,
                        let firstResult = navigationCoordinator.processingResults.first {
-                        // Create a mock enhanced image for video generation
-                        let enhancedImage = UIImage(systemName: "person.crop.circle.fill") ?? originalImage
+                        // Use actual AI-generated headshot for video generation
+                        let enhancedImage = loadHeadshotImage(from: firstResult.imageURL) ?? originalImage
                         appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
                     }
                 }) {
@@ -345,6 +345,20 @@ struct FullScreenHeadshotView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Helper Functions
+
+private func loadHeadshotImage(from urlString: String) -> UIImage? {
+    guard let url = URL(string: urlString) else { return nil }
+    
+    do {
+        let data = try Data(contentsOf: url)
+        return UIImage(data: data)
+    } catch {
+        print("Failed to load headshot image: \(error.localizedDescription)")
+        return nil
     }
 }
 

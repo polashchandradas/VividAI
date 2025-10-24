@@ -8,6 +8,11 @@ class NavigationCoordinator: ObservableObject {
     @Published var currentView: AppView = .splash
     @Published var navigationStack: [AppView] = []
     
+    // Data storage for navigation flow
+    @Published var selectedImage: UIImage?
+    @Published var processingResults: [HeadshotResult] = []
+    @Published var generatedVideoURL: URL?
+    
     private let logger = Logger(subsystem: "VividAI", category: "Navigation")
     
     // MARK: - Navigation Methods
@@ -81,6 +86,40 @@ class NavigationCoordinator: ObservableObject {
     func showRealTimePreview() {
         navigateTo(.realTimePreview)
     }
+    
+    func showQualitySelection() {
+        navigateTo(.qualitySelection)
+    }
+    
+    // MARK: - Data Flow Methods
+    
+    func startPhotoUpload() {
+        selectedImage = nil
+        processingResults = []
+        generatedVideoURL = nil
+        navigateTo(.photoUpload)
+    }
+    
+    func startProcessing(with image: UIImage) {
+        selectedImage = image
+        navigateTo(.processing)
+    }
+    
+    func showResults(with results: [HeadshotResult]) {
+        processingResults = results
+        navigateTo(.results)
+    }
+    
+    func showShare(with videoURL: URL) {
+        generatedVideoURL = videoURL
+        navigateTo(.share)
+    }
+    
+    func showError(_ message: String) {
+        // Handle error display
+        logger.error("Navigation error: \(message)")
+        navigateBack()
+    }
 }
 
 // MARK: - App View Enum
@@ -89,6 +128,7 @@ enum AppView: String, CaseIterable {
     case splash = "splash"
     case home = "home"
     case photoUpload = "photoUpload"
+    case qualitySelection = "qualitySelection"
     case realTimePreview = "realTimePreview"
     case processing = "processing"
     case results = "results"
@@ -104,6 +144,8 @@ enum AppView: String, CaseIterable {
             return "Home"
         case .photoUpload:
             return "Upload Photo"
+        case .qualitySelection:
+            return "Choose Quality"
         case .realTimePreview:
             return "Real-Time Preview"
         case .processing:

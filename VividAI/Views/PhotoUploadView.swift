@@ -285,8 +285,9 @@ struct PhotoUploadView: View {
             "image_height": image.size.height
         ])
         
-        // Start processing with the app coordinator
-        appCoordinator.processPhoto(image)
+        // Navigate to quality selection
+        navigationCoordinator.selectedImage = image
+        navigationCoordinator.showQualitySelection()
     }
     
     private func detectFacesInImage(_ image: UIImage) {
