@@ -46,6 +46,9 @@ jobs:
         # Resolve Swift Package Manager dependencies
         xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
         
+        # Clean derived data to ensure fresh build
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        
     - name: Build VividAI app
       run: |
         xcodebuild clean build \
@@ -55,7 +58,8 @@ jobs:
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies
           
     # Test step removed - project doesn't have test target configured
           
@@ -69,7 +73,8 @@ jobs:
           -configuration Release \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies
           
     - name: Upload build artifacts
       if: github.ref == 'refs/heads/main'

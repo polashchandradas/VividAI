@@ -24,6 +24,10 @@ jobs:
       run: |
         rm -rf ~/Library/Developer/Xcode/DerivedData/*
         
+    - name: Resolve dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
     - name: Build VividAI app (no tests)
       run: |
         xcodebuild clean build \
@@ -34,7 +38,7 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          -skipPackagePluginValidation
+          -resolvePackageDependencies
           
     - name: Verify build success
       run: |
