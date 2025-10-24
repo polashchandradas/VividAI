@@ -1,0 +1,92 @@
+name: iOS Simulator IPA (Working Method)
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  build-simulator-ipa:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Resolve dependencies
+      run: |
+        echo "📦 Resolving dependencies..."
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Clean build environment
+      run: |
+        echo "🧹 Cleaning..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf ./build
+        
+    - name: Build app for simulator (using build-for-testing)
+      run: |
+        echo "🔨 Building app bundle for simulator..."
+        
+        # Use build-for-testing which actually generates the app bundle
+        xcodebuild build-for-testing \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -derivedDataPath ./DerivedData
+        
+        echo "✅ Build completed"
+        
+    - name: Find app bundle
+      run: |
+        echo "🔍 Searching for app bundle..."
+        
+        # Search in DerivedData
+        find ./DerivedData -name "VividAI.app" -type d
+        
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found!"
+          echo "📁 DerivedData structure:"
+          find ./DerivedData -type d | head -30
+          exit 1
+        fi
+        
+        echo "✅ App bundle found: $APP_PATH"
+        echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+        
+    - name: Create IPA
+      run: |
+        echo "📦 Creating IPA from app bundle..."
+        
+        mkdir -p ./build/Payload
+        cp -r "$APP_PATH" ./build/Payload/
+        
+        cd ./build
+        zip -r VividAI-simulator.ipa Payload/
+        cd ..
+        
+        echo "✅ IPA created!"
+        ls -lh ./build/VividAI-simulator.ipa
+        
+    - name: Upload IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: VividAI-Simulator-IPA
+        path: ./build/VividAI-simulator.ipa
+        retention-days: 30
+        
+    - name: Success
+      run: |
+        echo "🎉 Success! IPA file generated for iOS Simulator"
+        echo "📱 Download from Actions artifacts above"
+        echo "💡 This IPA can be used with iOS Simulator for testing"
+
