@@ -167,6 +167,12 @@
 			dependencies = (
 			);
 			name = VividAI;
+			packageProductDependencies = (
+				A1234567890ABCDEF081 /* FirebaseAnalytics */,
+				A1234567890ABCDEF082 /* FirebaseAuth */,
+				A1234567890ABCDEF083 /* FirebaseFirestore */,
+				A1234567890ABCDEF084 /* FirebaseCore */,
+			);
 			productName = VividAI;
 			productReference = A1234567890ABCDEF057 /* VividAI.app */;
 			productType = "com.apple.product-type.application";
@@ -195,6 +201,9 @@
 				Base,
 			);
 			mainGroup = A1234567890ABCDEF061;
+			packageReferences = (
+				A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = A1234567890ABCDEF063 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -203,6 +212,40 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1234567890ABCDEF081 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		A1234567890ABCDEF082 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		A1234567890ABCDEF083 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		A1234567890ABCDEF084 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A1234567890ABCDEF070 /* Resources */ = {
