@@ -74,7 +74,9 @@ class SecurityService: ObservableObject {
             return SymmetricKey(data: keyData)
         } else {
             let newKey = SymmetricKey(size: .bits256)
-            try keychain.setData(newKey.data, for: "encryption_key")
+            // Store the key data for later retrieval
+            let keyData = Data(newKey.withUnsafeBytes { Data($0) })
+            try keychain.setData(keyData, for: "encryption_key")
             return newKey
         }
     }

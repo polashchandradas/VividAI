@@ -17,7 +17,7 @@ struct VividAIApp: App {
     var body: some Scene {
         WindowGroup {
             if let error = configurationError {
-                ErrorView(error: error)
+                ConfigurationErrorView(error: error)
             } else {
                    MainAppView()
                        .environmentObject(appCoordinator)
@@ -60,8 +60,8 @@ struct VividAIApp: App {
     }
 }
 
-// MARK: - Error View
-struct ErrorView: View {
+// MARK: - Configuration Error View
+struct ConfigurationErrorView: View {
     let error: String
     
     var body: some View {
