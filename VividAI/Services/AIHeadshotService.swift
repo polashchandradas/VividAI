@@ -18,7 +18,7 @@ class AIHeadshotService: ObservableObject {
         configuration.replicateBaseURL
     }
     
-    private init() {}
+    init() {}
     
     func generateHeadshots(from image: UIImage, completion: @escaping (Result<[HeadshotResult], Error>) -> Void) {
         // Check if API is configured

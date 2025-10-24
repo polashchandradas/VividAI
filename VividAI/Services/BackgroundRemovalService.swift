@@ -98,7 +98,7 @@ class BackgroundRemovalService: ObservableObject {
     
     private var segmentationModel: VNCoreMLModel?
     
-    private init() {}
+    init() {}
     
     func loadModel() {
         // Load CoreML model for background removal

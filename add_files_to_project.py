@@ -113,3 +113,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"ERROR: Error updating project files: {e}")
         sys.exit(1)
+

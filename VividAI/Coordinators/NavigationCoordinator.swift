@@ -112,3 +112,4 @@ enum AppView: String, CaseIterable {
         }
     }
 }
+

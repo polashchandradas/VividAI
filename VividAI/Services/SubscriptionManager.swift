@@ -13,7 +13,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     @Published var isPremiumUser = false
     @Published var subscriptionStatus: SubscriptionStatus = .none
-    @Published var availableProducts: [Product] = []
+    @Published var availableProducts: [StoreKit.Product] = []
     @Published var isLoading = false
     
     private var productRequest: Task<Void, Error>?
@@ -51,7 +51,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         
         productRequest = Task {
             do {
-                let products = try await Product.products(for: Array(productIDs.keys))
+                let products = try await StoreKit.Product.products(for: Array(productIDs.keys))
                 
                 await MainActor.run {
                     self.availableProducts = products
@@ -68,7 +68,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     // MARK: - Purchase Methods
     
-    func purchase(product: Product) async throws -> StoreKit.Transaction? {
+    func purchase(product: StoreKit.Product) async throws -> StoreKit.Transaction? {
         let result = try await product.purchase()
         
         switch result {
@@ -284,13 +284,6 @@ class SubscriptionManager: NSObject, ObservableObject {
 }
 
 // MARK: - Data Models
-
-enum SubscriptionStatus {
-    case none
-    case trial
-    case active
-    case expired
-}
 
 // SubscriptionPlan enum moved inside SubscriptionManager class
 
