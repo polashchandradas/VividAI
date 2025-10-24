@@ -9,6 +9,68 @@ import CoreFoundation
 import CoreGraphics
 import CoreData
 
+// MARK: - Image Quality Types
+
+enum ImageQuality {
+    case poor
+    case fair
+    case good
+    case low
+    case medium
+    case high
+    
+    var description: String {
+        switch self {
+        case .poor:
+            return "Poor Quality"
+        case .fair:
+            return "Fair Quality"
+        case .good:
+            return "Good Quality"
+        case .low:
+            return "Low Quality"
+        case .medium:
+            return "Medium Quality"
+        case .high:
+            return "High Quality"
+        }
+    }
+    
+    var isGood: Bool {
+        switch self {
+        case .good, .high:
+            return true
+        case .fair, .medium:
+            return false
+        case .poor, .low:
+            return false
+        }
+    }
+    
+    var isPoor: Bool {
+        switch self {
+        case .poor, .low:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+struct ImageQualityAnalysis {
+    let quality: ImageQuality
+    let issues: [String]
+    let recommendations: [String]
+    let isGood: Bool
+    
+    init(quality: ImageQuality, issues: [String] = [], recommendations: [String] = []) {
+        self.quality = quality
+        self.issues = issues
+        self.recommendations = recommendations
+        self.isGood = quality.isGood
+    }
+}
+
 enum BackgroundRemovalError: Error, LocalizedError {
     case invalidImage
     case processingFailed
@@ -26,30 +88,6 @@ enum BackgroundRemovalError: Error, LocalizedError {
     }
 }
 
-struct ImageQualityAnalysis {
-    let quality: ImageQuality
-    let issues: [String]
-    
-    var isGood: Bool {
-        return quality == .good && issues.isEmpty
-    }
-    
-    var recommendations: [String] {
-        var recommendations: [String] = []
-        
-        if issues.contains("Low resolution") {
-            recommendations.append("Try using a higher resolution photo")
-        }
-        if issues.contains("Image appears blurry") {
-            recommendations.append("Ensure good lighting and hold the camera steady")
-        }
-        if issues.contains("Medium resolution") {
-            recommendations.append("Higher resolution photos will produce better results")
-        }
-        
-        return recommendations
-    }
-}
 
 
 class BackgroundRemovalService: ObservableObject {
