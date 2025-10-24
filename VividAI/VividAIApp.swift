@@ -7,6 +7,9 @@ import UIKit
 import Combine
 import os.log
 import StoreKit
+import CoreFoundation
+import CoreGraphics
+import CoreData
 
 // MARK: - Navigation Coordinator
 
@@ -238,18 +241,21 @@ class AppCoordinator: ObservableObject {
     }
     
     func handleSubscriptionAction(_ action: SubscriptionAction) {
-        logger.info("Handling subscription action: \(action)")
+        logger.info("Handling subscription action: \(String(describing: action))")
         
         switch action {
         case .startFreeTrial(let plan):
             subscriptionManager.startFreeTrial(plan: plan)
         case .purchase(let product):
             // Convert VividAI.Product to StoreKit.Product
-            // subscriptionManager.purchase(product: product) // Type mismatch - needs StoreKit.Product
+            if let storeKitProduct = product.storeKitProduct {
+                subscriptionManager.purchase(product: storeKitProduct)
+            }
         case .restorePurchases:
             subscriptionManager.restorePurchases()
         case .cancelSubscription:
-            // subscriptionManager.cancelSubscription() // This method doesn't exist
+            // Cancel subscription functionality not implemented yet
+            logger.info("Cancel subscription requested but not implemented")
         }
     }
     
@@ -464,7 +470,6 @@ struct VividAIApp: App {
                        .environmentObject(appCoordinator.navigationCoordinator)
                        .environmentObject(appCoordinator.subscriptionManager)
                        .environmentObject(appCoordinator.analyticsService)
-                        // .environmentObject(appCoordinator.errorHandlingService) // Type mismatch
                        .errorHandling()
                     .onAppear {
                         appCoordinator.handleAppBecameActive()

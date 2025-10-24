@@ -120,7 +120,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     // MARK: - Subscription Status
     
-    private func checkSubscriptionStatus() {
+    func checkSubscriptionStatus() {
         // Check for active subscription
         Task {
             for await result in StoreKit.Transaction.currentEntitlements {
