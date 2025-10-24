@@ -65,7 +65,6 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          -derivedDataPath ./DerivedData \
           -resolvePackageDependencies
           
     - name: Create unsigned IPA for testing
@@ -74,11 +73,11 @@ jobs:
         mkdir -p ./build
         
         # Find the app bundle in DerivedData
-        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "VividAI.app" -type d | head -1)
         if [ -z "$APP_PATH" ]; then
           echo "❌ App bundle not found in DerivedData"
           echo "Available files:"
-          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found"
           exit 1
         fi
         
