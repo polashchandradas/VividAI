@@ -20,20 +20,11 @@ class FirebaseAppCheckService: ObservableObject {
     // MARK: - Setup
     
     private func setupAppCheck() {
-        // Configure App Check with DeviceCheck for iOS
-        #if DEBUG
-        // Use debug provider for development
-        let debugProvider = AppCheckDebugProvider()
-        AppCheck.setAppCheckProviderFactory(debugProvider)
-        #else
-        // Use DeviceCheck for production
-        let deviceCheckProvider = DeviceCheckProvider()
-        AppCheck.setAppCheckProviderFactory(deviceCheckProvider)
-        #endif
+        // App Check is now managed by FirebaseConfigurationService
+        // This service just provides access to the configured App Check instance
+        appCheck = ServiceContainer.shared.firebaseConfigurationService.getAppCheck()
         
-        appCheck = AppCheck.appCheck()
-        
-        logger.info("Firebase App Check initialized")
+        logger.info("Firebase App Check service initialized")
     }
     
     // MARK: - Token Management

@@ -7,6 +7,7 @@ import Combine
 struct RealTimePreviewView: View {
     @EnvironmentObject var serviceContainer: ServiceContainer
     @EnvironmentObject var appCoordinator: AppCoordinator
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     
     @State private var selectedImage: UIImage?
     @State private var selectedStyle: AvatarStyle?
@@ -66,7 +67,7 @@ struct RealTimePreviewView: View {
     private var headerSection: some View {
         HStack {
             Button(action: {
-                appCoordinator.navigationCoordinator.navigateBack()
+                serviceContainer.navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))

@@ -19,12 +19,24 @@ class HybridProcessingService: ObservableObject {
     @Published var networkStatus: NetworkStatus = .unknown
     
     // MARK: - Services
-    private let realTimeService = ServiceContainer.shared.realTimeGenerationService
-    private let aiHeadshotService = ServiceContainer.shared.aiHeadshotService
-    private let backgroundRemovalService = ServiceContainer.shared.backgroundRemovalService
-    private let photoEnhancementService = ServiceContainer.shared.photoEnhancementService
-    private let analyticsService = ServiceContainer.shared.analyticsService
-    private let loggingService = ServiceContainer.shared.loggingService
+    private var realTimeService: RealTimeGenerationService {
+        return ServiceContainer.shared.realTimeGenerationService
+    }
+    private var aiHeadshotService: AIHeadshotService {
+        return ServiceContainer.shared.aiHeadshotService
+    }
+    private var backgroundRemovalService: BackgroundRemovalService {
+        return ServiceContainer.shared.backgroundRemovalService
+    }
+    private var photoEnhancementService: PhotoEnhancementService {
+        return ServiceContainer.shared.photoEnhancementService
+    }
+    private var analyticsService: AnalyticsService {
+        return ServiceContainer.shared.analyticsService
+    }
+    private var loggingService: LoggingService {
+        return ServiceContainer.shared.loggingService
+    }
     
     // MARK: - Configuration
     private let networkMonitor = NetworkMonitor()

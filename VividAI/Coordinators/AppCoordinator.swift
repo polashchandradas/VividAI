@@ -12,10 +12,12 @@ class AppCoordinator: ObservableObject {
     @Published var currentProcessingStep = ""
     @Published var processingProgress: Double = 0.0
     // Error state is managed by ErrorHandlingService to avoid conflicts
-    // Authentication state is managed by AuthenticationService and SubscriptionManager
-    // AppCoordinator observes these states but doesn't duplicate them
-    var isPremiumUser: Bool { subscriptionManager.isPremiumUser }
-    var subscriptionStatus: SubscriptionStatus { subscriptionManager.subscriptionStatus }
+    // Authentication state is centralized in AuthenticationService
+    // Subscription state is centralized in SubscriptionStateManager
+    var isPremiumUser: Bool { subscriptionStateManager.isPremiumUser }
+    var subscriptionStatus: SubscriptionStatus { subscriptionStateManager.subscriptionStatus }
+    var isAuthenticated: Bool { authenticationService.isAuthenticated }
+    var currentUser: User? { authenticationService.currentUser }
     
     // MARK: - Service Container
     
@@ -24,6 +26,7 @@ class AppCoordinator: ObservableObject {
     // MARK: - Service Access Properties (Computed)
     
     var navigationCoordinator: NavigationCoordinator { services.navigationCoordinator }
+    var subscriptionStateManager: SubscriptionStateManager { services.subscriptionStateManager }
     var subscriptionManager: SubscriptionManager { services.subscriptionManager }
     var analyticsService: AnalyticsService { services.analyticsService }
     var hybridProcessingService: HybridProcessingService { services.hybridProcessingService }
@@ -71,6 +74,41 @@ class AppCoordinator: ObservableObject {
         // No additional configuration needed
     }
     
+    // MARK: - Authentication State Management
+    
+    private func handleAuthenticationStateChange(_ isAuthenticated: Bool) {
+        logger.info("Authentication state changed: \(isAuthenticated)")
+        
+        if isAuthenticated {
+            // User signed in - refresh subscription status
+            subscriptionManager.checkSubscriptionStatus()
+            
+            // Track authentication
+            analyticsService.track(event: "user_authenticated")
+        } else {
+            // User signed out - reset app state
+            resetAppState()
+            
+            // Navigate to authentication screen
+            Task { @MainActor in
+                self.navigationCoordinator.resetToSplash()
+            }
+        }
+    }
+    
+    private func resetAppState() {
+        // Reset processing state
+        resetProcessingState()
+        
+        // Clear any cached data
+        // Reset analytics
+        analyticsService.setUserProperty(key: "user_id", value: nil)
+        analyticsService.setUserProperty(key: "subscription_status", value: nil)
+        analyticsService.setUserProperty(key: "is_premium", value: nil)
+        
+        logger.info("App state reset for logout")
+    }
+    
     // MARK: - App Lifecycle
     
     func handleAppBecameActive() {
@@ -97,13 +135,7 @@ class AppCoordinator: ObservableObject {
         }
     }
     
-    // MARK: - Navigation Methods (Delegate to NavigationCoordinator)
-    
-    func startPhotoUpload() {
-        logger.info("Starting photo upload flow")
-        navigationCoordinator.startPhotoUpload()
-        analyticsService.track(event: "photo_upload_started")
-    }
+    // MARK: - Processing State Management
     
     func startProcessing() {
         logger.info("Starting processing")
@@ -134,30 +166,6 @@ class AppCoordinator: ObservableObject {
         ])
     }
     
-    func showPaywall() {
-        logger.info("Showing paywall")
-        navigationCoordinator.showPaywall()
-        analyticsService.track(event: "paywall_shown")
-    }
-    
-    func showShare() {
-        logger.info("Showing share screen")
-        navigationCoordinator.showShare()
-        analyticsService.track(event: "share_shown")
-    }
-    
-    func showSettings() {
-        logger.info("Showing settings")
-        navigationCoordinator.showSettings()
-        analyticsService.track(event: "settings_shown")
-    }
-    
-    func goHome() {
-        logger.info("Going home")
-        navigationCoordinator.goHome()
-        resetProcessingState()
-    }
-    
     private func resetProcessingState() {
         isProcessing = false
         currentProcessingStep = ""
@@ -170,16 +178,8 @@ class AppCoordinator: ObservableObject {
     func handleSubscriptionAction(_ action: SubscriptionAction) {
         logger.info("Handling subscription action: \(action)")
         
-        switch action {
-        case .startFreeTrial(let plan):
-            subscriptionManager.startFreeTrial(plan: plan)
-        case .purchase(let product):
-            subscriptionManager.purchase(product: product)
-        case .restorePurchases:
-            subscriptionManager.restorePurchases()
-        case .cancelSubscription:
-            subscriptionManager.cancelSubscription()
-        }
+        // Delegate to SubscriptionStateManager for unified handling
+        subscriptionStateManager.handleSubscriptionAction(action)
     }
     
     // MARK: - Error Handling (Centralized)
@@ -342,7 +342,7 @@ class AppCoordinator: ObservableObject {
                 
                 // Navigate to authentication screen
                 await MainActor.run {
-                    self.navigationCoordinator.navigateTo(.authentication)
+                    self.navigationCoordinator.resetToSplash()
                 }
                 
                 logger.info("User signed out successfully with app cleanup")
@@ -393,71 +393,33 @@ class AppCoordinator: ObservableObject {
     // MARK: - Smart Generation Limits
     
     private func canUserGenerate() -> Bool {
-        // Premium users can always generate
-        if isPremiumUser {
-            return true
-        }
-        
-        // Check free trial limits
-        if freeTrialService.isTrialActive {
-            return freeTrialService.canUserGenerate()
-        }
-        
-        // Check usage limits for free users
-        return usageLimitService.canGenerate(
-            isPremium: isPremiumUser,
-            isTrialActive: freeTrialService.isTrialActive
-        )
+        // Use unified state from SubscriptionStateManager
+        return subscriptionStateManager.canGenerate
     }
     
     // MARK: - Unified Trial/Subscription State Management
     
     func getUnifiedUserStatus() -> UserStatus {
-        if isPremiumUser {
-            return .premium
-        } else if freeTrialService.isTrialActive {
-            return .trial(freeTrialService.trialType)
-        } else {
-            return .free
-        }
+        return subscriptionStateManager.userStatus
     }
     
     func getUnifiedGenerationLimits() -> GenerationLimits {
-        if isPremiumUser {
-            return GenerationLimits.unlimited
-        } else if freeTrialService.isTrialActive {
-            return GenerationLimits.trial(
-                used: freeTrialService.generationsUsed,
-                max: freeTrialService.maxGenerations,
-                daysRemaining: freeTrialService.trialDaysRemaining
-            )
-        } else {
-            let remaining = usageLimitService.getRemainingGenerations(
-                isPremium: false,
-                isTrialActive: false
-            )
-            return GenerationLimits.free(remaining: remaining)
-        }
+        return subscriptionStateManager.generationLimits
     }
     
     private func recordGeneration() {
-        // Record in usage limit service
-        usageLimitService.recordGeneration()
-        
-        // Record in free trial service if active
-        if freeTrialService.isTrialActive {
-            freeTrialService.recordGeneration()
-        }
+        // Use unified recording from SubscriptionStateManager
+        subscriptionStateManager.recordGeneration()
         
         analyticsService.track(event: "generation_completed", parameters: [
             "is_premium": isPremiumUser,
-            "is_trial_active": freeTrialService.isTrialActive,
-            "trial_type": "\(freeTrialService.trialType)"
+            "is_trial_active": subscriptionStateManager.isTrialActive,
+            "trial_type": "\(subscriptionStateManager.trialType)"
         ])
     }
     
     private func showGenerationLimitReached() {
-        let message = getLimitMessage()
+        let message = subscriptionStateManager.getLimitMessage()
         
         // Use centralized error handling
         let limitError = AppError.subscriptionError(message)
@@ -465,65 +427,22 @@ class AppCoordinator: ObservableObject {
         
         analyticsService.track(event: "generation_limit_reached", parameters: [
             "is_premium": self.isPremiumUser,
-            "is_trial_active": self.freeTrialService.isTrialActive,
-            "trial_type": "\(self.freeTrialService.trialType)"
+            "is_trial_active": self.subscriptionStateManager.isTrialActive,
+            "trial_type": "\(self.subscriptionStateManager.trialType)"
         ])
     }
     
-    private func getLimitMessage() -> String {
-        if isPremiumUser {
-            return "You have unlimited generations with Pro"
-        }
-        
-        if freeTrialService.isTrialActive {
-            return getTrialLimitMessage()
-        }
-        
-        return getFreeUserLimitMessage()
-    }
-    
-    private func getTrialLimitMessage() -> String {
-        switch freeTrialService.trialType {
-        case .limited:
-            return "Trial limit reached (\(freeTrialService.generationsUsed)/\(freeTrialService.maxGenerations) generations used)"
-        case .unlimited:
-            return "Trial expired (\(freeTrialService.trialDaysRemaining) days remaining)"
-        case .freemium:
-            return "Daily limit reached (1 generation per day)"
-        case .none:
-            return "No active trial"
-        }
-    }
-    
-    private func getFreeUserLimitMessage() -> String {
-        return usageLimitService.getLimitMessage(
-            isPremium: isPremiumUser,
-            isTrialActive: freeTrialService.isTrialActive
-        )
-    }
-    
     func startFreeTrial(type: FreeTrialService.TrialType = .limited) {
-        freeTrialService.startFreeTrial(type: type)
+        subscriptionStateManager.startFreeTrial(type: type)
         
         analyticsService.track(event: "free_trial_started", parameters: [
             "trial_type": "\(type)",
-            "max_generations": freeTrialService.maxGenerations
+            "max_generations": subscriptionStateManager.trialMaxGenerations
         ])
     }
     
     func getRemainingGenerations() -> Int {
-        if isPremiumUser {
-            return 999 // Unlimited
-        }
-        
-        if freeTrialService.isTrialActive {
-            return freeTrialService.maxGenerations - freeTrialService.generationsUsed
-        }
-        
-        return usageLimitService.getRemainingGenerations(
-            isPremium: isPremiumUser,
-            isTrialActive: freeTrialService.isTrialActive
-        )
+        return subscriptionStateManager.getRemainingGenerations()
     }
 }
 

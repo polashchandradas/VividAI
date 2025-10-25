@@ -99,23 +99,27 @@ class ConfigurationService: ObservableObject {
     
     // MARK: - Security Validation
     
+    private var securityService: SecurityService {
+        return ServiceContainer.shared.securityService
+    }
+    
     func validateConfiguration() -> ValidationResult {
         var issues: [String] = []
         
         // Validate Replicate API key
-        let replicateValidation = ServiceContainer.shared.securityService.validateAPIKey(replicateAPIKey)
+        let replicateValidation = securityService.validateAPIKey(replicateAPIKey)
         if !replicateValidation.isValid {
             issues.append(contentsOf: replicateValidation.issues.map { "Replicate API: \($0)" })
         }
         
         // Validate Firebase API key
-        let firebaseValidation = ServiceContainer.shared.securityService.validateAPIKey(firebaseAPIKey)
+        let firebaseValidation = securityService.validateAPIKey(firebaseAPIKey)
         if !firebaseValidation.isValid {
             issues.append(contentsOf: firebaseValidation.issues.map { "Firebase API: \($0)" })
         }
         
         // Validate URLs
-        let replicateURLValidation = ServiceContainer.shared.securityService.validateURL(replicateBaseURL)
+        let replicateURLValidation = securityService.validateURL(replicateBaseURL)
         if !replicateURLValidation.isValid {
             issues.append(contentsOf: replicateURLValidation.issues.map { "Replicate URL: \($0)" })
         }

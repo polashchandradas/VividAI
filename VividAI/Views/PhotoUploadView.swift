@@ -8,6 +8,7 @@ struct PhotoUploadView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
@@ -295,7 +296,7 @@ struct PhotoUploadView: View {
         isDetectingFaces = true
         
         // First analyze image quality
-        appCoordinator.backgroundRemovalService.analyzeImageQuality(image) { [weak self] (qualityAnalysis: ImageQualityAnalysis) in
+        serviceContainer.backgroundRemovalService.analyzeImageQuality(image) { [weak self] (qualityAnalysis: ImageQualityAnalysis) in
             DispatchQueue.main.async {
                 if !qualityAnalysis.isGood {
                     self?.isDetectingFaces = false
@@ -305,7 +306,7 @@ struct PhotoUploadView: View {
                 }
                 
                 // If quality is good, proceed with face detection
-                self?.appCoordinator.backgroundRemovalService.detectFaces(in: image) { [weak self] (observations: [VNFaceObservation]) in
+                self?.serviceContainer.backgroundRemovalService.detectFaces(in: image) { [weak self] (observations: [VNFaceObservation]) in
                     DispatchQueue.main.async {
                         self?.isDetectingFaces = false
                         

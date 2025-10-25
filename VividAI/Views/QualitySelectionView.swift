@@ -3,6 +3,8 @@ import SwiftUI
 struct QualitySelectionView: View {
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     @Binding var selectedImage: UIImage?
     @State private var selectedQuality: HybridProcessingService.QualityLevel = .standard
     @State private var showingProcessing = false
@@ -44,7 +46,7 @@ struct QualitySelectionView: View {
     private var headerSection: some View {
         HStack {
             Button(action: {
-                // Go back
+                navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))

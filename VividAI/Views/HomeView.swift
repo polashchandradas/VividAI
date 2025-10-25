@@ -3,6 +3,7 @@ import UIKit
 
 struct HomeView: View {
     @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     @EnvironmentObject var appCoordinator: AppCoordinator
     
     // Modern UI State
@@ -413,7 +414,7 @@ struct HomeView: View {
     // MARK: - Smart Trial Status Section
     private var smartTrialStatusSection: some View {
         VStack(spacing: DesignSystem.Spacing.md) {
-            if serviceContainer.freeTrialService.isTrialActive {
+            if subscriptionStateManager.isTrialActive {
                 // Active Trial Status
                 ModernCard(
                     padding: DesignSystem.Spacing.md,
@@ -431,19 +432,19 @@ struct HomeView: View {
                             
                             Spacer()
                             
-                            Text("\(serviceContainer.freeTrialService.trialDaysRemaining) days left")
+                            Text("\(subscriptionStateManager.trialDaysRemaining) days left")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                         
                         HStack {
-                            Text("\(serviceContainer.freeTrialService.generationsUsed)/\(serviceContainer.freeTrialService.maxGenerations) generations used")
+                            Text("\(subscriptionStateManager.trialGenerationsUsed)/\(subscriptionStateManager.trialMaxGenerations) generations used")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             
                             Spacer()
                             
-                            if serviceContainer.freeTrialService.canGenerate {
+                            if subscriptionStateManager.canGenerate {
                                 Text("Can generate")
                                     .font(DesignSystem.Typography.captionBold)
                                     .foregroundColor(DesignSystem.Colors.success)
@@ -456,7 +457,7 @@ struct HomeView: View {
                     }
                 }
                 .background(DesignSystem.Colors.warning.opacity(0.1))
-            } else if !serviceContainer.subscriptionManager.isPremiumUser {
+            } else if !subscriptionStateManager.isPremiumUser {
                 // Free User Status
                 ModernCard(
                     padding: DesignSystem.Spacing.md,
@@ -483,7 +484,7 @@ struct HomeView: View {
                         }
                         
                         HStack {
-                            Text("\(serviceContainer.usageLimitService.getRemainingGenerations(isPremium: false, isTrialActive: false)) generations remaining today")
+                            Text("\(subscriptionStateManager.getRemainingGenerations()) generations remaining today")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             

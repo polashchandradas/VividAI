@@ -11,12 +11,20 @@ class ServiceContainer: ObservableObject {
         NavigationCoordinator()
     }()
     
+    lazy var subscriptionStateManager: SubscriptionStateManager = {
+        SubscriptionStateManager.shared
+    }()
+    
     lazy var subscriptionManager: SubscriptionManager = {
         SubscriptionManager.shared
     }()
     
     lazy var analyticsService: AnalyticsService = {
         AnalyticsService.shared
+    }()
+    
+    lazy var firebaseConfigurationService: FirebaseConfigurationService = {
+        FirebaseConfigurationService.shared
     }()
     
     lazy var authenticationService: AuthenticationService = {
@@ -99,24 +107,55 @@ class ServiceContainer: ObservableObject {
     
     // MARK: - Initialization
     private init() {
-        // Initialize services in proper order
+        // Initialize services in proper order to avoid circular dependencies
         setupServices()
     }
     
     private func setupServices() {
-        // Configure service dependencies
-        configureServiceDependencies()
-        
-        // Initialize core services
-        _ = navigationCoordinator
+        // Initialize services in dependency order (no dependencies first)
+        _ = configurationService
+        _ = loggingService
         _ = analyticsService
         _ = errorHandlingService
-        _ = loggingService
+        _ = secureStorageService
+        _ = securityService
+        _ = firebaseAppCheckService
+        _ = firebaseValidationService
+        _ = serverValidationService
+        
+        // Initialize services that depend on the above
+        _ = freeTrialService
+        _ = usageLimitService
+        _ = referralService
+        _ = subscriptionManager
+        _ = subscriptionStateManager
+        _ = authenticationService
+        
+        // Initialize AI processing services
+        _ = backgroundRemovalService
+        _ = photoEnhancementService
+        _ = realTimeGenerationService
+        _ = aiHeadshotService
+        _ = videoGenerationService
+        _ = hybridProcessingService
+        _ = watermarkService
+        
+        // Initialize navigation last
+        _ = navigationCoordinator
+        
+        // Configure service dependencies after all services are initialized
+        configureServiceDependencies()
     }
     
     private func configureServiceDependencies() {
-        // Set up any service-to-service dependencies here
-        // This ensures proper initialization order
+        // Set up service-to-service dependencies here
+        // This ensures proper initialization order and avoids circular dependencies
+        
+        // Configure AuthenticationService to use SubscriptionManager callback
+        authenticationService.setupSubscriptionStateListener()
+        
+        // Configure other service dependencies as needed
+        // All services are now initialized, so it's safe to set up dependencies
     }
     
     // MARK: - Service Access Methods
@@ -124,6 +163,8 @@ class ServiceContainer: ObservableObject {
         switch type {
         case is NavigationCoordinator.Type:
             return navigationCoordinator as? T
+        case is SubscriptionStateManager.Type:
+            return subscriptionStateManager as? T
         case is SubscriptionManager.Type:
             return subscriptionManager as? T
         case is AnalyticsService.Type:

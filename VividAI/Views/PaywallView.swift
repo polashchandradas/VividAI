@@ -5,10 +5,9 @@ import UIKit
 struct PaywallView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var freeTrialService: FreeTrialService
-    @EnvironmentObject var usageLimitService: UsageLimitService
+    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
     @State private var showingTrial = false
     
@@ -143,7 +142,7 @@ struct PaywallView: View {
     
     private var smartTrialOptionsSection: some View {
         VStack(spacing: DesignSystem.Spacing.lg) {
-            if !freeTrialService.isTrialActive {
+            if !subscriptionStateManager.isTrialActive {
                 // Trial Options
                 VStack(spacing: DesignSystem.Spacing.md) {
                     Text("Choose Your Free Trial")
@@ -198,11 +197,11 @@ struct PaywallView: View {
                         
                         HStack {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                Text("\(freeTrialService.generationsUsed)/\(freeTrialService.maxGenerations) generations used")
+                                Text("\(subscriptionStateManager.trialGenerationsUsed)/\(subscriptionStateManager.trialMaxGenerations) generations used")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textSecondary)
                                 
-                                Text("\(freeTrialService.trialDaysRemaining) days remaining")
+                                Text("\(subscriptionStateManager.trialDaysRemaining) days remaining")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textSecondary)
                             }
@@ -246,7 +245,7 @@ struct PaywallView: View {
     private var legalSection: some View {
         HStack(spacing: DesignSystem.Spacing.lg) {
             Button("Restore Purchases") {
-                subscriptionManager.restorePurchases()
+                appCoordinator.handleSubscriptionAction(.restorePurchases)
             }
             .font(DesignSystem.Typography.caption)
             .foregroundColor(DesignSystem.Colors.primary)

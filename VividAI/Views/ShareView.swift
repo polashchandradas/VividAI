@@ -8,6 +8,7 @@ struct ShareView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @State private var isGeneratingVideo = false
     @State private var generatedVideoURL: URL?
     @State private var showingShareSheet = false
@@ -255,7 +256,7 @@ struct ShareView: View {
         }
         
         do {
-            let videoURL = try await VideoGenerationService.shared.generateTransformationVideoAsync(
+            let videoURL = try await serviceContainer.videoGenerationService.generateTransformationVideoAsync(
                 from: originalImage,
                 to: enhancedImage
             )

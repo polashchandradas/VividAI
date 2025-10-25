@@ -14,8 +14,12 @@ class ServerValidationService: ObservableObject {
     private let logger = Logger(subsystem: "VividAI", category: "ServerValidation")
     private let secureStorage = SecureStorageService.shared
     private let firebaseValidation = FirebaseValidationService.shared
-    private let functions = Functions.functions()
-    private let db = Firestore.firestore()
+    private var functions: Functions {
+        return ServiceContainer.shared.firebaseConfigurationService.getFunctions()
+    }
+    private var db: Firestore {
+        return ServiceContainer.shared.firebaseConfigurationService.getFirestore()
+    }
     
     // MARK: - Trial Validation
     

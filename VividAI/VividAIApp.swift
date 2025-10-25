@@ -87,14 +87,12 @@ struct VividAIApp: App {
             if let error = configurationError {
                 ConfigurationErrorView(error: error)
             } else {
-                   MainAppView()
-                       .environmentObject(appCoordinator)
-                       .environmentObject(serviceContainer.navigationCoordinator)
-                       .environmentObject(serviceContainer.subscriptionManager)
-                       .environmentObject(serviceContainer.analyticsService)
-                       .environmentObject(serviceContainer.authenticationService)
-                       .environmentObject(serviceContainer.freeTrialService)
-                       .environmentObject(serviceContainer.usageLimitService)
+                          MainAppView()
+                              .environmentObject(appCoordinator)
+                              .environmentObject(serviceContainer.navigationCoordinator)
+                              .environmentObject(serviceContainer.subscriptionStateManager)
+                              .environmentObject(serviceContainer.analyticsService)
+                              .environmentObject(serviceContainer.authenticationService)
                        .environmentObject(serviceContainer.realTimeGenerationService)
                        .environmentObject(serviceContainer.hybridProcessingService)
                        .environmentObject(serviceContainer.backgroundRemovalService)
@@ -110,6 +108,7 @@ struct VividAIApp: App {
                        .environmentObject(serviceContainer.serverValidationService)
                        .environmentObject(serviceContainer.firebaseValidationService)
                        .environmentObject(serviceContainer.firebaseAppCheckService)
+                       .environmentObject(serviceContainer.firebaseConfigurationService)
                        .environmentObject(serviceContainer.configurationService)
                        .errorHandling()
                     .onAppear {
@@ -138,18 +137,22 @@ struct VividAIApp: App {
         // Configure Google Sign-In using centralized configuration
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: configService.googleAppID)
         
-        // Initialize Firebase services
-        _ = Auth.auth()
-        _ = Firestore.firestore()
-        _ = Analytics.self
-        
         // Initialize Firebase App Check
         initializeAppCheck()
         
-        // Initialize Firebase Functions
-        _ = Functions.functions()
-        
-        isFirebaseConfigured = true
+        // Configure Firebase services using centralized service
+        Task {
+            do {
+                try await ServiceContainer.shared.firebaseConfigurationService.configureFirebase()
+                await MainActor.run {
+                    isFirebaseConfigured = true
+                }
+            } catch {
+                await MainActor.run {
+                    configurationError = error.localizedDescription
+                }
+            }
+        }
     }
     
     private func initializeAppCheck() {
@@ -164,8 +167,7 @@ struct VividAIApp: App {
         AppCheck.setAppCheckProviderFactory(deviceCheckProvider)
         #endif
         
-        // Initialize App Check
-        _ = AppCheck.appCheck()
+        // App Check is now initialized by FirebaseConfigurationService
     }
 }
 

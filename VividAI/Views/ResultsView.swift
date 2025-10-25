@@ -4,8 +4,9 @@ import UIKit
 struct ResultsView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     @State private var selectedHeadshot: HeadshotStyle?
     @State private var showingPaywall = false
     @State private var showingShareView = false
@@ -103,10 +104,9 @@ struct ResultsView: View {
                 ForEach(headshotStyles) { headshot in
                     HeadshotCard(
                         headshot: headshot,
-                        isPremium: subscriptionManager.isPremiumUser,
                         onTap: {
                             selectedHeadshot = headshot
-                            if headshot.isPremium && !subscriptionManager.isPremiumUser {
+                            if headshot.isPremium && !subscriptionStateManager.isPremiumUser {
                                 navigationCoordinator.showPaywall()
                             } else {
                                 showingFullScreen = true
@@ -218,7 +218,7 @@ struct ResultsView: View {
 
 struct HeadshotCard: View {
     let headshot: HeadshotStyle
-    let isPremium: Bool
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     let onTap: () -> Void
     
     var body: some View {
@@ -235,7 +235,7 @@ struct HeadshotCard: View {
                                     .font(.system(size: DesignSystem.IconSizes.xxlarge))
                                     .foregroundColor(DesignSystem.Colors.primary)
                                 
-                                if headshot.isPremium && !isPremium {
+                                if headshot.isPremium && !subscriptionStateManager.isPremiumUser {
                                     Image(systemName: "lock.fill")
                                         .font(.system(size: DesignSystem.IconSizes.small))
                                         .foregroundColor(DesignSystem.Colors.warning)
@@ -244,7 +244,7 @@ struct HeadshotCard: View {
                         )
                     
                     // Premium Badge
-                    if headshot.isPremium && !isPremium {
+                    if headshot.isPremium && !subscriptionStateManager.isPremiumUser {
                         VStack {
                             HStack {
                                 Spacer()

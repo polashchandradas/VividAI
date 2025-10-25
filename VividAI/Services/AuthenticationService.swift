@@ -13,16 +13,27 @@ import GoogleSignIn
 class AuthenticationService: ObservableObject {
     static let shared = AuthenticationService()
     
+    // MARK: - Centralized Authentication State
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var authState: AuthState = .unknown
     
-    private let auth = Auth.auth()
-    private let db = Firestore.firestore()
+    // MARK: - Centralized User State (combines auth + subscription)
+    @Published var isPremiumUser = false
+    @Published var subscriptionStatus: SubscriptionStatus = .none
+    @Published var userProfile: UserProfile?
+    
+    private var auth: Auth {
+        return ServiceContainer.shared.firebaseConfigurationService.getAuth()
+    }
+    private var db: Firestore {
+        return ServiceContainer.shared.firebaseConfigurationService.getFirestore()
+    }
     private let logger = Logger(subsystem: "VividAI", category: "Authentication")
     private var authStateListener: AuthStateDidChangeListenerHandle?
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Auth State
     
@@ -32,10 +43,25 @@ class AuthenticationService: ObservableObject {
         case unauthenticated
     }
     
+    // MARK: - User Profile
+    
+    struct UserProfile {
+        let uid: String
+        let email: String
+        let displayName: String
+        let photoURL: String?
+        let isPremium: Bool
+        let subscriptionStatus: SubscriptionStatus
+        let trialUsed: Bool
+        let createdAt: Date
+        let lastSignIn: Date
+    }
+    
     // MARK: - Initialization
     
     private init() {
         setupAuthStateListener()
+        // setupSubscriptionStateListener() will be called by ServiceContainer after all services are initialized
     }
     
     deinit {
@@ -60,6 +86,11 @@ class AuthenticationService: ObservableObject {
             self.isAuthenticated = true
             self.authState = .authenticated(user)
             
+            // Load user profile and subscription status
+            Task {
+                await loadUserProfileAndSubscriptionStatus(user: user)
+            }
+            
             logger.info("User authenticated: \(user.uid)")
             ServiceContainer.shared.analyticsService.track(event: "user_authenticated", parameters: [
                 "user_id": user.uid,
@@ -69,9 +100,51 @@ class AuthenticationService: ObservableObject {
             self.currentUser = nil
             self.isAuthenticated = false
             self.authState = .unauthenticated
+            self.isPremiumUser = false
+            self.subscriptionStatus = .none
+            self.userProfile = nil
             
             logger.info("User signed out")
             ServiceContainer.shared.analyticsService.track(event: "user_signed_out")
+        }
+    }
+    
+    func setupSubscriptionStateListener() {
+        // Set up callback-based communication with SubscriptionManager
+        ServiceContainer.shared.subscriptionManager.onSubscriptionStateChanged = { [weak self] isPremium, status in
+            DispatchQueue.main.async {
+                self?.isPremiumUser = isPremium
+                self?.subscriptionStatus = status
+            }
+        }
+    }
+    
+    private func loadUserProfileAndSubscriptionStatus(user: User) async {
+        do {
+            let docRef = db.collection("users").document(user.uid)
+            let document = try await docRef.getDocument()
+            
+            if let data = document.data() {
+                let userProfile = UserProfile(
+                    uid: user.uid,
+                    email: data["email"] as? String ?? user.email ?? "",
+                    displayName: data["displayName"] as? String ?? user.displayName ?? "",
+                    photoURL: data["photoURL"] as? String,
+                    isPremium: data["isPremium"] as? Bool ?? false,
+                    subscriptionStatus: SubscriptionStatus(rawValue: data["subscriptionStatus"] as? String ?? "none") ?? .none,
+                    trialUsed: data["trialUsed"] as? Bool ?? false,
+                    createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
+                    lastSignIn: (data["lastSignIn"] as? Timestamp)?.dateValue() ?? Date()
+                )
+                
+                await MainActor.run {
+                    self.userProfile = userProfile
+                    self.isPremiumUser = userProfile.isPremium
+                    self.subscriptionStatus = userProfile.subscriptionStatus
+                }
+            }
+        } catch {
+            logger.error("Failed to load user profile: \(error.localizedDescription)")
         }
     }
     

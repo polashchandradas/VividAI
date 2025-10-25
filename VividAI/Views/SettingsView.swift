@@ -4,9 +4,9 @@ import UIKit
 struct SettingsView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var authenticationService: AuthenticationService
+    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
     @State private var notificationsEnabled = false
     @State private var saveToPhotosEnabled = true
     @State private var hdQualityEnabled = true
@@ -106,15 +106,15 @@ struct SettingsView: View {
                         )
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(authenticationService.currentUser?.displayName ?? "User")
+                        Text(serviceContainer.authenticationService.currentUser?.displayName ?? "User")
                             .font(DesignSystem.Typography.bodyBold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                         
-                        Text(authenticationService.currentUser?.email ?? "user@example.com")
+                        Text(serviceContainer.authenticationService.currentUser?.email ?? "user@example.com")
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.Colors.textSecondary)
                         
-                        if !subscriptionManager.isPremiumUser {
+                        if !subscriptionStateManager.isPremiumUser {
                             Button(action: {
                                 analyticsService.track(event: "upgrade_tapped_from_settings")
                                 navigationCoordinator.showPaywall()

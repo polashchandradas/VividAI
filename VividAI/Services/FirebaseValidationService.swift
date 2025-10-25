@@ -12,9 +12,18 @@ import UIKit
 class FirebaseValidationService: ObservableObject {
     static let shared = FirebaseValidationService()
     
-    private let functions = Functions.functions()
-    private let db = Firestore.firestore()
-    private let appCheck = AppCheck.appCheck()
+    private var auth: Auth {
+        return ServiceContainer.shared.firebaseConfigurationService.getAuth()
+    }
+    private var functions: Functions {
+        return ServiceContainer.shared.firebaseConfigurationService.getFunctions()
+    }
+    private var db: Firestore {
+        return ServiceContainer.shared.firebaseConfigurationService.getFirestore()
+    }
+    private var appCheck: AppCheck {
+        return ServiceContainer.shared.firebaseConfigurationService.getAppCheck()
+    }
     private let logger = Logger(subsystem: "VividAI", category: "FirebaseValidation")
     
     // MARK: - Enhanced Device Fingerprinting
@@ -71,7 +80,7 @@ class FirebaseValidationService: ObservableObject {
         logger.info("Validating trial with Firebase for device: \(trialData.deviceId)")
         
         // Get Firebase ID token
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw ValidationError.notAuthenticated
         }
         
@@ -112,7 +121,7 @@ class FirebaseValidationService: ObservableObject {
     func startTrialWithFirebase(type: TrialType) async throws -> TrialValidationResult {
         logger.info("Starting trial with Firebase validation: \(type)")
         
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw ValidationError.notAuthenticated
         }
         
@@ -147,7 +156,7 @@ class FirebaseValidationService: ObservableObject {
     func detectAbuseWithFirebase() async throws -> AbuseDetectionResult {
         logger.info("Detecting abuse with Firebase")
         
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw ValidationError.notAuthenticated
         }
         
@@ -176,7 +185,7 @@ class FirebaseValidationService: ObservableObject {
     func storeTrialDataInFirestore(_ trialData: TrialData) async throws {
         logger.info("Storing trial data in Firestore")
         
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw ValidationError.notAuthenticated
         }
         
@@ -204,7 +213,7 @@ class FirebaseValidationService: ObservableObject {
     func getTrialHistoryFromFirestore() async throws -> [TrialData] {
         logger.info("Fetching trial history from Firestore")
         
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw ValidationError.notAuthenticated
         }
         
@@ -257,7 +266,7 @@ class FirebaseValidationService: ObservableObject {
     func validateReferralWithFirebase(_ referralData: ReferralData) async throws -> ReferralValidationResult {
         logger.info("Validating referral with Firebase for device: \(referralData.deviceId)")
         
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw ValidationError.notAuthenticated
         }
         
@@ -293,7 +302,7 @@ class FirebaseValidationService: ObservableObject {
         eventParams["deviceFingerprint"] = generateDeviceFingerprint()
         eventParams["timestamp"] = Date().timeIntervalSince1970
         
-        Analytics.logEvent(event, parameters: eventParams)
+        ServiceContainer.shared.firebaseConfigurationService.getAnalytics().logEvent(event, parameters: eventParams)
         logger.info("Tracked trial event: \(event)")
     }
 }

@@ -14,7 +14,9 @@ class AIHeadshotService: ObservableObject {
     // This service focuses on AI processing logic, not state management
     @Published var processingProgress: Double = 0.0
     
-    private let configuration = ConfigurationService.shared
+    private var configuration: ConfigurationService {
+        return ServiceContainer.shared.configurationService
+    }
     // Use ServiceContainer to avoid creating multiple instances
     private var realTimeService: RealTimeGenerationService {
         return ServiceContainer.shared.realTimeGenerationService

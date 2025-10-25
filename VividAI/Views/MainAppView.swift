@@ -10,6 +10,8 @@ struct MainAppView: View {
             switch navigationCoordinator.currentView {
             case .splash:
                 SplashScreenView()
+            case .authentication:
+                AuthenticationView()
             case .home:
                 HomeView()
             case .photoUpload:

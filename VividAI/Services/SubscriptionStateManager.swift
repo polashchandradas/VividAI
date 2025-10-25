@@ -1,0 +1,380 @@
+import Foundation
+import SwiftUI
+import Combine
+import StoreKit
+import os.log
+
+// MARK: - Unified Subscription State Manager
+// Single source of truth for all subscription and trial state
+
+class SubscriptionStateManager: ObservableObject {
+    static let shared = SubscriptionStateManager()
+    
+    // MARK: - Published Properties (Single Source of Truth)
+    
+    @Published var isPremiumUser = false
+    @Published var subscriptionStatus: SubscriptionStatus = .none
+    @Published var isTrialActive = false
+    @Published var trialType: TrialType = .none
+    @Published var trialDaysRemaining = 0
+    @Published var trialGenerationsUsed = 0
+    @Published var trialMaxGenerations = 3
+    @Published var canGenerate = true
+    @Published var remainingGenerations = 0
+    
+    // MARK: - Computed Properties
+    
+    var userStatus: UserStatus {
+        if isPremiumUser {
+            return .premium
+        } else if isTrialActive {
+            return .trial(trialType)
+        } else {
+            return .free
+        }
+    }
+    
+    var generationLimits: GenerationLimits {
+        if isPremiumUser {
+            return .unlimited
+        } else if isTrialActive {
+            return .trial(
+                used: trialGenerationsUsed,
+                max: trialMaxGenerations,
+                daysRemaining: trialDaysRemaining
+            )
+        } else {
+            return .free(remaining: remainingGenerations)
+        }
+    }
+    
+    // MARK: - Private Properties
+    
+    private let logger = Logger(subsystem: "VividAI", category: "SubscriptionState")
+    private var cancellables = Set<AnyCancellable>()
+    
+    // Service dependencies
+    private var subscriptionManager: SubscriptionManager { ServiceContainer.shared.subscriptionManager }
+    private var freeTrialService: FreeTrialService { ServiceContainer.shared.freeTrialService }
+    private var usageLimitService: UsageLimitService { ServiceContainer.shared.usageLimitService }
+    private var secureStorageService: SecureStorageService { ServiceContainer.shared.secureStorageService }
+    private var analyticsService: AnalyticsService { ServiceContainer.shared.analyticsService }
+    
+    // MARK: - Initialization
+    
+    private init() {
+        setupSubscriptions()
+        loadInitialState()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupSubscriptions() {
+        // Monitor subscription manager changes
+        subscriptionManager.$availableProducts
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateSubscriptionState()
+            }
+            .store(in: &cancellables)
+        
+        // Monitor free trial service changes
+        freeTrialService.$isTrialActive
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateTrialState()
+            }
+            .store(in: &cancellables)
+        
+        freeTrialService.$trialDaysRemaining
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateTrialState()
+            }
+            .store(in: &cancellables)
+        
+        freeTrialService.$generationsUsed
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateTrialState()
+            }
+            .store(in: &cancellables)
+        
+        // Monitor usage limit service changes
+        usageLimitService.$dailyGenerations
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateUsageLimits()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func loadInitialState() {
+        logger.info("Loading initial subscription state")
+        
+        // Load subscription state from SubscriptionManager
+        updateSubscriptionState()
+        
+        // Load trial state from FreeTrialService
+        updateTrialState()
+        
+        // Load usage limits from UsageLimitService
+        updateUsageLimits()
+        
+        // Calculate unified state
+        calculateUnifiedState()
+    }
+    
+    // MARK: - State Updates
+    
+    private func updateSubscriptionState() {
+        // Get subscription state from SubscriptionManager
+        let isPremium = subscriptionManager.currentIsPremiumUser
+        let status = subscriptionManager.currentSubscriptionStatus
+        
+        DispatchQueue.main.async {
+            self.isPremiumUser = isPremium
+            self.subscriptionStatus = status
+            self.calculateUnifiedState()
+        }
+        
+        logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
+    }
+    
+    private func updateTrialState() {
+        DispatchQueue.main.async {
+            self.isTrialActive = self.freeTrialService.isTrialActive
+            self.trialType = self.freeTrialService.trialType
+            self.trialDaysRemaining = self.freeTrialService.trialDaysRemaining
+            self.trialGenerationsUsed = self.freeTrialService.generationsUsed
+            self.trialMaxGenerations = self.freeTrialService.maxGenerations
+            self.calculateUnifiedState()
+        }
+        
+        logger.info("Trial state updated: isActive=\(self.freeTrialService.isTrialActive), type=\(self.freeTrialService.trialType)")
+    }
+    
+    private func updateUsageLimits() {
+        DispatchQueue.main.async {
+            self.remainingGenerations = self.usageLimitService.getRemainingGenerations(
+                isPremium: self.isPremiumUser,
+                isTrialActive: self.isTrialActive
+            )
+            self.calculateUnifiedState()
+        }
+        
+        logger.info("Usage limits updated: remaining=\(self.remainingGenerations)")
+    }
+    
+    private func calculateUnifiedState() {
+        // Calculate if user can generate
+        let canGenerate = calculateCanGenerate()
+        
+        // Update published properties
+        self.canGenerate = canGenerate
+        
+        // Log state change
+        logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(self.userStatus)")
+        
+        // Track analytics
+        analyticsService.track(event: "subscription_state_updated", parameters: [
+            "is_premium": isPremiumUser,
+            "is_trial_active": isTrialActive,
+            "trial_type": "\(trialType)",
+            "can_generate": canGenerate,
+            "remaining_generations": remainingGenerations
+        ])
+    }
+    
+    private func calculateCanGenerate() -> Bool {
+        // Premium users can always generate
+        if isPremiumUser {
+            return true
+        }
+        
+        // Check trial limits if trial is active
+        if isTrialActive {
+            return freeTrialService.canUserGenerate()
+        }
+        
+        // Check usage limits for free users
+        return usageLimitService.canGenerate(
+            isPremium: isPremiumUser,
+            isTrialActive: isTrialActive
+        )
+    }
+    
+    // MARK: - Public Methods
+    
+    func refreshState() {
+        logger.info("Refreshing subscription state")
+        
+        // Refresh subscription status
+        subscriptionManager.checkSubscriptionStatus()
+        
+        // Refresh trial status
+        freeTrialService.checkTrialStatus()
+        
+        // Refresh usage limits
+        usageLimitService.refreshLimits()
+    }
+    
+    func startFreeTrial(type: TrialType) {
+        logger.info("Starting free trial: \(type)")
+        
+        // Delegate to FreeTrialService
+        freeTrialService.startFreeTrial(type: type)
+        
+        // State will be updated through subscriptions
+        analyticsService.track(event: "free_trial_started", parameters: [
+            "trial_type": "\(type)"
+        ])
+    }
+    
+    func recordGeneration() {
+        logger.info("Recording generation")
+        
+        // Record in usage limit service
+        usageLimitService.recordGeneration()
+        
+        // Record in trial service if trial is active
+        if isTrialActive {
+            freeTrialService.recordGeneration()
+        }
+        
+        // Update state
+        updateUsageLimits()
+        updateTrialState()
+        
+        analyticsService.track(event: "generation_recorded", parameters: [
+            "is_premium": isPremiumUser,
+            "is_trial_active": isTrialActive,
+            "trial_type": "\(trialType)"
+        ])
+    }
+    
+    func getRemainingGenerations() -> Int {
+        if isPremiumUser {
+            return 999 // Unlimited
+        }
+        
+        if isTrialActive {
+            return max(0, trialMaxGenerations - trialGenerationsUsed)
+        }
+        
+        return remainingGenerations
+    }
+    
+    func getLimitMessage() -> String {
+        if isPremiumUser {
+            return "You have unlimited generations with Pro"
+        }
+        
+        if isTrialActive {
+            return getTrialLimitMessage()
+        }
+        
+        return getFreeUserLimitMessage()
+    }
+    
+    private func getTrialLimitMessage() -> String {
+        switch trialType {
+        case .limited:
+            return "Trial limit reached (\(trialGenerationsUsed)/\(trialMaxGenerations) generations used)"
+        case .unlimited:
+            return "Trial expired (\(trialDaysRemaining) days remaining)"
+        case .freemium:
+            return "Daily limit reached (1 generation per day)"
+        case .none:
+            return "No active trial"
+        }
+    }
+    
+    private func getFreeUserLimitMessage() -> String {
+        return usageLimitService.getLimitMessage(
+            isPremium: isPremiumUser,
+            isTrialActive: isTrialActive
+        )
+    }
+    
+    // MARK: - Subscription Actions
+    
+    func handleSubscriptionAction(_ action: SubscriptionAction) {
+        logger.info("Handling subscription action: \(action)")
+        
+        switch action {
+        case .startFreeTrial(let plan):
+            let trialType: TrialType = plan == .annual ? .unlimited : .limited
+            startFreeTrial(type: trialType)
+            
+        case .purchase(let product):
+            subscriptionManager.purchase(product: product)
+            
+        case .restorePurchases:
+            subscriptionManager.restorePurchases()
+            
+        case .cancelSubscription:
+            subscriptionManager.cancelSubscription()
+        }
+    }
+}
+
+// MARK: - Supporting Types
+
+enum UserStatus {
+    case free
+    case trial(TrialType)
+    case premium
+    
+    var isPremium: Bool {
+        if case .premium = self { return true }
+        return false
+    }
+    
+    var isTrialActive: Bool {
+        if case .trial = self { return true }
+        return false
+    }
+}
+
+enum GenerationLimits {
+    case unlimited
+    case trial(used: Int, max: Int, daysRemaining: Int)
+    case free(remaining: Int)
+    
+    var canGenerate: Bool {
+        switch self {
+        case .unlimited:
+            return true
+        case .trial(let used, let max, _):
+            return used < max
+        case .free(let remaining):
+            return remaining > 0
+        }
+    }
+    
+    var remainingGenerations: Int {
+        switch self {
+        case .unlimited:
+            return 999
+        case .trial(let used, let max, _):
+            return max(0, max - used)
+        case .free(let remaining):
+            return remaining
+        }
+    }
+}
+
+enum SubscriptionAction {
+    case startFreeTrial(SubscriptionManager.SubscriptionPlan)
+    case purchase(Product)
+    case restorePurchases
+    case cancelSubscription
+}
+
+enum TrialType {
+    case none
+    case limited
+    case unlimited
+    case freemium
+}

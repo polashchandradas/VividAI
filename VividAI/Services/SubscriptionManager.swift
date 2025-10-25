@@ -11,10 +11,16 @@ import CoreData
 class SubscriptionManager: NSObject, ObservableObject {
     static let shared = SubscriptionManager()
     
-    @Published var isPremiumUser = false
-    @Published var subscriptionStatus: SubscriptionStatus = .none
+    // MARK: - Published State (Only for StoreKit-specific data)
     @Published var availableProducts: [StoreKit.Product] = []
     @Published var isLoading = false
+    
+    // MARK: - Private State (No longer published - delegated to AuthenticationService)
+    private var _isPremiumUser = false
+    private var _subscriptionStatus: SubscriptionStatus = .none
+    
+    // MARK: - Callback for state changes
+    var onSubscriptionStateChanged: ((Bool, SubscriptionStatus) -> Void)?
     
     private var productRequest: Task<Void, Error>?
     private var updateListenerTask: Task<Void, Error>?
@@ -110,8 +116,9 @@ class SubscriptionManager: NSObject, ObservableObject {
                     
                     // Update status
                     await MainActor.run {
-                        self.isPremiumUser = true
-                        self.subscriptionStatus = .trial
+                        self._isPremiumUser = true
+                        self._subscriptionStatus = .trial
+                        self.onSubscriptionStateChanged?(true, .trial)
                     }
                     
                     // Track analytics
@@ -123,8 +130,9 @@ class SubscriptionManager: NSObject, ObservableObject {
                 } else {
                     // Handle abuse or validation failure
                     await MainActor.run {
-                        self.isPremiumUser = false
-                        self.subscriptionStatus = .none
+                        self._isPremiumUser = false
+                        self._subscriptionStatus = .none
+                        self.onSubscriptionStateChanged?(false, .none)
                     }
                     
                     ServiceContainer.shared.analyticsService.track(event: "trial_start_blocked", parameters: [
@@ -144,8 +152,9 @@ class SubscriptionManager: NSObject, ObservableObject {
                 ServiceContainer.shared.secureStorageService.storeTrialData(trialData)
                 
                 await MainActor.run {
-                    self.isPremiumUser = true
-                    self.subscriptionStatus = .trial
+                    self._isPremiumUser = true
+                    self._subscriptionStatus = .trial
+                    self.onSubscriptionStateChanged?(true, .trial)
                 }
                 
                 ServiceContainer.shared.analyticsService.track(event: "free_trial_started_local", parameters: [
@@ -179,8 +188,9 @@ class SubscriptionManager: NSObject, ObservableObject {
                 if case .verified(let transaction) = result {
                     if transaction.productType == .autoRenewable {
                         await MainActor.run {
-                            self.isPremiumUser = true
-                            self.subscriptionStatus = .active
+                            self._isPremiumUser = true
+                            self._subscriptionStatus = .active
+                            self.onSubscriptionStateChanged?(true, .active)
                         }
                         return
                     }
@@ -190,8 +200,9 @@ class SubscriptionManager: NSObject, ObservableObject {
             // Check for free trial
             if isFreeTrialActive() {
                 await MainActor.run {
-                    self.isPremiumUser = true
-                    self.subscriptionStatus = .trial
+                    self._isPremiumUser = true
+                    self._subscriptionStatus = .trial
+                    self.onSubscriptionStateChanged?(true, .trial)
                 }
             }
         }
@@ -211,8 +222,9 @@ class SubscriptionManager: NSObject, ObservableObject {
             }
             
             await MainActor.run {
-                self.isPremiumUser = hasActiveSubscription || self.isFreeTrialActive()
-                self.subscriptionStatus = hasActiveSubscription ? .active : (self.isFreeTrialActive() ? .trial : .none)
+                self._isPremiumUser = hasActiveSubscription || self.isFreeTrialActive()
+                self._subscriptionStatus = hasActiveSubscription ? .active : (self.isFreeTrialActive() ? .trial : .none)
+                self.onSubscriptionStateChanged?(self._isPremiumUser, self._subscriptionStatus)
             }
         }
     }
@@ -228,8 +240,9 @@ class SubscriptionManager: NSObject, ObservableObject {
             if !serverValidation.isValid || !serverValidation.serverValidated {
                 // Server says trial is invalid - update local state
                 await MainActor.run {
-                    self.isPremiumUser = false
-                    self.subscriptionStatus = .none
+                    self._isPremiumUser = false
+                    self._subscriptionStatus = .none
+                    self.onSubscriptionStateChanged?(false, .none)
                 }
                 
                 // Clear invalid trial data
@@ -280,10 +293,20 @@ class SubscriptionManager: NSObject, ObservableObject {
         return availableProducts.first { $0.id == productID }
     }
     
+    // MARK: - Current State Access (for AuthenticationService)
+    
+    var currentIsPremiumUser: Bool {
+        return _isPremiumUser
+    }
+    
+    var currentSubscriptionStatus: SubscriptionStatus {
+        return _subscriptionStatus
+    }
+    
     func getSubscriptionInfo() -> SubscriptionInfo {
         return SubscriptionInfo(
-            isPremium: isPremiumUser,
-            status: subscriptionStatus,
+            isPremium: _isPremiumUser,
+            status: _subscriptionStatus,
             trialDaysRemaining: getTrialDaysRemaining()
         )
     }
