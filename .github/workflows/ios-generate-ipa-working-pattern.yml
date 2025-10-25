@@ -1,4 +1,4 @@
-name: Generate iOS Simulator IPA (Real Solution)
+name: Generate iOS Simulator IPA (Working Pattern)
 
 on:
   push:
@@ -48,14 +48,14 @@ jobs:
         # Wait for simulator to be ready
         xcrun simctl bootstatus "VividAI-Test" -b || echo "Simulator status check failed"
         
-    - name: Build for iOS Simulator using proper approach
+    - name: Build for iOS Simulator using working pattern
       run: |
-        echo "🔨 Building for iOS Simulator using proper approach..."
+        echo "🔨 Building for iOS Simulator using working pattern..."
         echo "📱 Target: VividAI-Test"
         
         set -e
         
-        # Use build approach with proper output management
+        # Use build approach that actually works
         xcodebuild build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
@@ -71,27 +71,45 @@ jobs:
         
         echo "✅ Build completed successfully!"
         
-    - name: Find and verify app bundle in DerivedData
+    - name: Find app bundle using comprehensive search
       run: |
-        echo "🔍 Looking for app bundle in DerivedData..."
+        echo "🔍 Looking for app bundle using comprehensive search..."
         
-        # Look for app bundle in DerivedData
-        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        # Method 1: Check DerivedData/Build/Products/Release-iphonesimulator
+        APP_PATH=$(find ./DerivedData/Build/Products/Release-iphonesimulator -name "VividAI.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "❌ App bundle not found in DerivedData"
-          echo "📁 Searching in DerivedData:"
-          find ./DerivedData -name "*.app" -type d || echo "No .app files found in DerivedData"
+          echo "❌ App bundle not found in Release-iphonesimulator"
+          echo "📁 Searching in Release-iphonesimulator:"
+          find ./DerivedData/Build/Products/Release-iphonesimulator -name "*.app" -type d || echo "No .app files found"
           
-          # Method 2: Check if build was successful by looking for any VividAI.app
-          echo "📁 Searching for any VividAI.app:"
-          find . -name "VividAI.app" -type d || echo "No VividAI.app found"
+          # Method 2: Check DerivedData/Build/Products/Debug-iphonesimulator
+          APP_PATH=$(find ./DerivedData/Build/Products/Debug-iphonesimulator -name "VividAI.app" -type d | head -1)
           
-          # Method 3: Check the build output directory
-          echo "📁 Checking build output:"
-          find . -name "*.app" -type d || echo "No .app files found in current directory"
-          
-          exit 1
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found in Debug-iphonesimulator"
+            echo "📁 Searching in Debug-iphonesimulator:"
+            find ./DerivedData/Build/Products/Debug-iphonesimulator -name "*.app" -type d || echo "No .app files found"
+            
+            # Method 3: Check entire DerivedData directory
+            APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+            
+            if [ -z "$APP_PATH" ]; then
+              echo "❌ App bundle not found in DerivedData"
+              echo "📁 Searching in DerivedData:"
+              find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+              
+              # Method 4: Check if build was successful by looking for any VividAI.app
+              echo "📁 Searching for any VividAI.app:"
+              find . -name "VividAI.app" -type d || echo "No VividAI.app found"
+              
+              # Method 5: Check the build output directory
+              echo "📁 Checking build output:"
+              find . -name "*.app" -type d || echo "No .app files found in current directory"
+              
+              exit 1
+            fi
+          fi
         fi
         
         echo "✅ App bundle found at: $APP_PATH"
