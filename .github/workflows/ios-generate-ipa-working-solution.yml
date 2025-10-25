@@ -68,7 +68,14 @@ jobs:
         
         set -e
         
+        echo "📁 Current directory contents before build:"
+        ls -la ./
+        
+        echo "📁 DerivedData contents before build:"
+        ls -la ./DerivedData/ || echo "DerivedData directory not found"
+        
         # Use build approach with explicit output management
+        echo "🔨 Starting xcodebuild build..."
         xcodebuild build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
@@ -90,8 +97,23 @@ jobs:
         echo "📁 DerivedData contents after build:"
         ls -la ./DerivedData/ || echo "DerivedData directory not found"
         
+        echo "📁 DerivedData subdirectories:"
+        find ./DerivedData -type d | head -20 || echo "No directories found"
+        
         echo "📁 Looking for any .app files:"
         find . -name "*.app" -type d || echo "No .app files found"
+        
+        echo "📁 Looking for any .xcarchive files:"
+        find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
+        
+        echo "📁 Looking for any build products:"
+        find ./DerivedData -name "*VividAI*" -type d || echo "No VividAI products found"
+        
+        echo "📁 Looking for any build directories:"
+        find ./DerivedData -name "*Build*" -type d || echo "No Build directories found"
+        
+        echo "📁 Looking for any Products directories:"
+        find ./DerivedData -name "*Products*" -type d || echo "No Products directories found"
         
     - name: Find app bundle using comprehensive search
       run: |
