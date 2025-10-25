@@ -13,11 +13,11 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(.systemBackground)
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: DesignSystem.Spacing.xl) {
                         // Header
                         headerSection
                         
@@ -39,8 +39,8 @@ struct SettingsView: View {
                         // App Version
                         versionSection
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.top, DesignSystem.Spacing.lg)
                 }
             }
             .navigationBarHidden(true)
@@ -56,98 +56,94 @@ struct SettingsView: View {
                 navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             
             Spacer()
             
             Text("Settings")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
             // Invisible spacer for balance
             Color.clear
-                .frame(width: 18, height: 18)
+                .frame(width: DesignSystem.IconSizes.medium, height: DesignSystem.IconSizes.medium)
         }
     }
     
     private var accountSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Text("ACCOUNT")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.smallBold)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .tracking(1)
                 
                 Spacer()
             }
             
-            HStack(spacing: 16) {
-                // Profile Photo
-                Circle()
-                    .fill(Color(.systemGray5))
-                    .frame(width: 60, height: 60)
-                    .overlay(
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.secondary)
-                    )
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Free Account")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+            ModernCard(
+                padding: DesignSystem.Spacing.md,
+                cornerRadius: DesignSystem.CornerRadius.md,
+                shadow: DesignSystem.Shadows.small
+            ) {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    // Profile Photo
+                    Circle()
+                        .fill(DesignSystem.Colors.neutralDark)
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .font(.system(size: DesignSystem.IconSizes.large))
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        )
                     
-                    if !subscriptionManager.isPremiumUser {
-                        Button(action: {
-                            analyticsService.track(event: "upgrade_tapped_from_settings")
-                            navigationCoordinator.showPaywall()
-                        }) {
-                            Text("⭐ Upgrade to Pro")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color.blue, Color.purple]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .cornerRadius(8)
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text("Free Account")
+                            .font(DesignSystem.Typography.bodyBold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        if !subscriptionManager.isPremiumUser {
+                            Button(action: {
+                                analyticsService.track(event: "upgrade_tapped_from_settings")
+                                navigationCoordinator.showPaywall()
+                            }) {
+                                Text("⭐ Upgrade to Pro")
+                                    .font(DesignSystem.Typography.captionBold)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, DesignSystem.Spacing.md)
+                                    .padding(.vertical, DesignSystem.Spacing.sm)
+                                    .background(DesignSystem.Colors.gradientPrimary)
+                                    .cornerRadius(DesignSystem.CornerRadius.sm)
+                            }
+                        } else {
+                            Text("Pro Member")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.success)
                         }
-                    } else {
-                        Text("Pro Member")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.green)
                     }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
         }
     }
     
     private var subscriptionSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Text("SUBSCRIPTION")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.smallBold)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .tracking(1)
                 
                 Spacer()
             }
             
-            VStack(spacing: 12) {
+            VStack(spacing: DesignSystem.Spacing.md) {
                 settingsRow(
                     icon: "creditcard.fill",
                     title: "Manage Subscription",
@@ -170,17 +166,17 @@ struct SettingsView: View {
     }
     
     private var preferencesSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Text("PREFERENCES")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.smallBold)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .tracking(1)
                 
                 Spacer()
             }
             
-            VStack(spacing: 12) {
+            VStack(spacing: DesignSystem.Spacing.md) {
                 settingsToggleRow(
                     icon: "bell.fill",
                     title: "Notifications",
@@ -203,17 +199,17 @@ struct SettingsView: View {
     }
     
     private var helpSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Text("HELP")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.smallBold)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .tracking(1)
                 
                 Spacer()
             }
             
-            VStack(spacing: 12) {
+            VStack(spacing: DesignSystem.Spacing.md) {
                 settingsRow(
                     icon: "play.fill",
                     title: "Tutorial",
@@ -254,17 +250,17 @@ struct SettingsView: View {
     }
     
     private var legalSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Text("LEGAL")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.smallBold)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .tracking(1)
                 
                 Spacer()
             }
             
-            VStack(spacing: 12) {
+            VStack(spacing: DesignSystem.Spacing.md) {
                 settingsRow(
                     icon: "doc.text.fill",
                     title: "Terms of Service",
@@ -287,64 +283,68 @@ struct SettingsView: View {
     }
     
     private var versionSection: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: DesignSystem.Spacing.sm) {
             Text("Version 1.0.0")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.small)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
             
             Text("Made with ❤️ by VividAI Team")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.small)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
         }
-        .padding(.top, 20)
+        .padding(.top, DesignSystem.Spacing.lg)
     }
     
     private func settingsRow(icon: String, title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.blue)
-                    .frame(width: 24)
-                
-                Text(title)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.secondary)
+            ModernCard(
+                padding: DesignSystem.Spacing.md,
+                cornerRadius: DesignSystem.CornerRadius.md,
+                shadow: DesignSystem.Shadows.small
+            ) {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    Image(systemName: icon)
+                        .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.primary)
+                        .frame(width: 24)
+                    
+                    Text(title)
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: DesignSystem.IconSizes.xs, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
     }
     
     private func settingsToggleRow(icon: String, title: String, isOn: Binding<Bool>) -> some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.blue)
-                .frame(width: 24)
-            
-            Text(title)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.primary)
-            
-            Spacer()
-            
-            Toggle("", isOn: isOn)
-                .labelsHidden()
+        ModernCard(
+            padding: DesignSystem.Spacing.md,
+            cornerRadius: DesignSystem.CornerRadius.md,
+            shadow: DesignSystem.Shadows.small
+        ) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                Image(systemName: icon)
+                    .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.primary)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Spacer()
+                
+                Toggle("", isOn: isOn)
+                    .labelsHidden()
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
     }
 }
 

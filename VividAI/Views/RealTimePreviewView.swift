@@ -24,10 +24,10 @@ struct RealTimePreviewView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(.systemBackground)
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
-                VStack(spacing: 20) {
+                VStack(spacing: DesignSystem.Spacing.lg) {
                     // Header
                     headerSection
                     
@@ -43,8 +43,8 @@ struct RealTimePreviewView: View {
                     // Action Buttons
                     actionButtonsSection
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.top, DesignSystem.Spacing.lg)
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $isShowingStylePicker) {
@@ -67,15 +67,15 @@ struct RealTimePreviewView: View {
                 appCoordinator.navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             
             Spacer()
             
             Text("Real-Time Preview")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
@@ -84,8 +84,8 @@ struct RealTimePreviewView: View {
                 // Show settings
             }) {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
         }
     }
@@ -93,10 +93,10 @@ struct RealTimePreviewView: View {
     // MARK: - Image Preview Section
     
     private var imagePreviewSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             Text("Upload Photo")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.bodyBold)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Button(action: {
                 selectImage()
@@ -106,24 +106,24 @@ struct RealTimePreviewView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(height: 200)
-                        .cornerRadius(16)
+                        .cornerRadius(DesignSystem.CornerRadius.lg)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                .stroke(DesignSystem.Colors.neutralDark, lineWidth: 1)
                         )
                 } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.systemGray6))
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                        .fill(DesignSystem.Colors.neutral)
                         .frame(height: 200)
                         .overlay(
-                            VStack(spacing: 12) {
+                            VStack(spacing: DesignSystem.Spacing.md) {
                                 Image(systemName: "photo.badge.plus")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.blue)
+                                    .font(.system(size: DesignSystem.IconSizes.xxlarge))
+                                    .foregroundColor(DesignSystem.Colors.primary)
                                 
                                 Text("Tap to upload photo")
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.primary)
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
                             }
                         )
                 }
@@ -134,17 +134,17 @@ struct RealTimePreviewView: View {
     // MARK: - Real-Time Preview Section
     
     private var realTimePreviewSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Text("Live Preview")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.bodyBold)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 
                 Spacer()
                 
                 // Auto-generate toggle
                 Toggle("Auto", isOn: $autoGenerate)
-                    .toggleStyle(SwitchToggleStyle(tint: .blue))
+                    .toggleStyle(SwitchToggleStyle(tint: DesignSystem.Colors.primary))
                     .scaleEffect(0.8)
             }
             
@@ -153,43 +153,41 @@ struct RealTimePreviewView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 200)
-                    .cornerRadius(16)
+                    .cornerRadius(DesignSystem.CornerRadius.lg)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.blue, lineWidth: 2)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                            .stroke(DesignSystem.Colors.primary, lineWidth: 2)
                     )
                     .overlay(
                         // Generation progress overlay
                         Group {
                             if isGenerating {
                                 VStack {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                        .scaleEffect(1.2)
+                                    ModernLoadingIndicator(size: 30, color: .white)
                                     
                                     Text("Generating...")
-                                        .font(.system(size: 12, weight: .medium))
+                                        .font(DesignSystem.Typography.small)
                                         .foregroundColor(.white)
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(Color.black.opacity(0.6))
-                                .cornerRadius(16)
+                                .cornerRadius(DesignSystem.CornerRadius.lg)
                             }
                         }
                     )
             } else {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray6))
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                    .fill(DesignSystem.Colors.neutral)
                     .frame(height: 200)
                     .overlay(
-                        VStack(spacing: 8) {
+                        VStack(spacing: DesignSystem.Spacing.sm) {
                             Image(systemName: "wand.and.stars")
-                                .font(.system(size: 30))
-                                .foregroundColor(.blue)
+                                .font(.system(size: DesignSystem.IconSizes.xlarge))
+                                .foregroundColor(DesignSystem.Colors.primary)
                             
                             Text("Select a style to see preview")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                     )
             }
@@ -199,13 +197,13 @@ struct RealTimePreviewView: View {
     // MARK: - Style Selection Section
     
     private var styleSelectionSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
             Text("Choose Style")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.bodyBold)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     ForEach(AvatarStyle.allStyles) { style in
                         StyleCard(
                             style: style,
@@ -216,7 +214,7 @@ struct RealTimePreviewView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, DesignSystem.Spacing.xs)
             }
         }
     }
@@ -224,68 +222,62 @@ struct RealTimePreviewView: View {
     // MARK: - Action Buttons Section
     
     private var actionButtonsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             // Generate Full Quality Button
             Button(action: {
                 generateFullQuality()
             }) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
                     
                     Text("GENERATE FULL QUALITY")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(DesignSystem.Typography.button)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.blue, Color.purple]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                .frame(height: DesignSystem.Heights.button)
+                .background(DesignSystem.Colors.gradientPrimary)
+                .cornerRadius(DesignSystem.CornerRadius.lg)
+                .shadow(color: DesignSystem.Colors.shadow, radius: DesignSystem.Shadows.medium.radius, x: 0, y: 4)
             }
             .disabled(selectedImage == nil || selectedStyle == nil)
             .opacity(selectedImage == nil || selectedStyle == nil ? 0.6 : 1.0)
             
             // Quick Actions
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 Button(action: {
                     clearPreview()
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "trash")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
                         
                         Text("Clear")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(DesignSystem.Typography.captionBold)
                     }
-                    .foregroundColor(.red)
+                    .foregroundColor(DesignSystem.Colors.error)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(Color.red.opacity(0.1))
-                    .cornerRadius(12)
+                    .frame(height: DesignSystem.Heights.buttonSmall)
+                    .background(DesignSystem.Colors.error.opacity(0.1))
+                    .cornerRadius(DesignSystem.CornerRadius.md)
                 }
                 
                 Button(action: {
                     savePreview()
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "square.and.arrow.down")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
                         
                         Text("Save")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(DesignSystem.Typography.captionBold)
                     }
-                    .foregroundColor(.green)
+                    .foregroundColor(DesignSystem.Colors.success)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(12)
+                    .frame(height: DesignSystem.Heights.buttonSmall)
+                    .background(DesignSystem.Colors.success.opacity(0.1))
+                    .cornerRadius(DesignSystem.CornerRadius.md)
                 }
             }
         }
@@ -410,38 +402,38 @@ struct StyleCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 // Style Icon
                 Image(systemName: styleIcon)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(isSelected ? .white : .blue)
+                    .font(.system(size: DesignSystem.IconSizes.large, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.primary)
                 
                 // Style Name
                 Text(style.name)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(isSelected ? .white : .primary)
+                    .font(DesignSystem.Typography.small)
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                 
                 // Premium Badge
                 if style.isPremium {
                     Text("PRO")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(DesignSystem.Typography.smallBold)
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange)
+                        .background(DesignSystem.Colors.warning)
                         .cornerRadius(4)
                 }
             }
             .frame(width: 80, height: 80)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue : Color(.systemGray6))
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                    .fill(isSelected ? DesignSystem.Colors.primary : DesignSystem.Colors.neutral)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                    .stroke(isSelected ? DesignSystem.Colors.primary : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -503,35 +495,35 @@ struct StyleRow: View {
     
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 // Style Icon
                 Image(systemName: styleIcon)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(.blue)
+                    .font(.system(size: DesignSystem.IconSizes.large, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.primary)
                     .frame(width: 40, height: 40)
                 
                 // Style Info
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text(style.name)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .font(DesignSystem.Typography.bodyBold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
                     
                     Text(style.description)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     HStack {
                         Text("\(Int(style.processingTime))s")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .font(DesignSystem.Typography.small)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         if style.isPremium {
                             Text("PRO")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(DesignSystem.Typography.smallBold)
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.orange)
+                                .background(DesignSystem.Colors.warning)
                                 .cornerRadius(4)
                         }
                     }
@@ -542,11 +534,11 @@ struct StyleRow: View {
                 // Selection Indicator
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.blue)
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.primary)
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, DesignSystem.Spacing.sm)
         }
         .buttonStyle(PlainButtonStyle())
     }

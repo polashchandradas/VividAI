@@ -26,11 +26,11 @@ struct ResultsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(.systemBackground)
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: DesignSystem.Spacing.xl) {
                         // Header
                         headerSection
                         
@@ -43,8 +43,8 @@ struct ResultsView: View {
                         // Action Buttons
                         actionButtonsSection
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.top, DesignSystem.Spacing.lg)
                 }
             }
             .navigationBarHidden(true)
@@ -71,15 +71,15 @@ struct ResultsView: View {
                 navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             
             Spacer()
             
             Text("Your Headshots")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
@@ -87,19 +87,19 @@ struct ResultsView: View {
                 navigationCoordinator.showSettings()
             }) {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
         }
     }
     
     private var resultsGridSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             Text("Tap any to view full")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: DesignSystem.Spacing.md), count: 2), spacing: DesignSystem.Spacing.md) {
                 ForEach(headshotStyles) { headshot in
                     HeadshotCard(
                         headshot: headshot,
@@ -119,61 +119,55 @@ struct ResultsView: View {
     }
     
     private var watermarkNoticeSection: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.orange)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Watermarked (Free)")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.primary)
+        ModernCard(
+            padding: DesignSystem.Spacing.md,
+            cornerRadius: DesignSystem.CornerRadius.md,
+            shadow: DesignSystem.Shadows.small
+        ) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(DesignSystem.Colors.warning)
                 
-                Text("Upgrade to remove watermarks and unlock all styles")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    Text("Watermarked (Free)")
+                        .font(DesignSystem.Typography.captionBold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Text("Upgrade to remove watermarks and unlock all styles")
+                        .font(DesignSystem.Typography.small)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                
+                Spacer()
             }
-            
-            Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color.orange.opacity(0.1))
-        .cornerRadius(12)
+        .background(DesignSystem.Colors.warning.opacity(0.1))
     }
     
     private var actionButtonsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             // Primary CTA - Remove Watermark
             Button(action: {
                 analyticsService.track(event: "remove_watermark_tapped")
                 navigationCoordinator.showPaywall()
             }) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "lock.open.fill")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
                     
                     Text("REMOVE WATERMARK")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(DesignSystem.Typography.button)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.blue,
-                            Color.purple
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                .frame(height: DesignSystem.Heights.button)
+                .background(DesignSystem.Colors.gradientPrimary)
+                .cornerRadius(DesignSystem.CornerRadius.lg)
+                .shadow(color: DesignSystem.Colors.shadow, radius: DesignSystem.Shadows.medium.radius, x: 0, y: 4)
             }
             
             // Secondary Actions
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 Button(action: {
                     analyticsService.track(event: "share_tapped")
                     // Generate video and show share view
@@ -184,36 +178,36 @@ struct ResultsView: View {
                         appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
                     }
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
                         
                         Text("SHARE")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(DesignSystem.Typography.captionBold)
                     }
-                    .foregroundColor(.blue)
+                    .foregroundColor(DesignSystem.Colors.primary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(12)
+                    .frame(height: DesignSystem.Heights.buttonSmall)
+                    .background(DesignSystem.Colors.primary.opacity(0.1))
+                    .cornerRadius(DesignSystem.CornerRadius.md)
                 }
                 
                 Button(action: {
                     analyticsService.track(event: "save_tapped")
                     // Save functionality
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "square.and.arrow.down")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
                         
                         Text("SAVE")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(DesignSystem.Typography.captionBold)
                     }
-                    .foregroundColor(.green)
+                    .foregroundColor(DesignSystem.Colors.success)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(12)
+                    .frame(height: DesignSystem.Heights.buttonSmall)
+                    .background(DesignSystem.Colors.success.opacity(0.1))
+                    .cornerRadius(DesignSystem.CornerRadius.md)
                 }
             }
         }
@@ -229,22 +223,22 @@ struct HeadshotCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 // Image
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemGray6))
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .fill(DesignSystem.Colors.neutral)
                         .frame(height: 120)
                         .overlay(
-                            VStack(spacing: 8) {
+                            VStack(spacing: DesignSystem.Spacing.sm) {
                                 Image(systemName: "person.crop.circle.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.blue)
+                                    .font(.system(size: DesignSystem.IconSizes.xxlarge))
+                                    .foregroundColor(DesignSystem.Colors.primary)
                                 
                                 if headshot.isPremium && !isPremium {
                                     Image(systemName: "lock.fill")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(.orange)
+                                        .font(.system(size: DesignSystem.IconSizes.small))
+                                        .foregroundColor(DesignSystem.Colors.warning)
                                 }
                             }
                         )
@@ -255,22 +249,22 @@ struct HeadshotCard: View {
                             HStack {
                                 Spacer()
                                 Image(systemName: "crown.fill")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.orange)
+                                    .font(.system(size: DesignSystem.IconSizes.xs))
+                                    .foregroundColor(DesignSystem.Colors.warning)
                                     .padding(4)
                                     .background(Color.white)
                                     .clipShape(Circle())
                             }
                             Spacer()
                         }
-                        .padding(8)
+                        .padding(DesignSystem.Spacing.sm)
                     }
                 }
                 
                 // Style Name
                 Text(headshot.name)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.small)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
             }
@@ -288,52 +282,52 @@ struct FullScreenHeadshotView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                VStack(spacing: 20) {
+                VStack(spacing: DesignSystem.Spacing.lg) {
                     // Full Screen Image
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.systemGray6))
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                        .fill(DesignSystem.Colors.neutral)
                         .frame(maxWidth: .infinity, maxHeight: 400)
                         .overlay(
-                            VStack(spacing: 16) {
+                            VStack(spacing: DesignSystem.Spacing.md) {
                                 Image(systemName: "person.crop.circle.fill")
                                     .font(.system(size: 80))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(DesignSystem.Colors.primary)
                                 
                                 Text(headshot.name)
-                                    .font(.system(size: 18, weight: .semibold))
+                                    .font(DesignSystem.Typography.h4)
                                     .foregroundColor(.white)
                             }
                         )
                     
                     // Style Name
                     Text(headshot.name)
-                        .font(.system(size: 20, weight: .bold))
+                        .font(DesignSystem.Typography.h3)
                         .foregroundColor(.white)
                     
                     // Action Buttons
-                    HStack(spacing: 16) {
+                    HStack(spacing: DesignSystem.Spacing.md) {
                         Button("Share") {
                             // Share functionality
                         }
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(DesignSystem.Typography.button)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(Color.blue)
-                        .cornerRadius(12)
+                        .frame(height: DesignSystem.Heights.buttonSmall)
+                        .background(DesignSystem.Colors.primary)
+                        .cornerRadius(DesignSystem.CornerRadius.md)
                         
                         Button("Save") {
                             // Save functionality
                         }
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(DesignSystem.Typography.button)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(Color.green)
-                        .cornerRadius(12)
+                        .frame(height: DesignSystem.Heights.buttonSmall)
+                        .background(DesignSystem.Colors.success)
+                        .cornerRadius(DesignSystem.CornerRadius.md)
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

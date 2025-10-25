@@ -13,7 +13,7 @@ struct QualitySelectionView: View {
                 Color(.systemBackground)
                     .ignoresSafeArea()
                 
-                VStack(spacing: 24) {
+                VStack(spacing: DesignSystem.Spacing.lg) {
                     // Header
                     headerSection
                     
@@ -31,8 +31,8 @@ struct QualitySelectionView: View {
                     
                     Spacer()
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.horizontal, DesignSystem.Spacing.card)
+                .padding(.top, DesignSystem.Spacing.card)
             }
             .navigationBarHidden(true)
         }
@@ -47,48 +47,48 @@ struct QualitySelectionView: View {
                 // Go back
             }) {
                 Image(systemName: "arrow.left")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             
             Spacer()
             
             Text("Choose Quality")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
             Color.clear
-                .frame(width: 18, height: 18)
+                .frame(width: DesignSystem.IconSizes.medium, height: DesignSystem.IconSizes.medium)
         }
     }
     
     private var imagePreviewSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             if let image = selectedImage {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxHeight: 200)
-                    .cornerRadius(16)
+                    .cornerRadius(DesignSystem.CornerRadius.lg)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.blue, lineWidth: 2)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                            .stroke(DesignSystem.Colors.primary, lineWidth: 2)
                     )
             } else {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray6))
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                    .fill(DesignSystem.Colors.neutral)
                     .frame(height: 200)
                     .overlay(
-                        VStack(spacing: 8) {
+                        VStack(spacing: DesignSystem.Spacing.sm) {
                             Image(systemName: "photo")
-                                .font(.system(size: 40))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: DesignSystem.IconSizes.xxlarge))
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
                             
                             Text("No image selected")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                     )
             }
@@ -96,12 +96,12 @@ struct QualitySelectionView: View {
     }
     
     private var qualityOptionsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             Text("Select Processing Quality")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
-            VStack(spacing: 12) {
+            VStack(spacing: DesignSystem.Spacing.md) {
                 QualityOptionCard(
                     quality: .preview,
                     title: "Preview",
@@ -142,99 +142,94 @@ struct QualitySelectionView: View {
     }
     
     private var processingInfoSection: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(.blue)
+        ModernCard(
+            padding: DesignSystem.Spacing.md,
+            cornerRadius: DesignSystem.CornerRadius.md,
+            shadow: DesignSystem.Shadows.small
+        ) {
+            VStack(spacing: DesignSystem.Spacing.md) {
+                HStack {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundColor(DesignSystem.Colors.primary)
+                    
+                    Text("Processing Information")
+                        .font(DesignSystem.Typography.bodyBold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                }
                 
-                Text("Processing Information")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.primary)
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                    processingInfoRow(
+                        icon: "bolt.fill",
+                        title: "Speed",
+                        value: getSpeedDescription(for: selectedQuality)
+                    )
+                    
+                    processingInfoRow(
+                        icon: "star.fill",
+                        title: "Quality",
+                        value: getQualityDescription(for: selectedQuality)
+                    )
+                    
+                    processingInfoRow(
+                        icon: "wifi",
+                        title: "Network",
+                        value: getNetworkDescription(for: selectedQuality)
+                    )
+                }
             }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                processingInfoRow(
-                    icon: "bolt.fill",
-                    title: "Speed",
-                    value: getSpeedDescription(for: selectedQuality)
-                )
-                
-                processingInfoRow(
-                    icon: "star.fill",
-                    title: "Quality",
-                    value: getQualityDescription(for: selectedQuality)
-                )
-                
-                processingInfoRow(
-                    icon: "wifi",
-                    title: "Network",
-                    value: getNetworkDescription(for: selectedQuality)
-                )
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
         }
     }
     
     private var actionButtonsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             Button(action: {
                 startProcessing()
             }) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
                     
                     Text("START PROCESSING")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(DesignSystem.Typography.button)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.blue, Color.purple]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                .frame(height: DesignSystem.Heights.button)
+                .background(DesignSystem.Colors.gradientPrimary)
+                .cornerRadius(DesignSystem.CornerRadius.lg)
+                .shadow(color: DesignSystem.Colors.shadow, radius: DesignSystem.Shadows.medium.radius, x: 0, y: 4)
             }
             .disabled(selectedImage == nil || showingProcessing)
             .opacity(selectedImage == nil || showingProcessing ? 0.6 : 1.0)
             
             if showingProcessing {
-                HStack(spacing: 8) {
-                    ProgressView()
-                        .scaleEffect(0.8)
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    ModernLoadingIndicator(size: 20, color: DesignSystem.Colors.primary)
                     
                     Text("Processing with \(selectedQuality) quality...")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                 }
             }
         }
     }
     
     private func processingInfoRow(icon: String, title: String, value: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignSystem.Spacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.blue)
+                .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
+                .foregroundColor(DesignSystem.Colors.primary)
                 .frame(width: 20)
             
             Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
             Text(value)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
         }
     }
     
@@ -293,34 +288,34 @@ struct QualityOptionCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 // Selection Indicator
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? Color.blue : Color(.systemGray4), lineWidth: 2)
+                        .stroke(isSelected ? DesignSystem.Colors.primary : DesignSystem.Colors.neutralDark, lineWidth: 2)
                         .frame(width: 20, height: 20)
                     
                     if isSelected {
                         Circle()
-                            .fill(Color.blue)
+                            .fill(DesignSystem.Colors.primary)
                             .frame(width: 12, height: 12)
                     }
                 }
                 
                 // Quality Info
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     HStack {
                         Text(title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
+                            .font(DesignSystem.Typography.bodyBold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                         
                         if quality == .premium || quality == .ultra {
                             Text("PRO")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(DesignSystem.Typography.smallBold)
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.orange)
+                                .background(DesignSystem.Colors.warning)
                                 .cornerRadius(4)
                         }
                         
@@ -328,30 +323,30 @@ struct QualityOptionCard: View {
                     }
                     
                     Text(description)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     HStack {
                         Image(systemName: "clock")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: DesignSystem.IconSizes.xs))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         Text(time)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .font(DesignSystem.Typography.small)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                     }
                 }
                 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.horizontal, DesignSystem.Spacing.md)
+            .padding(.vertical, DesignSystem.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue.opacity(0.1) : Color(.systemGray6))
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                    .fill(isSelected ? DesignSystem.Colors.primary.opacity(0.1) : DesignSystem.Colors.neutral)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(isSelected ? DesignSystem.Colors.primary : Color.clear, lineWidth: 2)
                     )
             )
         }

@@ -21,7 +21,7 @@ struct PhotoUploadView: View {
                 Color(.systemBackground)
                     .ignoresSafeArea()
                 
-                VStack(spacing: 32) {
+                VStack(spacing: DesignSystem.Spacing.xl) {
                     // Header
                     headerSection
                     
@@ -36,8 +36,8 @@ struct PhotoUploadView: View {
                     
                     Spacer()
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.horizontal, DesignSystem.Spacing.card)
+                .padding(.top, DesignSystem.Spacing.card)
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showingImagePicker) {
@@ -68,111 +68,110 @@ struct PhotoUploadView: View {
                 navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             
             Spacer()
             
             Text("Upload Photo")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
             // Invisible spacer for balance
             Color.clear
-                .frame(width: 18, height: 18)
+                .frame(width: DesignSystem.IconSizes.medium, height: DesignSystem.IconSizes.medium)
         }
     }
     
     private var imageSelectionSection: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignSystem.Spacing.lg) {
             if let selectedImage = selectedImage {
                 // Selected Image Preview
-                VStack(spacing: 16) {
+                VStack(spacing: DesignSystem.Spacing.md) {
                     Image(uiImage: selectedImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(maxHeight: 300)
-                        .cornerRadius(16)
+                        .cornerRadius(DesignSystem.CornerRadius.lg)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.blue, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                .stroke(DesignSystem.Colors.primary, lineWidth: 2)
                         )
                     
                     Text("Great photo!")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.green)
+                        .font(DesignSystem.Typography.bodyBold)
+                        .foregroundColor(DesignSystem.Colors.success)
                     
                     Button("Continue to Processing") {
                         proceedToProcessing()
                     }
                     .disabled(isDetectingFaces)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(DesignSystem.Typography.button)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.blue)
-                    .cornerRadius(12)
+                    .frame(height: DesignSystem.Heights.button)
+                    .background(DesignSystem.Colors.primary)
+                    .cornerRadius(DesignSystem.CornerRadius.md)
                 }
             } else {
                 // Camera Preview or Gallery Grid
-                VStack(spacing: 20) {
+                VStack(spacing: DesignSystem.Spacing.lg) {
                     // Live Camera Preview (if available)
                     if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
                         CameraPreviewView(selectedImage: $selectedImage)
                             .frame(height: 200)
-                            .cornerRadius(16)
+                            .cornerRadius(DesignSystem.CornerRadius.lg)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                    .stroke(DesignSystem.Colors.neutralDark, lineWidth: 1)
                             )
                     } else {
                         // Placeholder
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(.systemGray6))
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                            .fill(DesignSystem.Colors.neutral)
                             .frame(height: 200)
                             .overlay(
-                                VStack(spacing: 12) {
+                                VStack(spacing: DesignSystem.Spacing.md) {
                                     Image(systemName: "camera")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.secondary)
+                                        .font(.system(size: DesignSystem.IconSizes.xxlarge))
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
                                     
                                     Text("Camera Preview")
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(.secondary)
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
                                 }
                             )
                     }
                     
                     // Face Detection Indicator
                     if isDetectingFaces {
-                        HStack(spacing: 8) {
-                            ProgressView()
-                                .scaleEffect(0.8)
+                        HStack(spacing: DesignSystem.Spacing.sm) {
+                            ModernLoadingIndicator(size: 20, color: DesignSystem.Colors.primary)
                             
                             Text("Detecting faces...")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.blue)
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.primary)
                         }
                     } else if selectedImage != nil {
-                        HStack(spacing: 8) {
+                        HStack(spacing: DesignSystem.Spacing.sm) {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
+                                .foregroundColor(DesignSystem.Colors.success)
                             
                             Text("Face detected")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.green)
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.success)
                         }
                     } else {
-                        HStack(spacing: 8) {
+                        HStack(spacing: DesignSystem.Spacing.sm) {
                             Image(systemName: "exclamationmark.triangle")
-                                .foregroundColor(.orange)
+                                .foregroundColor(DesignSystem.Colors.warning)
                             
                             Text("Face the camera directly")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.orange)
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.warning)
                         }
                     }
                 }
@@ -181,25 +180,25 @@ struct PhotoUploadView: View {
     }
     
     private var actionButtonsSection: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: DesignSystem.Spacing.md) {
             // Camera Button
             Button(action: {
                 analyticsService.track(event: "camera_button_tapped")
                 requestCameraPermission()
             }) {
-                VStack(spacing: 8) {
+                VStack(spacing: DesignSystem.Spacing.sm) {
                     Image(systemName: "camera.fill")
-                        .font(.system(size: 24))
+                        .font(.system(size: DesignSystem.IconSizes.large))
                         .foregroundColor(.white)
                     
                     Text("CAMERA")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(DesignSystem.Typography.captionBold)
                         .foregroundColor(.white)
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 80)
-                .background(Color.blue)
-                .cornerRadius(12)
+                .frame(height: DesignSystem.Heights.card)
+                .background(DesignSystem.Colors.primary)
+                .cornerRadius(DesignSystem.CornerRadius.md)
             }
             
             // Gallery Button
@@ -207,47 +206,49 @@ struct PhotoUploadView: View {
                 analyticsService.track(event: "gallery_button_tapped")
                 requestPhotoLibraryPermission()
             }) {
-                VStack(spacing: 8) {
+                VStack(spacing: DesignSystem.Spacing.sm) {
                     Image(systemName: "photo.on.rectangle")
-                        .font(.system(size: 24))
+                        .font(.system(size: DesignSystem.IconSizes.large))
                         .foregroundColor(.white)
                     
                     Text("GALLERY")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(DesignSystem.Typography.captionBold)
                         .foregroundColor(.white)
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 80)
-                .background(Color.purple)
-                .cornerRadius(12)
+                .frame(height: DesignSystem.Heights.card)
+                .background(DesignSystem.Colors.secondary)
+                .cornerRadius(DesignSystem.CornerRadius.md)
             }
         }
     }
     
     private var tipsSection: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Image(systemName: "lightbulb.fill")
-                    .foregroundColor(.yellow)
+        ModernCard(
+            padding: DesignSystem.Spacing.md,
+            cornerRadius: DesignSystem.CornerRadius.md,
+            shadow: DesignSystem.Shadows.small
+        ) {
+            VStack(spacing: DesignSystem.Spacing.md) {
+                HStack {
+                    Image(systemName: "lightbulb.fill")
+                        .foregroundColor(DesignSystem.Colors.warning)
+                    
+                    Text("Tips for best results:")
+                        .font(DesignSystem.Typography.captionBold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                }
                 
-                Text("Tips for best results:")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.primary)
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    Text("• Use a clear selfie with good lighting")
+                    Text("• Face the camera directly")
+                    Text("• Avoid sunglasses or hats")
+                    Text("• High resolution photos work best")
+                }
+                .font(DesignSystem.Typography.small)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
             }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("• Use a clear selfie with good lighting")
-                Text("• Face the camera directly")
-                Text("• Avoid sunglasses or hats")
-                Text("• High resolution photos work best")
-            }
-            .font(.system(size: 12, weight: .medium))
-            .foregroundColor(.secondary)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
     }
     
     private func requestCameraPermission() {
@@ -448,15 +449,24 @@ struct ImagePicker: UIViewControllerRepresentable {
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             picker.dismiss(animated: true)
             
-            guard let provider = results.first?.itemProvider else { return }
+            guard let result = results.first else { return }
+            let provider = result.itemProvider
             
             if provider.canLoadObject(ofClass: UIImage.self) {
-                provider.loadObject(ofClass: UIImage.self) { image, _ in
+                provider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
                     DispatchQueue.main.async {
-                        if let selectedImage = image as? UIImage {
-                            self.parent.selectedImage = selectedImage
-                            self.parent.detectFacesInImage(selectedImage)
+                        if let error = error {
+                            print("Error loading image: \(error.localizedDescription)")
+                            return
                         }
+                        
+                        guard let selectedImage = image as? UIImage else {
+                            print("Failed to load image")
+                            return
+                        }
+                        
+                        self?.parent.selectedImage = selectedImage
+                        self?.parent.detectFacesInImage(selectedImage)
                     }
                 }
             }
@@ -498,12 +508,19 @@ struct CameraView: UIViewControllerRepresentable {
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.editedImage] as? UIImage {
+            var selectedImage: UIImage?
+            
+            if let editedImage = info[.editedImage] as? UIImage {
+                selectedImage = editedImage
+            } else if let originalImage = info[.originalImage] as? UIImage {
+                selectedImage = originalImage
+            }
+            
+            if let image = selectedImage {
                 parent.selectedImage = image
                 parent.detectFacesInImage(image)
-            } else if let image = info[.originalImage] as? UIImage {
-                parent.selectedImage = image
-                parent.detectFacesInImage(image)
+            } else {
+                print("Failed to capture image from camera")
             }
             
             parent.dismiss()

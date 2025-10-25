@@ -128,3 +128,4 @@ jobs:
         echo "📦 Size: $(du -sh ./build/VividAI-simulator.ipa)"
         echo "🔗 Download from Actions artifacts"
         echo "💡 Upload to TestFlight, Appetize.io, or BrowserStack for testing"
+

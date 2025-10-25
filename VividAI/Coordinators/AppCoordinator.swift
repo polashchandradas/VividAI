@@ -223,6 +223,29 @@ class AppCoordinator: ObservableObject {
         }
     }
     
+    // MARK: - Async Processing Methods
+    
+    @MainActor
+    func processImageAsync(_ image: UIImage) async throws -> [HeadshotResult] {
+        logger.info("Processing image asynchronously")
+        
+        startProcessing()
+        
+        do {
+            let results = try await withCheckedThrowingContinuation { continuation in
+                hybridProcessingService.processImage(image, quality: .standard) { result in
+                    continuation.resume(with: result)
+                }
+            }
+            
+            completeProcessing(with: results)
+            return results
+        } catch {
+            handleError(error)
+            throw error
+        }
+    }
+    
     func processImageWithQuality(_ image: UIImage, quality: HybridProcessingService.QualityLevel) {
         logger.info("Processing image with quality: \(quality)")
         

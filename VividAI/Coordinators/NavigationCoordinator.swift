@@ -56,6 +56,9 @@ class NavigationCoordinator: ObservableObject {
     // MARK: - Specific Navigation Methods
     
     func startPhotoUpload() {
+        selectedImage = nil
+        processingResults = []
+        generatedVideoURL = nil
         navigateTo(.photoUpload)
     }
     
@@ -92,13 +95,6 @@ class NavigationCoordinator: ObservableObject {
     }
     
     // MARK: - Data Flow Methods
-    
-    func startPhotoUpload() {
-        selectedImage = nil
-        processingResults = []
-        generatedVideoURL = nil
-        navigateTo(.photoUpload)
-    }
     
     func startProcessing(with image: UIImage) {
         selectedImage = image

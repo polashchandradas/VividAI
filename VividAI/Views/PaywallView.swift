@@ -18,7 +18,7 @@ struct PaywallView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 32) {
+                    VStack(spacing: DesignSystem.Spacing.xl) {
                         // Header
                         headerSection
                         
@@ -37,8 +37,8 @@ struct PaywallView: View {
                         // Legal Links
                         legalSection
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
+                    .padding(.horizontal, DesignSystem.Spacing.card)
+                    .padding(.top, DesignSystem.Spacing.card)
                 }
             }
             .navigationBarHidden(true)
@@ -56,64 +56,66 @@ struct PaywallView: View {
     }
     
     private var headerSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             HStack {
                 Button(action: { 
                     navigationCoordinator.navigateBack()
                 }) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
                 }
                 
                 Spacer()
             }
             
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 Text("⭐ Go Pro & Unlock All")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.h2)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .multilineTextAlignment(.center)
                 
                 Text("Transform your photos with professional AI")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
     }
     
     private var benefitsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             ForEach(benefits, id: \.title) { benefit in
-                HStack(spacing: 16) {
-                    Image(systemName: benefit.icon)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.green)
-                        .frame(width: 24)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(benefit.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
+                ModernCard(
+                    padding: DesignSystem.Spacing.md,
+                    cornerRadius: DesignSystem.CornerRadius.md,
+                    shadow: DesignSystem.Shadows.small
+                ) {
+                    HStack(spacing: DesignSystem.Spacing.md) {
+                        Image(systemName: benefit.icon)
+                            .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                            .foregroundColor(DesignSystem.Colors.success)
+                            .frame(width: DesignSystem.IconSizes.large)
                         
-                        Text(benefit.description)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.secondary)
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text(benefit.title)
+                                .font(DesignSystem.Typography.bodyBold)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Text(benefit.description)
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
             }
         }
     }
     
     private var subscriptionPlansSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             // Annual Plan (Recommended)
             SubscriptionPlanCard(
                 plan: .annual,
@@ -138,73 +140,69 @@ struct PaywallView: View {
     }
     
     private var freeTrialSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             Button(action: {
                 analyticsService.track(event: "free_trial_started", parameters: [
                     "plan": selectedPlan.rawValue
                 ])
                 startFreeTrial()
             }) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "star.fill")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
                     
                     Text("START FREE TRIAL")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(DesignSystem.Typography.buttonLarge)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.blue,
-                            Color.purple
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
+                .frame(height: DesignSystem.Heights.buttonLarge)
+                .background(DesignSystem.Colors.gradientSecondary)
+                .cornerRadius(DesignSystem.CornerRadius.lg)
+                .overlay(
+                    ModernVisualEffects.glowEffect(
+                        color: DesignSystem.Colors.primary,
+                        intensity: 0.3
                     )
                 )
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
             }
             
             Text("3 days free, then \(selectedPlan.price)")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
     
     private var socialProofSection: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 4) {
+        VStack(spacing: DesignSystem.Spacing.md) {
+            HStack(spacing: DesignSystem.Spacing.xs) {
                 ForEach(0..<5) { _ in
                     Image(systemName: "star.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.yellow)
+                        .font(.system(size: DesignSystem.IconSizes.small))
+                        .foregroundColor(DesignSystem.Colors.warning)
                 }
             }
             
             Text("Join 2.3M+ users")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.captionBold)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
         }
     }
     
     private var legalSection: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: DesignSystem.Spacing.lg) {
             Button("Restore Purchases") {
                 subscriptionManager.restorePurchases()
             }
-            .font(.system(size: 14, weight: .medium))
-            .foregroundColor(.blue)
+            .font(DesignSystem.Typography.caption)
+            .foregroundColor(DesignSystem.Colors.primary)
             
             Button("Terms of Service") {
                 // Open terms
             }
-            .font(.system(size: 14, weight: .medium))
-            .foregroundColor(.blue)
+            .font(DesignSystem.Typography.caption)
+            .foregroundColor(DesignSystem.Colors.primary)
         }
     }
     
@@ -233,62 +231,62 @@ struct SubscriptionPlanCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 // Selection Indicator
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? Color.blue : Color(.systemGray4), lineWidth: 2)
+                        .stroke(isSelected ? DesignSystem.Colors.primary : DesignSystem.Colors.neutralDark, lineWidth: 2)
                         .frame(width: 20, height: 20)
                     
                     if isSelected {
                         Circle()
-                            .fill(Color.blue)
+                            .fill(DesignSystem.Colors.primary)
                             .frame(width: 12, height: 12)
                     }
                 }
                 
                 // Plan Details
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     HStack {
                         Text(plan.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
+                            .font(DesignSystem.Typography.bodyBold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                         
                         if plan.isRecommended {
-                            Text("★ MOST POPULAR ★")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.orange)
-                                .cornerRadius(4)
+                            ModernBadge(
+                                text: "MOST POPULAR",
+                                color: DesignSystem.Colors.warning,
+                                size: .small
+                            )
                         }
                         
                         Spacer()
                     }
                     
                     Text(plan.price)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     if let savings = plan.savings {
                         Text(savings)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.green)
+                            .font(DesignSystem.Typography.small)
+                            .foregroundColor(DesignSystem.Colors.success)
                     }
                 }
                 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.horizontal, DesignSystem.Spacing.md)
+            .padding(.vertical, DesignSystem.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue.opacity(0.1) : Color(.systemGray6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-                    )
+                ModernVisualEffects.modernCard(
+                    cornerRadius: DesignSystem.CornerRadius.md,
+                    shadow: DesignSystem.Shadows.small
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(isSelected ? DesignSystem.Colors.primary : Color.clear, lineWidth: 2)
+                )
             )
         }
         .buttonStyle(PlainButtonStyle())

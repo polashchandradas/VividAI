@@ -45,6 +45,32 @@ class VideoGenerationService: ObservableObject {
         }
     }
     
+    // MARK: - Async Video Generation
+    
+    func generateTransformationVideoAsync(
+        from originalImage: UIImage,
+        to enhancedImage: UIImage
+    ) async throws -> URL {
+        isGenerating = true
+        generationProgress = 0.0
+        
+        do {
+            let videoURL = try await createTransformationVideoAsync(
+                original: originalImage,
+                enhanced: enhancedImage
+            )
+            
+            isGenerating = false
+            generationProgress = 1.0
+            
+            return videoURL
+        } catch {
+            isGenerating = false
+            generationProgress = 0.0
+            throw error
+        }
+    }
+    
     private func createTransformationVideo(original: UIImage, enhanced: UIImage) throws -> URL {
         let videoURL = getVideoOutputURL()
         
@@ -132,6 +158,100 @@ class VideoGenerationService: ObservableObject {
             semaphore.signal()
         }
         semaphore.wait()
+        
+        return videoURL
+    }
+    
+    private func createTransformationVideoAsync(original: UIImage, enhanced: UIImage) async throws -> URL {
+        let videoURL = getVideoOutputURL()
+        
+        // Video settings
+        let videoSize = CGSize(width: 1080, height: 1920) // 9:16 aspect ratio
+        let duration: TimeInterval = 5.0
+        let frameRate: Int32 = 30
+        
+        // Create video writer
+        let videoWriter = try AVAssetWriter(outputURL: videoURL, fileType: .mp4)
+        
+        // Video settings
+        let videoSettings: [String: Any] = [
+            AVVideoCodecKey: AVVideoCodecType.h264,
+            AVVideoWidthKey: videoSize.width,
+            AVVideoHeightKey: videoSize.height,
+            AVVideoCompressionPropertiesKey: [
+                AVVideoAverageBitRateKey: 5_000_000, // 5 Mbps
+                AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel
+            ]
+        ]
+        
+        let videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
+        videoInput.expectsMediaDataInRealTime = false
+        
+        guard videoWriter.canAdd(videoInput) else {
+            throw VideoGenerationError.cannotAddVideoInput
+        }
+        videoWriter.add(videoInput)
+        
+        // Start writing
+        guard videoWriter.startWriting() else {
+            throw VideoGenerationError.cannotStartWriting
+        }
+        
+        videoWriter.startSession(atSourceTime: .zero)
+        
+        // Generate frames asynchronously
+        let totalFrames = Int(duration * Double(frameRate))
+        let frameDuration = CMTime(value: 1, timescale: frameRate)
+        
+        for frameIndex in 0..<totalFrames {
+            let currentTime = CMTime(value: Int64(frameIndex), timescale: frameRate)
+            let progress = Double(frameIndex) / Double(totalFrames)
+            
+            await MainActor.run {
+                self.generationProgress = progress
+            }
+            
+            // Create frame
+            let frame = createFrame(
+                original: original,
+                enhanced: enhanced,
+                progress: progress,
+                size: videoSize
+            )
+            
+            // Convert frame to pixel buffer
+            guard let pixelBuffer = createPixelBuffer(from: frame, size: videoSize) else {
+                continue
+            }
+            
+            // Append frame
+            if videoInput.isReadyForMoreMediaData {
+                let presentationTime = currentTime
+                let adaptor = AVAssetWriterInputPixelBufferAdaptor(
+                    assetWriterInput: videoInput,
+                    sourcePixelBufferAttributes: nil
+                )
+                if let pixelBufferPool = adaptor.pixelBufferPool {
+                    var newPixelBuffer: CVPixelBuffer?
+                    CVPixelBufferPoolCreatePixelBuffer(nil, pixelBufferPool, &newPixelBuffer)
+                    if let newPixelBuffer = newPixelBuffer {
+                        adaptor.append(newPixelBuffer, withPresentationTime: presentationTime)
+                    }
+                }
+            }
+            
+            // Small delay to prevent overwhelming the system
+            try await Task.sleep(nanoseconds: 10_000_000) // 10ms
+        }
+        
+        // Finish writing
+        videoInput.markAsFinished()
+        
+        await withCheckedContinuation { continuation in
+            videoWriter.finishWriting {
+                continuation.resume()
+            }
+        }
         
         return videoURL
     }

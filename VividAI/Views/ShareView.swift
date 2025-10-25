@@ -2,6 +2,7 @@ import SwiftUI
 import AVFoundation
 import AVKit
 import UIKit
+import Photos
 
 struct ShareView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
@@ -14,10 +15,10 @@ struct ShareView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(.systemBackground)
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
-                VStack(spacing: 32) {
+                VStack(spacing: DesignSystem.Spacing.xl) {
                     // Header
                     headerSection
                     
@@ -32,8 +33,8 @@ struct ShareView: View {
                         initialSection
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+                .padding(.top, DesignSystem.Spacing.lg)
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showingShareSheet) {
@@ -59,98 +60,94 @@ struct ShareView: View {
                 navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             
             Spacer()
             
             Text("Ready to Share! ✨")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
             // Invisible spacer for balance
             Color.clear
-                .frame(width: 18, height: 18)
+                .frame(width: DesignSystem.IconSizes.medium, height: DesignSystem.IconSizes.medium)
         }
     }
     
     private var initialSection: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.xl) {
             // Icon
             Image(systemName: "video.fill")
                 .font(.system(size: 60))
-                .foregroundColor(.blue)
+                .foregroundColor(DesignSystem.Colors.primary)
             
             Text("Creating your transformation video...")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
                 .multilineTextAlignment(.center)
         }
     }
     
     private var videoGenerationSection: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.xl) {
             // Progress Animation
             ZStack {
                 Circle()
-                    .stroke(Color(.systemGray5), lineWidth: 4)
+                    .stroke(DesignSystem.Colors.neutralDark, lineWidth: 4)
                     .frame(width: 80, height: 80)
                 
                 Circle()
                     .trim(from: 0, to: 0.7)
                     .stroke(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.blue, Color.purple]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
+                        DesignSystem.Colors.gradientSecondary,
                         style: StrokeStyle(lineWidth: 4, lineCap: .round)
                     )
                     .frame(width: 80, height: 80)
                     .rotationEffect(.degrees(-90))
-                    .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isGeneratingVideo)
+                    .animation(DesignSystem.Animations.standard.repeatForever(autoreverses: true), value: isGeneratingVideo)
                 
                 Image(systemName: "video.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.blue)
+                    .font(.system(size: DesignSystem.IconSizes.large))
+                    .foregroundColor(DesignSystem.Colors.primary)
             }
             
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 Text("Generating 5-second video...")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.bodyBold)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 
                 Text("This will be perfect for TikTok and Instagram!")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
     }
     
     private func videoPreviewSection(videoURL: URL) -> some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.xl) {
             // Video Preview
             VideoPlayer(player: AVPlayer(url: videoURL))
                 .frame(height: 400)
-                .cornerRadius(16)
+                .cornerRadius(DesignSystem.CornerRadius.lg)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color(.systemGray4), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                        .stroke(DesignSystem.Colors.neutralDark, lineWidth: 1)
                 )
             
             // Video Details
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 Text("Your transformation video is ready!")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.h4)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 
                 Text("5 seconds • Vertical format • Watermarked")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
             }
             
             // Share Options
@@ -159,35 +156,29 @@ struct ShareView: View {
     }
     
     private var shareOptionsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             // Primary Share Button
             Button(action: {
                 analyticsService.track(event: "share_video_tapped")
                 showingShareSheet = true
             }) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
                     
                     Text("SHARE TO...")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(DesignSystem.Typography.button)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.blue, Color.purple]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                .frame(height: DesignSystem.Heights.button)
+                .background(DesignSystem.Colors.gradientPrimary)
+                .cornerRadius(DesignSystem.CornerRadius.lg)
+                .shadow(color: DesignSystem.Colors.shadow, radius: DesignSystem.Shadows.medium.radius, x: 0, y: 4)
             }
             
             // Platform-specific buttons
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 platformButton(icon: "video.fill", name: "TikTok", color: .black)
                 platformButton(icon: "camera.fill", name: "Instagram", color: .pink)
                 platformButton(icon: "bird.fill", name: "Twitter", color: .blue)
@@ -199,28 +190,28 @@ struct ShareView: View {
                 analyticsService.track(event: "save_video_tapped")
                 saveVideoToPhotos()
             }) {
-                HStack(spacing: 8) {
+                HStack(spacing: DesignSystem.Spacing.sm) {
                     Image(systemName: "square.and.arrow.down")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
                     
                     Text("SAVE VIDEO")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(DesignSystem.Typography.captionBold)
                 }
-                .foregroundColor(.green)
+                .foregroundColor(DesignSystem.Colors.success)
                 .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(Color.green.opacity(0.1))
-                .cornerRadius(12)
+                .frame(height: DesignSystem.Heights.buttonSmall)
+                .background(DesignSystem.Colors.success.opacity(0.1))
+                .cornerRadius(DesignSystem.CornerRadius.md)
             }
             
             // Premium Notice
-            HStack(spacing: 8) {
+            HStack(spacing: DesignSystem.Spacing.sm) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
+                    .foregroundColor(DesignSystem.Colors.warning)
                 
                 Text("Premium: Remove watermark")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.orange)
+                    .font(DesignSystem.Typography.small)
+                    .foregroundColor(DesignSystem.Colors.warning)
             }
         }
     }
@@ -230,46 +221,88 @@ struct ShareView: View {
             analyticsService.track(event: "platform_share_tapped", parameters: ["platform": name])
             showingShareSheet = true
         }) {
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 Image(systemName: icon)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
                     .foregroundColor(color)
                 
                 Text(name)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.small)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 60)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .background(DesignSystem.Colors.neutral)
+            .cornerRadius(DesignSystem.CornerRadius.md)
         }
     }
     
     private func generateTransformationVideo() {
         isGeneratingVideo = true
         
-        // Simulate video generation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            // Create a mock video URL
-            // In a real implementation, this would generate an actual video
-            self.generatedVideoURL = createMockVideoURL()
-            self.isGeneratingVideo = false
-            
-            self.analyticsService.track(event: "video_generated")
+        Task {
+            await generateVideoAsync()
         }
     }
     
-    private func createMockVideoURL() -> URL {
-        // This would be replaced with actual video generation
-        // For now, return a placeholder URL
-        return URL(string: "file:///mock/video.mp4")!
+    private func generateVideoAsync() async {
+        guard let originalImage = navigationCoordinator.selectedImage,
+              let enhancedImage = navigationCoordinator.processingResults.first?.image else {
+            await MainActor.run {
+                self.isGeneratingVideo = false
+            }
+            return
+        }
+        
+        do {
+            let videoURL = try await VideoGenerationService.shared.generateTransformationVideoAsync(
+                from: originalImage,
+                to: enhancedImage
+            )
+            
+            await MainActor.run {
+                self.generatedVideoURL = videoURL
+                self.navigationCoordinator.generatedVideoURL = videoURL
+                self.isGeneratingVideo = false
+                self.analyticsService.track(event: "video_generated")
+            }
+        } catch {
+            await MainActor.run {
+                self.isGeneratingVideo = false
+                self.analyticsService.track(event: "video_generation_failed", parameters: [
+                    "error": error.localizedDescription
+                ])
+            }
+        }
     }
     
     private func saveVideoToPhotos() {
-        // Save video to Photos library
-        // This would use PHPhotoLibrary to save the video
-        analyticsService.track(event: "video_saved_to_photos")
+        guard let videoURL = generatedVideoURL else { return }
+        
+        PHPhotoLibrary.requestAuthorization { status in
+            switch status {
+            case .authorized, .limited:
+                PHPhotoLibrary.shared().performChanges({
+                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
+                }) { success, error in
+                    DispatchQueue.main.async {
+                        if success {
+                            self.analyticsService.track(event: "video_saved_to_photos")
+                        } else {
+                            self.analyticsService.track(event: "video_save_failed", parameters: [
+                                "error": error?.localizedDescription ?? "Unknown error"
+                            ])
+                        }
+                    }
+                }
+            case .denied, .restricted:
+                self.analyticsService.track(event: "video_save_permission_denied")
+            case .notDetermined:
+                break
+            @unknown default:
+                break
+            }
+        }
     }
 }
 

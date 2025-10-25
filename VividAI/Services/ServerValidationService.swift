@@ -283,3 +283,4 @@ struct ReferralValidationResponse: Codable {
     let serverValidated: Bool
     let abuseDetected: Bool
 }
+

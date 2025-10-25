@@ -9,42 +9,50 @@ struct SplashScreenView: View {
     
     var body: some View {
         ZStack {
-            // Gradient background
-            LinearGradient(
+            // Modern gradient background
+            DesignSystem.Colors.gradientPrimary
+                .ignoresSafeArea()
+            
+            // Subtle overlay for depth
+            RadialGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 0.42, green: 0.36, blue: 0.91), // #6C5CE7
-                    Color(red: 0.04, green: 0.52, blue: 0.89)  // #0984E3
+                    Color.clear,
+                    Color.black.opacity(0.1)
                 ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                center: .center,
+                startRadius: 100,
+                endRadius: 300
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 20) {
-                // App Logo
+            VStack(spacing: DesignSystem.Spacing.lg) {
+                // App Logo with modern styling
                 Image(systemName: "camera.aperture")
                     .font(.system(size: 80, weight: .light))
                     .foregroundColor(.white)
                     .scaleEffect(size)
                     .opacity(opacity)
+                    .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
                 
-                // App Name
+                // App Name with modern typography
                 Text("VividAI")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .font(DesignSystem.Typography.h1)
                     .foregroundColor(.white)
                     .scaleEffect(size)
                     .opacity(opacity)
+                    .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
                 
-                // Tagline
+                // Tagline with modern styling
                 Text("Transform Your Photos with AI")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(DesignSystem.Typography.body)
                     .foregroundColor(.white.opacity(0.9))
                     .scaleEffect(size)
                     .opacity(opacity)
+                    .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
             }
         }
         .onAppear {
-            withAnimation(.easeIn(duration: 1.2)) {
+            withAnimation(DesignSystem.Animations.slow) {
                 self.size = 0.9
                 self.opacity = 1.0
             }
@@ -54,7 +62,7 @@ struct SplashScreenView: View {
             loadCoreMLModels()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                withAnimation {
+                withAnimation(DesignSystem.Animations.standard) {
                     self.navigationCoordinator.navigateTo(.home)
                 }
             }

@@ -165,3 +165,4 @@ EOF
         echo "🔗 Download from Actions artifacts"
         echo "💡 This is a basic IPA for testing purposes"
         echo "⚠️  Note: This is a simplified version for testing - full app functionality requires proper Xcode build"
+

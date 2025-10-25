@@ -17,11 +17,11 @@ struct ProcessingView: View {
     
     var body: some View {
         ZStack {
-            // Background
-            Color(.systemBackground)
+            // Modern background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
-            VStack(spacing: 32) {
+            VStack(spacing: DesignSystem.Spacing.xl) {
                 Spacer()
                 
                 // Processing Animation
@@ -35,18 +35,18 @@ struct ProcessingView: View {
                 
                 Spacer()
             }
-            .padding(.horizontal, 40)
+            .padding(.horizontal, DesignSystem.Spacing.lg)
         }
         .onAppear {
             startProcessing()
         }
         .onReceive(appCoordinator.$processingProgress) { newProgress in
-            withAnimation(.easeInOut(duration: 0.5)) {
+            withAnimation(DesignSystem.Animations.standard) {
                 self.progress = newProgress
             }
         }
         .onReceive(appCoordinator.$processingStep) { newStep in
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(DesignSystem.Animations.standard) {
                 if let stepIndex = processingSteps.firstIndex(of: newStep) {
                     self.currentStep = stepIndex
                 }
@@ -55,20 +55,20 @@ struct ProcessingView: View {
     }
     
     private var processingAnimationSection: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.xl) {
             // Photo Preview (blurred)
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemGray6))
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                .fill(DesignSystem.Colors.neutral)
                 .frame(width: 200, height: 200)
                 .overlay(
-                    VStack(spacing: 12) {
+                    VStack(spacing: DesignSystem.Spacing.md) {
                         Image(systemName: "person.crop.circle")
                             .font(.system(size: 60))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         Text("Your Photo")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                     }
                 )
                 .blur(radius: 2)
@@ -76,80 +76,64 @@ struct ProcessingView: View {
             // AI Processing Animation
             ZStack {
                 Circle()
-                    .stroke(Color(.systemGray5), lineWidth: 4)
+                    .stroke(DesignSystem.Colors.neutralDark, lineWidth: 4)
                     .frame(width: 80, height: 80)
                 
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.blue,
-                                Color.purple
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
+                        DesignSystem.Colors.gradientSecondary,
                         style: StrokeStyle(lineWidth: 4, lineCap: .round)
                     )
                     .frame(width: 80, height: 80)
                     .rotationEffect(.degrees(-90))
-                    .animation(.easeInOut(duration: 0.5), value: progress)
+                    .animation(DesignSystem.Animations.standard, value: progress)
                 
                 // Center Icon
                 Image(systemName: "sparkles")
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundColor(.blue)
+                    .font(.system(size: DesignSystem.IconSizes.large, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.primary)
                     .scaleEffect(1.0 + sin(Date().timeIntervalSince1970 * 3) * 0.1)
-                    .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: progress)
+                    .animation(DesignSystem.Animations.standard.repeatForever(autoreverses: true), value: progress)
             }
         }
     }
     
     private var progressSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             // Progress Bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(.systemGray5))
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(DesignSystem.Colors.neutralDark)
                         .frame(height: 8)
                     
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.blue,
-                                    Color.purple
-                                ]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(DesignSystem.Colors.gradientSecondary)
                         .frame(width: geometry.size.width * progress, height: 8)
-                        .animation(.easeInOut(duration: 0.5), value: progress)
+                        .animation(DesignSystem.Animations.standard, value: progress)
                 }
             }
             .frame(height: 8)
             
             // Progress Percentage
             Text("\(Int(progress * 100))% Complete")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.captionBold)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
         }
     }
     
     private var statusTextSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.md) {
             // Current Step
             Text(processingSteps[currentStep])
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.h4)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
                 .multilineTextAlignment(.center)
-                .animation(.easeInOut(duration: 0.3), value: currentStep)
+                .animation(DesignSystem.Animations.standard, value: currentStep)
             
             // Processing Details
-            VStack(spacing: 8) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 processingDetailRow(icon: "paintbrush.fill", text: "AI enhancement", isActive: currentStep >= 1)
                 processingDetailRow(icon: "person.2.fill", text: "Generating 8 styles", isActive: currentStep >= 2)
                 processingDetailRow(icon: "sparkles", text: "Almost ready...", isActive: currentStep >= 3)
@@ -157,36 +141,36 @@ struct ProcessingView: View {
             
             // Estimated Time
             Text("This usually takes 10-15 seconds")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.small)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
         }
     }
     
     private func processingDetailRow(icon: String, text: String, isActive: Bool) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignSystem.Spacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(isActive ? .blue : .secondary)
+                .font(.system(size: DesignSystem.IconSizes.small, weight: .medium))
+                .foregroundColor(isActive ? DesignSystem.Colors.primary : DesignSystem.Colors.textSecondary)
                 .scaleEffect(isActive ? 1.1 : 1.0)
-                .animation(.easeInOut(duration: 0.3), value: isActive)
+                .animation(DesignSystem.Animations.standard, value: isActive)
             
             Text(text)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(isActive ? .primary : .secondary)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(isActive ? DesignSystem.Colors.textPrimary : DesignSystem.Colors.textSecondary)
             
             Spacer()
             
             if isActive {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.green)
+                    .font(.system(size: DesignSystem.IconSizes.small))
+                    .foregroundColor(DesignSystem.Colors.success)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.horizontal, DesignSystem.Spacing.md)
+        .padding(.vertical, DesignSystem.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isActive ? Color.blue.opacity(0.1) : Color(.systemGray6))
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .fill(isActive ? DesignSystem.Colors.primary.opacity(0.1) : DesignSystem.Colors.neutral)
         )
     }
     

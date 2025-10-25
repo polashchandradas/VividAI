@@ -83,6 +83,40 @@ class HybridProcessingService: ObservableObject {
         executeProcessingStrategy(strategy, image: image, quality: quality, completion: completion)
     }
     
+    // MARK: - Async Processing Methods
+    
+    func processImageAsync(_ image: UIImage, quality: QualityLevel = .standard) async throws -> [HeadshotResult] {
+        loggingService.logInfo("Async hybrid processing started", context: [
+            "quality": "\(quality)",
+            "image_size": "\(image.size.width)x\(image.size.height)"
+        ])
+        
+        isProcessing = true
+        processingProgress = 0.0
+        
+        do {
+            let strategy = determineProcessingStrategy(for: quality)
+            currentProcessingMode = strategy.mode
+            
+            analyticsService.track(event: "async_hybrid_processing_started", parameters: [
+                "quality": "\(quality)",
+                "mode": "\(strategy.mode)",
+                "network_status": "\(networkStatus)"
+            ])
+            
+            let results = try await executeProcessingStrategyAsync(strategy, image: image, quality: quality)
+            
+            isProcessing = false
+            processingProgress = 1.0
+            
+            return results
+        } catch {
+            isProcessing = false
+            processingProgress = 0.0
+            throw error
+        }
+    }
+    
     // MARK: - Real-Time Preview Processing
     
     func generateRealTimePreview(_ image: UIImage, style: AvatarStyle, completion: @escaping (Result<UIImage, Error>) -> Void) {
@@ -95,6 +129,14 @@ class HybridProcessingService: ObservableObject {
                 case .failure(let error):
                     completion(.failure(error))
                 }
+            }
+        }
+    }
+    
+    func generateRealTimePreviewAsync(_ image: UIImage, style: AvatarStyle) async throws -> UIImage {
+        return try await withCheckedThrowingContinuation { continuation in
+            generateRealTimePreview(image, style: style) { result in
+                continuation.resume(with: result)
             }
         }
     }
@@ -210,6 +252,22 @@ class HybridProcessingService: ObservableObject {
             
         case .fallback:
             executeFallbackProcessing(image: image, completion: completion)
+        }
+    }
+    
+    private func executeProcessingStrategyAsync(_ strategy: ProcessingStrategy, image: UIImage, quality: QualityLevel) async throws -> [HeadshotResult] {
+        switch strategy.mode {
+        case .onDevice:
+            return try await executeOnDeviceProcessingAsync(image: image)
+            
+        case .cloud:
+            return try await executeCloudProcessingAsync(image: image, quality: quality)
+            
+        case .hybrid:
+            return try await executeHybridProcessingAsync(image: image, quality: quality)
+            
+        case .fallback:
+            return try await executeFallbackProcessingAsync(image: image)
         }
     }
     
@@ -437,6 +495,74 @@ class HybridProcessingService: ObservableObject {
     deinit {
         networkMonitor.stopMonitoring()
         performanceMonitor.stopMonitoring()
+    }
+    
+    // MARK: - Async Processing Implementations
+    
+    private func executeOnDeviceProcessingAsync(image: UIImage) async throws -> [HeadshotResult] {
+        updateProgress(0.2, step: "On-device processing...")
+        
+        do {
+            let results = try await processOnDevice(image: image)
+            updateProgress(1.0, step: "On-device processing complete")
+            return results
+        } catch {
+            throw error
+        }
+    }
+    
+    private func executeCloudProcessingAsync(image: UIImage, quality: QualityLevel) async throws -> [HeadshotResult] {
+        updateProgress(0.1, step: "Uploading to cloud...")
+        
+        do {
+            let results = try await withCheckedThrowingContinuation { continuation in
+                aiHeadshotService.generateHeadshots(from: image) { result in
+                    continuation.resume(with: result)
+                }
+            }
+            updateProgress(1.0, step: "Cloud processing complete")
+            return results
+        } catch {
+            // Try fallback processing
+            return try await executeFallbackProcessingAsync(image: image)
+        }
+    }
+    
+    private func executeHybridProcessingAsync(image: UIImage, quality: QualityLevel) async throws -> [HeadshotResult] {
+        updateProgress(0.1, step: "Starting hybrid processing...")
+        
+        do {
+            // Start both on-device and cloud processing concurrently
+            async let onDeviceResults = processOnDevice(image: image)
+            async let cloudResults = withCheckedThrowingContinuation { continuation in
+                aiHeadshotService.generateHeadshots(from: image) { result in
+                    continuation.resume(with: result)
+                }
+            }
+            
+            let (onDevice, cloud) = try await (onDeviceResults, cloudResults)
+            updateProgress(0.8, step: "Combining results...")
+            
+            let combinedResults = combineResults(onDevice: onDevice, cloud: cloud)
+            updateProgress(1.0, step: "Hybrid processing complete")
+            
+            return combinedResults
+        } catch {
+            // Fallback to on-device only
+            return try await executeOnDeviceProcessingAsync(image: image)
+        }
+    }
+    
+    private func executeFallbackProcessingAsync(image: UIImage) async throws -> [HeadshotResult] {
+        updateProgress(0.1, step: "Fallback processing...")
+        
+        do {
+            let results = try await processOnDevice(image: image)
+            updateProgress(1.0, step: "Fallback processing complete")
+            return results
+        } catch {
+            throw error
+        }
     }
 }
 
