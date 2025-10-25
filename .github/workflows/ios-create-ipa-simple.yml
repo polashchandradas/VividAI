@@ -1,0 +1,123 @@
+name: Create IPA File (Simple Method)
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  create-ipa:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Install dependencies
+      run: |
+        # Install CocoaPods if needed
+        if [ -f "Podfile" ]; then
+          gem install cocoapods
+          pod install
+        fi
+        
+        # Resolve Swift Package Manager dependencies
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Clean DerivedData
+      run: |
+        echo "🧹 Cleaning DerivedData to prevent conflicts..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf ./DerivedData
+        
+    - name: Build for iOS Simulator
+      run: |
+        echo "🔨 Building for iOS Simulator..."
+        echo "📱 Target: iPhone 16, iOS 18.4"
+        
+        # Build with verbose output to catch any issues
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -derivedDataPath ./DerivedData \
+          -resolvePackageDependencies \
+          -verbose
+        
+        echo "✅ Build completed!"
+        
+    - name: Verify build output
+      run: |
+        echo "🔍 Verifying build output..."
+        echo "📁 DerivedData contents:"
+        find ./DerivedData -name "*.app" -type d || echo "No .app files found in DerivedData"
+        
+        echo "📁 Default DerivedData contents:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found in default DerivedData"
+        
+        # Check if build actually succeeded
+        if [ ! -d "./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app" ]; then
+          echo "❌ Build failed - no app bundle found"
+          echo "📋 Build logs:"
+          find ./DerivedData -name "*.log" -exec tail -50 {} \;
+          exit 1
+        fi
+        
+        echo "✅ App bundle found at: ./DerivedData/Build/Products/Release-iphonesimulator/VividAI.app"
+          
+    - name: Create IPA structure
+      run: |
+        echo "Creating IPA file structure..."
+        mkdir -p ./build/Payload
+        
+        # Find the app bundle in DerivedData
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found in DerivedData"
+          echo "Available files:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          exit 1
+        fi
+        
+        echo "📱 Found app bundle at: $APP_PATH"
+        
+        # Copy the app bundle
+        cp -r "$APP_PATH" ./build/Payload/
+        
+        # Create IPA file
+        cd ./build
+        zip -r VividAI-simulator.ipa Payload/
+        cd ..
+        
+        echo "📱 IPA file created successfully!"
+        
+    - name: List generated files
+      run: |
+        echo "📱 Generated files:"
+        ls -la ./build/
+        echo "📦 IPA file ready for testing!"
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VividAI-ipa
+        path: ./build/*.ipa
+        retention-days: 30
+        
+    - name: Success message
+      run: |
+        echo "🎉 VividAI IPA file created successfully!"
+        echo "📱 You can download it from the Actions artifacts"
+        echo "🔗 Go to Actions tab → Select workflow run → Download artifact"
+        echo "💡 Upload this IPA to:"
+        echo "   - TestFlight (if you have Apple Developer account)"
+        echo "   - Appetize.io (for browser testing)"
+        echo "   - BrowserStack (for device testing)"
+        echo "   - Diawi (for easy sharing)"

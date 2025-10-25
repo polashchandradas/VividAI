@@ -1,0 +1,47 @@
+name: VividAI Build Only (No Tests)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: List available simulators
+      run: xcrun simctl list devices available
+      
+    - name: Clean derived data
+      run: |
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        
+    - name: Resolve dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Build VividAI app (no tests)
+      run: |
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies
+          
+    - name: Verify build success
+      run: |
+        echo "✅ Build completed successfully!"
+        echo "📱 Build artifacts:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d 2>/dev/null || echo "No .app files found in DerivedData"

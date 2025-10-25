@@ -1,0 +1,155 @@
+name: Generate IPA File (Fixed Final)
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  generate-ipa:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Install dependencies
+      run: |
+        # Resolve Swift Package Manager dependencies
+        echo "📦 Resolving dependencies..."
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Clean environment
+      run: |
+        echo "🧹 Cleaning build environment..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf ./DerivedData
+        rm -rf ./build
+        
+    - name: List available simulators
+      run: |
+        echo "📱 Available simulators:"
+        xcrun simctl list devices available | grep iPhone
+        
+    - name: Boot simulator
+      run: |
+        echo "🚀 Booting iPhone 16 simulator..."
+        xcrun simctl boot "iPhone 16" || true
+        sleep 10
+        
+    - name: Build for iOS Simulator (Fixed)
+      run: |
+        echo "🔨 Building for iOS Simulator..."
+        echo "📱 Target: iPhone 16, iOS 18.4"
+        
+        # Build with comprehensive logging and error handling
+        set -e  # Exit on any error
+        
+        # Use the default DerivedData location
+        xcodebuild clean build \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies \
+          -verbose \
+          -showBuildTimingSummary \
+          -showBuildSettings \
+          -derivedDataPath ~/Library/Developer/Xcode/DerivedData
+        
+        echo "✅ Build completed successfully!"
+        
+    - name: Find and verify app bundle
+      run: |
+        echo "🔍 Looking for app bundle..."
+        
+        # Check multiple possible locations
+        echo "📁 Checking DerivedData structure:"
+        find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found in DerivedData"
+        
+        # Look for the specific app bundle
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "VividAI.app" -type d | head -1)
+        
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found in DerivedData"
+          echo "📁 Available files in DerivedData:"
+          find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found"
+          
+          echo "📁 Build products directory:"
+          find ~/Library/Developer/Xcode/DerivedData -path "*/Build/Products/*" -type d || echo "No Build/Products found"
+          
+          echo "📁 All DerivedData contents:"
+          find ~/Library/Developer/Xcode/DerivedData -type d | head -20
+          
+          exit 1
+        fi
+        
+        echo "✅ App bundle found at: $APP_PATH"
+        echo "📱 App bundle size: $(du -sh "$APP_PATH")"
+        
+        # Verify app bundle contents
+        echo "📱 App bundle contents:"
+        ls -la "$APP_PATH"
+        
+    - name: Create IPA file
+      run: |
+        echo "📦 Creating IPA file..."
+        mkdir -p ./build/Payload
+        
+        # Find the app bundle
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "VividAI.app" -type d | head -1)
+        
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found for IPA creation"
+          exit 1
+        fi
+        
+        echo "📱 Copying app bundle from: $APP_PATH"
+        cp -r "$APP_PATH" ./build/Payload/
+        
+        # Create IPA file
+        cd ./build
+        echo "📦 Creating ZIP archive..."
+        zip -r VividAI-simulator.ipa Payload/
+        cd ..
+        
+        echo "✅ IPA file created successfully!"
+        
+    - name: Verify IPA file
+      run: |
+        echo "🔍 Verifying IPA file..."
+        
+        if [ ! -f "./build/VividAI-simulator.ipa" ]; then
+          echo "❌ IPA file not found!"
+          exit 1
+        fi
+        
+        echo "✅ IPA file found:"
+        ls -la ./build/VividAI-simulator.ipa
+        
+        echo "📦 IPA file size: $(du -sh ./build/VividAI-simulator.ipa)"
+        
+        # Verify IPA contents
+        echo "📦 IPA contents:"
+        unzip -l ./build/VividAI-simulator.ipa | head -20
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VividAI-ipa-fixed
+        path: ./build/VividAI-simulator.ipa
+        retention-days: 30
+        
+    - name: Success message
+      run: |
+        echo "🎉 VividAI IPA file generated successfully!"
+        echo "📱 File: VividAI-simulator.ipa"
+        echo "📦 Size: $(du -sh ./build/VividAI-simulator.ipa)"
+        echo "🔗 Download from Actions artifacts"
+        echo "💡 Upload to TestFlight, Appetize.io, or BrowserStack for testing"
