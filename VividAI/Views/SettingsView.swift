@@ -6,6 +6,7 @@ struct SettingsView: View {
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var authenticationService: AuthenticationService
     @State private var notificationsEnabled = false
     @State private var saveToPhotosEnabled = true
     @State private var hdQualityEnabled = true
@@ -23,6 +24,9 @@ struct SettingsView: View {
                         
                         // Account Section
                         accountSection
+                        
+                        // Authentication Section
+                        authenticationSection
                         
                         // Subscription Section
                         subscriptionSection
@@ -102,9 +106,13 @@ struct SettingsView: View {
                         )
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("Free Account")
+                        Text(authenticationService.currentUser?.displayName ?? "User")
                             .font(DesignSystem.Typography.bodyBold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Text(authenticationService.currentUser?.email ?? "user@example.com")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         if !subscriptionManager.isPremiumUser {
                             Button(action: {
@@ -128,6 +136,48 @@ struct SettingsView: View {
                     
                     Spacer()
                 }
+            }
+        }
+    }
+    
+    private var authenticationSection: some View {
+        VStack(spacing: DesignSystem.Spacing.md) {
+            HStack {
+                Text("AUTHENTICATION")
+                    .font(DesignSystem.Typography.smallBold)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .tracking(1)
+                
+                Spacer()
+            }
+            
+            VStack(spacing: DesignSystem.Spacing.md) {
+                settingsRow(
+                    icon: "person.circle",
+                    title: "Profile",
+                    action: {
+                        analyticsService.track(event: "profile_tapped")
+                        // Show profile management
+                    }
+                )
+                
+                settingsRow(
+                    icon: "key.fill",
+                    title: "Change Password",
+                    action: {
+                        analyticsService.track(event: "change_password_tapped")
+                        // Show change password flow
+                    }
+                )
+                
+                settingsRow(
+                    icon: "arrow.right.square",
+                    title: "Sign Out",
+                    action: {
+                        analyticsService.track(event: "sign_out_tapped")
+                        appCoordinator.signOut()
+                    }
+                )
             }
         }
     }

@@ -7,6 +7,8 @@ struct PaywallView: View {
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
+    @StateObject private var freeTrialService = FreeTrialService.shared
+    @StateObject private var usageLimitService = UsageLimitService.shared
     @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
     @State private var showingTrial = false
     
@@ -28,8 +30,8 @@ struct PaywallView: View {
                         // Subscription Plans
                         subscriptionPlansSection
                         
-                        // Free Trial CTA
-                        freeTrialSection
+                        // Smart Trial Options
+                        smartTrialOptionsSection
                         
                         // Social Proof
                         socialProofSection
@@ -139,38 +141,89 @@ struct PaywallView: View {
         }
     }
     
-    private var freeTrialSection: some View {
-        VStack(spacing: DesignSystem.Spacing.md) {
-            Button(action: {
-                analyticsService.track(event: "free_trial_started", parameters: [
-                    "plan": selectedPlan.rawValue
-                ])
-                startFreeTrial()
-            }) {
-                HStack(spacing: DesignSystem.Spacing.md) {
-                    Image(systemName: "star.fill")
-                        .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
+    private var smartTrialOptionsSection: some View {
+        VStack(spacing: DesignSystem.Spacing.lg) {
+            if !freeTrialService.isTrialActive {
+                // Trial Options
+                VStack(spacing: DesignSystem.Spacing.md) {
+                    Text("Choose Your Free Trial")
+                        .font(DesignSystem.Typography.h4)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                        .multilineTextAlignment(.center)
                     
-                    Text("START FREE TRIAL")
-                        .font(DesignSystem.Typography.buttonLarge)
-                }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: DesignSystem.Heights.buttonLarge)
-                .background(DesignSystem.Colors.gradientSecondary)
-                .cornerRadius(DesignSystem.CornerRadius.lg)
-                .overlay(
-                    ModernVisualEffects.glowEffect(
+                    // Limited Trial (3 generations, 7 days)
+                    TrialOptionCard(
+                        title: "Limited Trial",
+                        subtitle: "3 generations, 7 days",
+                        description: "Perfect for trying out the app",
+                        icon: "star.fill",
                         color: DesignSystem.Colors.primary,
-                        intensity: 0.3
+                        action: {
+                            appCoordinator.startFreeTrial(type: .limited)
+                            analyticsService.track(event: "limited_trial_started")
+                        }
                     )
-                )
+                    
+                    // Unlimited Trial (3 days full access)
+                    TrialOptionCard(
+                        title: "Unlimited Trial",
+                        subtitle: "Full access, 3 days",
+                        description: "Experience everything VividAI offers",
+                        icon: "crown.fill",
+                        color: DesignSystem.Colors.warning,
+                        action: {
+                            appCoordinator.startFreeTrial(type: .unlimited)
+                            analyticsService.track(event: "unlimited_trial_started")
+                        }
+                    )
+                }
+            } else {
+                // Current Trial Status
+                ModernCard(
+                    padding: DesignSystem.Spacing.lg,
+                    cornerRadius: DesignSystem.CornerRadius.lg,
+                    shadow: DesignSystem.Shadows.medium
+                ) {
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        HStack {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(DesignSystem.Colors.warning)
+                            
+                            Text("Free Trial Active")
+                                .font(DesignSystem.Typography.h4)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                Text("\(freeTrialService.generationsUsed)/\(freeTrialService.maxGenerations) generations used")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                                
+                                Text("\(freeTrialService.trialDaysRemaining) days remaining")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Button("Upgrade Now") {
+                                // Handle subscription purchase
+                                analyticsService.track(event: "upgrade_from_trial_tapped")
+                            }
+                            .font(DesignSystem.Typography.captionBold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, DesignSystem.Spacing.md)
+                            .padding(.vertical, DesignSystem.Spacing.sm)
+                            .background(DesignSystem.Colors.primary)
+                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                        }
+                    }
+                }
+                .background(DesignSystem.Colors.warning.opacity(0.1))
             }
-            
-            Text("3 days free, then \(selectedPlan.price)")
-                .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.textSecondary)
-                .multilineTextAlignment(.center)
         }
     }
     
@@ -290,6 +343,73 @@ struct SubscriptionPlanCard: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Supporting Views
+
+struct TrialOptionCard: View {
+    let title: String
+    let subtitle: String
+    let description: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    @State private var isPressed = false
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                Image(systemName: icon)
+                    .font(.system(size: DesignSystem.IconSizes.large, weight: .semibold))
+                    .foregroundColor(color)
+                    .frame(width: 40)
+                
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    Text(title)
+                        .font(DesignSystem.Typography.bodyBold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Text(subtitle)
+                        .font(DesignSystem.Typography.captionBold)
+                        .foregroundColor(color)
+                    
+                    Text(description)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "arrow.right")
+                    .font(.system(size: DesignSystem.IconSizes.small, weight: .semibold))
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+            }
+            .padding(DesignSystem.Spacing.md)
+            .background(
+                ModernVisualEffects.modernCard(
+                    cornerRadius: DesignSystem.CornerRadius.md,
+                    shadow: DesignSystem.Shadows.small
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(color.opacity(0.3), lineWidth: 1)
+                )
+            )
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+            .animation(DesignSystem.Animations.quick, value: isPressed)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onTapGesture {
+            withAnimation(DesignSystem.Animations.quick) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(DesignSystem.Animations.quick) {
+                    isPressed = false
+                }
+            }
+        }
     }
 }
 

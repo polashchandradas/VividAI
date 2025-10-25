@@ -6,6 +6,8 @@ struct HomeView: View {
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
+    @StateObject private var freeTrialService = FreeTrialService.shared
+    @StateObject private var usageLimitService = UsageLimitService.shared
     @StateObject private var realTimeService = RealTimeGenerationService.shared
     
     // Modern UI State
@@ -32,6 +34,9 @@ struct HomeView: View {
                         
                         // Real-Time Preview Section
                         realTimePreviewSection
+                        
+                        // Smart Trial Status
+                        smartTrialStatusSection
                         
                         // Modern Secondary Features
                         modernSecondaryFeaturesSection
@@ -406,6 +411,122 @@ struct HomeView: View {
                         navigationCoordinator.startPhotoUpload()
                     }
                 )
+            }
+        }
+    }
+    
+    // MARK: - Smart Trial Status Section
+    private var smartTrialStatusSection: some View {
+        VStack(spacing: DesignSystem.Spacing.md) {
+            if freeTrialService.isTrialActive {
+                // Active Trial Status
+                ModernCard(
+                    padding: DesignSystem.Spacing.md,
+                    cornerRadius: DesignSystem.CornerRadius.lg,
+                    shadow: DesignSystem.Shadows.small
+                ) {
+                    VStack(spacing: DesignSystem.Spacing.sm) {
+                        HStack {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(DesignSystem.Colors.warning)
+                            
+                            Text("Free Trial Active")
+                                .font(DesignSystem.Typography.bodyBold)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Spacer()
+                            
+                            Text("\(freeTrialService.trialDaysRemaining) days left")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
+                        
+                        HStack {
+                            Text("\(freeTrialService.generationsUsed)/\(freeTrialService.maxGenerations) generations used")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                            
+                            Spacer()
+                            
+                            if freeTrialService.canGenerate {
+                                Text("Can generate")
+                                    .font(DesignSystem.Typography.captionBold)
+                                    .foregroundColor(DesignSystem.Colors.success)
+                            } else {
+                                Text("Limit reached")
+                                    .font(DesignSystem.Typography.captionBold)
+                                    .foregroundColor(DesignSystem.Colors.warning)
+                            }
+                        }
+                    }
+                }
+                .background(DesignSystem.Colors.warning.opacity(0.1))
+            } else if !subscriptionManager.isPremiumUser {
+                // Free User Status
+                ModernCard(
+                    padding: DesignSystem.Spacing.md,
+                    cornerRadius: DesignSystem.CornerRadius.lg,
+                    shadow: DesignSystem.Shadows.small
+                ) {
+                    VStack(spacing: DesignSystem.Spacing.sm) {
+                        HStack {
+                            Image(systemName: "gift.fill")
+                                .foregroundColor(DesignSystem.Colors.primary)
+                            
+                            Text("Free User")
+                                .font(DesignSystem.Typography.bodyBold)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Spacer()
+                            
+                            Button("Start Free Trial") {
+                                appCoordinator.startFreeTrial(type: .limited)
+                                analyticsService.track(event: "start_free_trial_tapped")
+                            }
+                            .font(DesignSystem.Typography.captionBold)
+                            .foregroundColor(DesignSystem.Colors.primary)
+                        }
+                        
+                        HStack {
+                            Text("\(usageLimitService.getRemainingGenerations(isPremium: false, isTrialActive: false)) generations remaining today")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                            
+                            Spacer()
+                            
+                            Button("Upgrade to Pro") {
+                                navigationCoordinator.showPaywall()
+                                analyticsService.track(event: "upgrade_to_pro_tapped")
+                            }
+                            .font(DesignSystem.Typography.captionBold)
+                            .foregroundColor(DesignSystem.Colors.success)
+                        }
+                    }
+                }
+                .background(DesignSystem.Colors.primary.opacity(0.1))
+            } else {
+                // Premium User Status
+                ModernCard(
+                    padding: DesignSystem.Spacing.md,
+                    cornerRadius: DesignSystem.CornerRadius.lg,
+                    shadow: DesignSystem.Shadows.small
+                ) {
+                    HStack {
+                        Image(systemName: "crown.fill")
+                            .foregroundColor(DesignSystem.Colors.warning)
+                        
+                        Text("Pro Member - Unlimited Generations")
+                            .font(DesignSystem.Typography.bodyBold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Spacer()
+                        
+                        Text("✓")
+                            .font(DesignSystem.Typography.bodyBold)
+                            .foregroundColor(DesignSystem.Colors.success)
+                    }
+                }
+                .background(DesignSystem.Colors.success.opacity(0.1))
             }
         }
     }

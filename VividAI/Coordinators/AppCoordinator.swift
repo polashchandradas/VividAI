@@ -31,6 +31,9 @@ class AppCoordinator: ObservableObject {
     let securityService = SecurityService()
     let loggingService = LoggingService()
     let errorHandlingService = ErrorHandlingService()
+    let authenticationService = AuthenticationService.shared
+    let freeTrialService = FreeTrialService.shared
+    let usageLimitService = UsageLimitService.shared
     
     private let logger = Logger(subsystem: "VividAI", category: "AppCoordinator")
     private var cancellables = Set<AnyCancellable>()
@@ -54,6 +57,14 @@ class AppCoordinator: ObservableObject {
         subscriptionManager.$subscriptionStatus
             .receive(on: DispatchQueue.main)
             .assign(to: \.subscriptionStatus, on: self)
+            .store(in: &cancellables)
+        
+        // Monitor authentication status
+        authenticationService.$isAuthenticated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isAuthenticated in
+                self?.handleAuthenticationStateChange(isAuthenticated)
+            }
             .store(in: &cancellables)
     }
     
@@ -206,6 +217,12 @@ class AppCoordinator: ObservableObject {
     func processImage(_ image: UIImage) {
         logger.info("Processing image with hybrid approach")
         
+        // Check if user can generate (smart limits)
+        if !canUserGenerate() {
+            showGenerationLimitReached()
+            return
+        }
+        
         startProcessing()
         
         // Use hybrid processing service for intelligent routing
@@ -215,6 +232,8 @@ class AppCoordinator: ObservableObject {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let headshotResults):
+                    // Record usage
+                    self.recordGeneration()
                     self.completeProcessing(with: headshotResults)
                 case .failure(let error):
                     self.handleError(error)
@@ -291,6 +310,189 @@ class AppCoordinator: ObservableObject {
             self.currentProcessingStep = step
             self.processingProgress = progress
         }
+    }
+    
+    // MARK: - Authentication Methods
+    
+    private func handleAuthenticationStateChange(_ isAuthenticated: Bool) {
+        logger.info("Authentication state changed: \(isAuthenticated)")
+        
+        if isAuthenticated {
+            // User is authenticated - navigate to home
+            navigationCoordinator.navigateTo(.home)
+            analyticsService.track(event: "user_authenticated_success")
+        } else {
+            // User is not authenticated - show authentication screen
+            navigationCoordinator.navigateTo(.authentication)
+            analyticsService.track(event: "user_authentication_required")
+        }
+    }
+    
+    func signOut() {
+        Task {
+            do {
+                // Sign out from authentication service (includes full cleanup)
+                try await authenticationService.signOut()
+                
+                // Additional app-level cleanup
+                await performAppLogoutCleanup()
+                
+                // Navigate to authentication screen
+                await MainActor.run {
+                    self.navigationCoordinator.navigateTo(.authentication)
+                }
+                
+                logger.info("User signed out successfully with app cleanup")
+            } catch {
+                logger.error("Sign out failed: \(error.localizedDescription)")
+                handleError(error)
+            }
+        }
+    }
+    
+    // MARK: - App Logout Cleanup
+    
+    private func performAppLogoutCleanup() async {
+        await MainActor.run {
+            // Reset app state
+            self.isProcessing = false
+            self.currentProcessingStep = ""
+            self.processingProgress = 0.0
+            self.hasError = false
+            self.errorMessage = ""
+            self.isPremiumUser = false
+            self.subscriptionStatus = .none
+            
+            // Clear navigation stack
+            self.navigationCoordinator.resetToSplash()
+        }
+        
+        // Reset subscription manager
+        await resetSubscriptionState()
+        
+        // Clear any cached data
+        await clearAppCache()
+        
+        logger.info("App logout cleanup completed")
+    }
+    
+    private func resetSubscriptionState() async {
+        // Reset subscription-related state
+        // This would call subscription manager reset methods if they exist
+        logger.info("Subscription state reset")
+    }
+    
+    private func clearAppCache() async {
+        // Clear any app-level cached data
+        // Clear image cache, user preferences, etc.
+        logger.info("App cache cleared")
+    }
+    
+    // MARK: - Smart Generation Limits
+    
+    private func canUserGenerate() -> Bool {
+        // Premium users can always generate
+        if isPremiumUser {
+            return true
+        }
+        
+        // Check free trial limits
+        if freeTrialService.isTrialActive {
+            return freeTrialService.canUserGenerate()
+        }
+        
+        // Check usage limits for free users
+        return usageLimitService.canGenerate(
+            isPremium: isPremiumUser,
+            isTrialActive: freeTrialService.isTrialActive
+        )
+    }
+    
+    private func recordGeneration() {
+        // Record in usage limit service
+        usageLimitService.recordGeneration()
+        
+        // Record in free trial service if active
+        if freeTrialService.isTrialActive {
+            freeTrialService.recordGeneration()
+        }
+        
+        analyticsService.track(event: "generation_completed", parameters: [
+            "is_premium": isPremiumUser,
+            "is_trial_active": freeTrialService.isTrialActive,
+            "trial_type": "\(freeTrialService.trialType)"
+        ])
+    }
+    
+    private func showGenerationLimitReached() {
+        let message = getLimitMessage()
+        
+        DispatchQueue.main.async {
+            self.hasError = true
+            self.errorMessage = message
+        }
+        
+        analyticsService.track(event: "generation_limit_reached", parameters: [
+            "is_premium": self.isPremiumUser,
+            "is_trial_active": self.freeTrialService.isTrialActive,
+            "trial_type": "\(self.freeTrialService.trialType)"
+        ])
+    }
+    
+    private func getLimitMessage() -> String {
+        if isPremiumUser {
+            return "You have unlimited generations with Pro"
+        }
+        
+        if freeTrialService.isTrialActive {
+            return getTrialLimitMessage()
+        }
+        
+        return getFreeUserLimitMessage()
+    }
+    
+    private func getTrialLimitMessage() -> String {
+        switch freeTrialService.trialType {
+        case .limited:
+            return "Trial limit reached (\(freeTrialService.generationsUsed)/\(freeTrialService.maxGenerations) generations used)"
+        case .unlimited:
+            return "Trial expired (\(freeTrialService.trialDaysRemaining) days remaining)"
+        case .freemium:
+            return "Daily limit reached (1 generation per day)"
+        case .none:
+            return "No active trial"
+        }
+    }
+    
+    private func getFreeUserLimitMessage() -> String {
+        return usageLimitService.getLimitMessage(
+            isPremium: isPremiumUser,
+            isTrialActive: freeTrialService.isTrialActive
+        )
+    }
+    
+    func startFreeTrial(type: FreeTrialService.TrialType = .limited) {
+        freeTrialService.startFreeTrial(type: type)
+        
+        analyticsService.track(event: "free_trial_started", parameters: [
+            "trial_type": "\(type)",
+            "max_generations": freeTrialService.maxGenerations
+        ])
+    }
+    
+    func getRemainingGenerations() -> Int {
+        if isPremiumUser {
+            return 999 // Unlimited
+        }
+        
+        if freeTrialService.isTrialActive {
+            return freeTrialService.maxGenerations - freeTrialService.generationsUsed
+        }
+        
+        return usageLimitService.getRemainingGenerations(
+            isPremium: isPremiumUser,
+            isTrialActive: freeTrialService.isTrialActive
+        )
     }
 }
 

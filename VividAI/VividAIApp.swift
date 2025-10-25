@@ -10,6 +10,7 @@ import StoreKit
 import CoreFoundation
 import CoreGraphics
 import CoreData
+import GoogleSignIn
 
 // MARK: - Navigation Coordinator
 
@@ -88,6 +89,7 @@ class NavigationCoordinator: ObservableObject {
 
 enum AppView: String, CaseIterable {
     case splash = "splash"
+    case authentication = "authentication"
     case home = "home"
     case photoUpload = "photoUpload"
     case processing = "processing"
@@ -100,6 +102,8 @@ enum AppView: String, CaseIterable {
         switch self {
         case .splash:
             return "Welcome"
+        case .authentication:
+            return "Sign In"
         case .home:
             return "Home"
         case .photoUpload:
@@ -424,6 +428,8 @@ struct MainAppView: View {
                 switch navigationCoordinator.currentView {
                 case .splash:
                     SplashScreenView()
+                case .authentication:
+                    AuthenticationView()
                 case .home:
                     HomeView()
                 case .photoUpload:
@@ -470,6 +476,7 @@ struct VividAIApp: App {
                        .environmentObject(appCoordinator.navigationCoordinator)
                        .environmentObject(appCoordinator.subscriptionManager)
                        .environmentObject(appCoordinator.analyticsService)
+                       .environmentObject(appCoordinator.authenticationService)
                        .errorHandling()
                     .onAppear {
                         appCoordinator.handleAppBecameActive()
@@ -495,6 +502,14 @@ struct VividAIApp: App {
         
         // Configure Firebase
         FirebaseApp.configure()
+        
+        // Configure Google Sign-In
+        guard let clientId = plist["CLIENT_ID"] as? String else {
+            configurationError = "Google Sign-In client ID not found in GoogleService-Info.plist"
+            return
+        }
+        
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
         
         // Initialize Firebase services
         _ = Auth.auth()
