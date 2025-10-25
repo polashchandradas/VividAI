@@ -10,7 +10,8 @@ import CoreData
 class AIHeadshotService: ObservableObject {
     static let shared = AIHeadshotService()
     
-    @Published var isProcessing = false
+    // Processing state is managed by AppCoordinator to avoid race conditions
+    // This service focuses on AI processing logic, not state management
     @Published var processingProgress: Double = 0.0
     
     private let configuration = ConfigurationService.shared
@@ -46,7 +47,7 @@ class AIHeadshotService: ObservableObject {
             return
         }
         
-        isProcessing = true
+        // Processing state is managed by AppCoordinator
         processingProgress = 0.0
         
         // Upload image to get URL
@@ -56,7 +57,7 @@ class AIHeadshotService: ObservableObject {
                 self?.processHeadshots(imageURL: imageURL, completion: completion)
             case .failure(let error):
                 DispatchQueue.main.async {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(error))
                 }
             }
@@ -226,25 +227,25 @@ class AIHeadshotService: ObservableObject {
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.networkError(error.localizedDescription)))
                     return
                 }
                 
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.invalidResponse))
                     return
                 }
                 
                 guard httpResponse.statusCode == 201 else {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.apiError("HTTP \(httpResponse.statusCode)")))
                     return
                 }
                 
                 guard let data = data else {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.noData))
                     return
                 }
@@ -255,11 +256,11 @@ class AIHeadshotService: ObservableObject {
                         // Start polling for results
                         self?.pollForResults(predictionId: id, completion: completion)
                     } else {
-                        self?.isProcessing = false
+                        // Processing state is managed by AppCoordinator
                         completion(.failure(AIHeadshotError.invalidResponse))
                     }
                 } catch {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.jsonParsingFailed))
                 }
             }
@@ -279,13 +280,13 @@ class AIHeadshotService: ObservableObject {
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.networkError(error.localizedDescription)))
                     return
                 }
                 
                 guard let data = data else {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.noData))
                     return
                 }
@@ -305,15 +306,15 @@ class AIHeadshotService: ObservableObject {
                                         isPremium: index >= 4 // First 4 are free, rest are premium
                                     )
                                 }
-                                self?.isProcessing = false
+                                // Processing state is managed by AppCoordinator
                                 self?.processingProgress = 1.0
                                 completion(.success(results))
                             } else {
-                                self?.isProcessing = false
+                                // Processing state is managed by AppCoordinator
                                 completion(.failure(AIHeadshotError.invalidResponse))
                             }
                         case "failed":
-                            self?.isProcessing = false
+                            // Processing state is managed by AppCoordinator
                             completion(.failure(AIHeadshotError.apiError("Prediction failed")))
                         case "starting", "processing":
                             // Update progress and continue polling
@@ -322,15 +323,15 @@ class AIHeadshotService: ObservableObject {
                                 self?.pollForResults(predictionId: predictionId, completion: completion)
                             }
                         default:
-                            self?.isProcessing = false
+                            // Processing state is managed by AppCoordinator
                             completion(.failure(AIHeadshotError.apiError("Unknown status: \(status)")))
                         }
                     } else {
-                        self?.isProcessing = false
+                        // Processing state is managed by AppCoordinator
                         completion(.failure(AIHeadshotError.invalidResponse))
                     }
                 } catch {
-                    self?.isProcessing = false
+                    // Processing state is managed by AppCoordinator
                     completion(.failure(AIHeadshotError.jsonParsingFailed))
                 }
             }

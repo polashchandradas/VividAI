@@ -122,6 +122,7 @@ class NavigationCoordinator: ObservableObject {
 
 enum AppView: String, CaseIterable {
     case splash = "splash"
+    case authentication = "authentication"
     case home = "home"
     case photoUpload = "photoUpload"
     case qualitySelection = "qualitySelection"
@@ -136,6 +137,8 @@ enum AppView: String, CaseIterable {
         switch self {
         case .splash:
             return "Welcome"
+        case .authentication:
+            return "Sign In"
         case .home:
             return "Home"
         case .photoUpload:

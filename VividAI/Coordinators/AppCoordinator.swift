@@ -11,10 +11,11 @@ class AppCoordinator: ObservableObject {
     @Published var isProcessing = false
     @Published var currentProcessingStep = ""
     @Published var processingProgress: Double = 0.0
-    @Published var hasError = false
-    @Published var errorMessage = ""
-    @Published var isPremiumUser = false
-    @Published var subscriptionStatus: SubscriptionStatus = .none
+    // Error state is managed by ErrorHandlingService to avoid conflicts
+    // Authentication state is managed by AuthenticationService and SubscriptionManager
+    // AppCoordinator observes these states but doesn't duplicate them
+    var isPremiumUser: Bool { subscriptionManager.isPremiumUser }
+    var subscriptionStatus: SubscriptionStatus { subscriptionManager.subscriptionStatus }
     
     // MARK: - Service Container
     
@@ -52,16 +53,8 @@ class AppCoordinator: ObservableObject {
     // MARK: - Setup Methods
     
     private func setupSubscriptions() {
-        // Monitor subscription status
-        subscriptionManager.$isPremiumUser
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isPremiumUser, on: self)
-            .store(in: &cancellables)
-        
-        subscriptionManager.$subscriptionStatus
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.subscriptionStatus, on: self)
-            .store(in: &cancellables)
+        // Monitor subscription status - no need to assign since we use computed properties
+        // The computed properties automatically reflect the current state
         
         // Monitor authentication status
         authenticationService.$isAuthenticated
@@ -73,15 +66,9 @@ class AppCoordinator: ObservableObject {
     }
     
     private func configureServices() {
-        // Configure services with coordinator references
-        // Note: These are strong references that could cause memory leaks
-        // TODO: Consider using weak references or delegate pattern
-        backgroundRemovalService.coordinator = self
-        photoEnhancementService.coordinator = self
-        aiHeadshotService.coordinator = self
-        videoGenerationService.coordinator = self
-        watermarkService.coordinator = self
-        referralService.coordinator = self
+        // Services are self-contained and don't require coordinator references
+        // All services are properly initialized through ServiceContainer
+        // No additional configuration needed
     }
     
     // MARK: - App Lifecycle
@@ -110,7 +97,7 @@ class AppCoordinator: ObservableObject {
         }
     }
     
-    // MARK: - Navigation Methods
+    // MARK: - Navigation Methods (Delegate to NavigationCoordinator)
     
     func startPhotoUpload() {
         logger.info("Starting photo upload flow")
@@ -175,8 +162,7 @@ class AppCoordinator: ObservableObject {
         isProcessing = false
         currentProcessingStep = ""
         processingProgress = 0.0
-        hasError = false
-        errorMessage = ""
+        // Error state is managed by ErrorHandlingService
     }
     
     // MARK: - Subscription Methods
@@ -196,26 +182,37 @@ class AppCoordinator: ObservableObject {
         }
     }
     
-    // MARK: - Error Handling
+    // MARK: - Error Handling (Centralized)
     
     func handleError(_ error: Error) {
         logger.error("Handling error: \(error.localizedDescription)")
         
+        // Delegate all error handling to ErrorHandlingService
+        errorHandlingService.handleError(error)
+        
+        // Update local processing state
         DispatchQueue.main.async {
-            self.hasError = true
-            self.errorMessage = error.localizedDescription
             self.isProcessing = false
         }
         
-        errorHandlingService.handleError(error)
         analyticsService.track(event: "error_occurred", parameters: [
             "error_description": error.localizedDescription
         ])
     }
     
     func clearError() {
-        hasError = false
-        errorMessage = ""
+        // Delegate error clearing to ErrorHandlingService
+        errorHandlingService.dismissError()
+    }
+    
+    // MARK: - Unified Error State Access
+    
+    var hasError: Bool {
+        return errorHandlingService.isShowingError
+    }
+    
+    var errorMessage: String {
+        return errorHandlingService.currentError?.localizedDescription ?? ""
     }
     
     // MARK: - Processing Methods
@@ -364,10 +361,9 @@ class AppCoordinator: ObservableObject {
             self.isProcessing = false
             self.currentProcessingStep = ""
             self.processingProgress = 0.0
-            self.hasError = false
-            self.errorMessage = ""
-            self.isPremiumUser = false
-            self.subscriptionStatus = .none
+            // Error state is managed by ErrorHandlingService
+            // Note: isPremiumUser and subscriptionStatus are computed properties
+            // They will automatically reflect the correct state from SubscriptionManager
             
             // Clear navigation stack
             self.navigationCoordinator.resetToSplash()
@@ -414,6 +410,36 @@ class AppCoordinator: ObservableObject {
         )
     }
     
+    // MARK: - Unified Trial/Subscription State Management
+    
+    func getUnifiedUserStatus() -> UserStatus {
+        if isPremiumUser {
+            return .premium
+        } else if freeTrialService.isTrialActive {
+            return .trial(freeTrialService.trialType)
+        } else {
+            return .free
+        }
+    }
+    
+    func getUnifiedGenerationLimits() -> GenerationLimits {
+        if isPremiumUser {
+            return GenerationLimits.unlimited
+        } else if freeTrialService.isTrialActive {
+            return GenerationLimits.trial(
+                used: freeTrialService.generationsUsed,
+                max: freeTrialService.maxGenerations,
+                daysRemaining: freeTrialService.trialDaysRemaining
+            )
+        } else {
+            let remaining = usageLimitService.getRemainingGenerations(
+                isPremium: false,
+                isTrialActive: false
+            )
+            return GenerationLimits.free(remaining: remaining)
+        }
+    }
+    
     private func recordGeneration() {
         // Record in usage limit service
         usageLimitService.recordGeneration()
@@ -433,10 +459,9 @@ class AppCoordinator: ObservableObject {
     private func showGenerationLimitReached() {
         let message = getLimitMessage()
         
-        DispatchQueue.main.async {
-            self.hasError = true
-            self.errorMessage = message
-        }
+        // Use centralized error handling
+        let limitError = AppError.subscriptionError(message)
+        errorHandlingService.handleError(limitError, context: "Generation limit reached", severity: .medium)
         
         analyticsService.track(event: "generation_limit_reached", parameters: [
             "is_premium": self.isPremiumUser,
@@ -519,5 +544,51 @@ enum SubscriptionStatus {
     case active
     case expired
     case cancelled
+}
+
+// MARK: - Unified State Management Types
+
+enum UserStatus {
+    case free
+    case trial(FreeTrialService.TrialType)
+    case premium
+    
+    var isPremium: Bool {
+        if case .premium = self { return true }
+        return false
+    }
+    
+    var isTrialActive: Bool {
+        if case .trial = self { return true }
+        return false
+    }
+}
+
+enum GenerationLimits {
+    case unlimited
+    case trial(used: Int, max: Int, daysRemaining: Int)
+    case free(remaining: Int)
+    
+    var canGenerate: Bool {
+        switch self {
+        case .unlimited:
+            return true
+        case .trial(let used, let max, _):
+            return used < max
+        case .free(let remaining):
+            return remaining > 0
+        }
+    }
+    
+    var remainingGenerations: Int {
+        switch self {
+        case .unlimited:
+            return 999
+        case .trial(let used, let max, _):
+            return max(0, max - used)
+        case .free(let remaining):
+            return remaining
+        }
+    }
 }
 

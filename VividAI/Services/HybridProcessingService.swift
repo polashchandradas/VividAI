@@ -12,18 +12,19 @@ class HybridProcessingService: ObservableObject {
     static let shared = HybridProcessingService()
     
     // MARK: - Published Properties
-    @Published var isProcessing = false
+    // Processing state is managed by AppCoordinator to avoid race conditions
+    // This service focuses on processing logic, not state management
     @Published var processingProgress: Double = 0.0
     @Published var currentProcessingMode: ProcessingMode = .onDevice
     @Published var networkStatus: NetworkStatus = .unknown
     
     // MARK: - Services
-    private let realTimeService = RealTimeGenerationService.shared
-    private let aiHeadshotService = AIHeadshotService.shared
-    private let backgroundRemovalService = BackgroundRemovalService.shared
-    private let photoEnhancementService = PhotoEnhancementService.shared
-    private let analyticsService = AnalyticsService.shared
-    private let loggingService = LoggingService.shared
+    private let realTimeService = ServiceContainer.shared.realTimeGenerationService
+    private let aiHeadshotService = ServiceContainer.shared.aiHeadshotService
+    private let backgroundRemovalService = ServiceContainer.shared.backgroundRemovalService
+    private let photoEnhancementService = ServiceContainer.shared.photoEnhancementService
+    private let analyticsService = ServiceContainer.shared.analyticsService
+    private let loggingService = ServiceContainer.shared.loggingService
     
     // MARK: - Configuration
     private let networkMonitor = NetworkMonitor()
@@ -66,7 +67,7 @@ class HybridProcessingService: ObservableObject {
             "image_size": "\(image.size.width)x\(image.size.height)"
         ])
         
-        isProcessing = true
+        // Processing state is managed by AppCoordinator
         processingProgress = 0.0
         
         // Determine optimal processing strategy
@@ -91,7 +92,7 @@ class HybridProcessingService: ObservableObject {
             "image_size": "\(image.size.width)x\(image.size.height)"
         ])
         
-        isProcessing = true
+        // Processing state is managed by AppCoordinator
         processingProgress = 0.0
         
         do {
@@ -106,12 +107,12 @@ class HybridProcessingService: ObservableObject {
             
             let results = try await executeProcessingStrategyAsync(strategy, image: image, quality: quality)
             
-            isProcessing = false
+            // Processing state is managed by AppCoordinator
             processingProgress = 1.0
             
             return results
         } catch {
-            isProcessing = false
+            // Processing state is managed by AppCoordinator
             processingProgress = 0.0
             throw error
         }

@@ -61,7 +61,7 @@ class AuthenticationService: ObservableObject {
             self.authState = .authenticated(user)
             
             logger.info("User authenticated: \(user.uid)")
-            analyticsService.track(event: "user_authenticated", parameters: [
+            ServiceContainer.shared.analyticsService.track(event: "user_authenticated", parameters: [
                 "user_id": user.uid,
                 "email": user.email ?? "unknown"
             ])
@@ -71,7 +71,7 @@ class AuthenticationService: ObservableObject {
             self.authState = .unauthenticated
             
             logger.info("User signed out")
-            analyticsService.track(event: "user_signed_out")
+            ServiceContainer.shared.analyticsService.track(event: "user_signed_out")
         }
     }
     
@@ -98,7 +98,7 @@ class AuthenticationService: ObservableObject {
             }
             
             logger.info("User signed up successfully: \(user.uid)")
-            analyticsService.track(event: "user_signed_up", parameters: [
+            ServiceContainer.shared.analyticsService.track(event: "user_signed_up", parameters: [
                 "user_id": user.uid,
                 "email": email,
                 "method": "email_password"
@@ -129,7 +129,7 @@ class AuthenticationService: ObservableObject {
             }
             
             logger.info("User signed in successfully: \(user.uid)")
-            analyticsService.track(event: "user_signed_in", parameters: [
+            ServiceContainer.shared.analyticsService.track(event: "user_signed_in", parameters: [
                 "user_id": user.uid,
                 "email": email,
                 "method": "email_password"
@@ -156,7 +156,7 @@ class AuthenticationService: ObservableObject {
             await performLogoutCleanup()
             
             logger.info("User signed out successfully with full cleanup")
-            analyticsService.track(event: "user_signed_out")
+            ServiceContainer.shared.analyticsService.track(event: "user_signed_out")
         } catch {
             logger.error("Sign out failed: \(error.localizedDescription)")
             throw error
@@ -189,7 +189,7 @@ class AuthenticationService: ObservableObject {
     
     private func clearSecureStorage() async {
         // Clear Keychain data
-        let secureStorage = SecureStorageService.shared
+        let secureStorage = ServiceContainer.shared.secureStorageService
         
         // Clear trial data
         try? secureStorage.clearTrialData()
@@ -215,9 +215,9 @@ class AuthenticationService: ObservableObject {
     
     private func resetAnalytics() async {
         // Reset analytics user properties
-        analyticsService.setUserProperty(key: "user_id", value: nil)
-        analyticsService.setUserProperty(key: "subscription_status", value: nil)
-        analyticsService.setUserProperty(key: "is_premium", value: nil)
+        ServiceContainer.shared.analyticsService.setUserProperty(key: "user_id", value: nil)
+        ServiceContainer.shared.analyticsService.setUserProperty(key: "subscription_status", value: nil)
+        ServiceContainer.shared.analyticsService.setUserProperty(key: "is_premium", value: nil)
         
         logger.info("Analytics reset for logout")
     }
@@ -236,7 +236,7 @@ class AuthenticationService: ObservableObject {
             }
             
             logger.info("Password reset email sent to: \(email)")
-            analyticsService.track(event: "password_reset_requested", parameters: [
+            ServiceContainer.shared.analyticsService.track(event: "password_reset_requested", parameters: [
                 "email": email
             ])
         } catch {
@@ -281,7 +281,7 @@ class AuthenticationService: ObservableObject {
             }
             
             logger.info("Apple Sign In successful: \(user.uid)")
-            analyticsService.track(event: "user_signed_in", parameters: [
+            ServiceContainer.shared.analyticsService.track(event: "user_signed_in", parameters: [
                 "user_id": user.uid,
                 "method": "apple_sign_in"
             ])
@@ -319,7 +319,7 @@ class AuthenticationService: ObservableObject {
             }
             
             logger.info("Google Sign In successful: \(user.uid)")
-            analyticsService.track(event: "user_signed_in", parameters: [
+            ServiceContainer.shared.analyticsService.track(event: "user_signed_in", parameters: [
                 "user_id": user.uid,
                 "method": "google_sign_in"
             ])
@@ -356,7 +356,7 @@ class AuthenticationService: ObservableObject {
         try await changeRequest.commitChanges()
         
         logger.info("User profile updated: \(user.uid)")
-        analyticsService.track(event: "user_profile_updated", parameters: [
+        ServiceContainer.shared.analyticsService.track(event: "user_profile_updated", parameters: [
             "user_id": user.uid
         ])
     }
@@ -379,7 +379,7 @@ class AuthenticationService: ObservableObject {
         }
         
         logger.info("User account deleted: \(user.uid)")
-        analyticsService.track(event: "user_account_deleted", parameters: [
+        ServiceContainer.shared.analyticsService.track(event: "user_account_deleted", parameters: [
             "user_id": user.uid
         ])
     }

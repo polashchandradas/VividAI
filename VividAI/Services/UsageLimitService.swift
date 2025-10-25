@@ -15,7 +15,7 @@ class UsageLimitService: ObservableObject {
     @Published var isLimitReached = false
     @Published var limitType: LimitType = .none
     
-    private let analyticsService = AnalyticsService.shared
+    private let analyticsService = ServiceContainer.shared.analyticsService
     private let logger = Logger(subsystem: "VividAI", category: "UsageLimit")
     
     // MARK: - Limit Types

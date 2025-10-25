@@ -95,18 +95,18 @@ class SubscriptionManager: NSObject, ObservableObject {
             do {
                 // Use Firebase validation for trial start
                 let trialType: TrialType = plan == .annual ? .unlimited : .limited
-                let result = try await FirebaseValidationService.shared.startTrialWithFirebase(type: trialType)
+                let result = try await ServiceContainer.shared.firebaseValidationService.startTrialWithFirebase(type: trialType)
                 
                 if result.isValid && !result.abuseDetected {
                     // Store trial data locally
-                    let deviceId = SecureStorageService.shared.getDeviceId()
+                    let deviceId = ServiceContainer.shared.secureStorageService.getDeviceId()
                     let trialData = TrialData(
                         startDate: Date(),
                         isActive: true,
                         deviceId: deviceId
                     )
                     
-                    SecureStorageService.shared.storeTrialData(trialData)
+                    ServiceContainer.shared.secureStorageService.storeTrialData(trialData)
                     
                     // Update status
                     await MainActor.run {
@@ -115,7 +115,7 @@ class SubscriptionManager: NSObject, ObservableObject {
                     }
                     
                     // Track analytics
-                    AnalyticsService.shared.track(event: "free_trial_started", parameters: [
+                    ServiceContainer.shared.analyticsService.track(event: "free_trial_started", parameters: [
                         "plan": plan.rawValue,
                         "device_id": deviceId,
                         "server_validated": result.serverValidated
@@ -127,28 +127,28 @@ class SubscriptionManager: NSObject, ObservableObject {
                         self.subscriptionStatus = .none
                     }
                     
-                    AnalyticsService.shared.track(event: "trial_start_blocked", parameters: [
+                    ServiceContainer.shared.analyticsService.track(event: "trial_start_blocked", parameters: [
                         "reason": result.reason ?? "unknown",
                         "abuse_detected": result.abuseDetected
                     ])
                 }
             } catch {
                 // Fallback to local trial start
-                let deviceId = SecureStorageService.shared.getDeviceId()
+                let deviceId = ServiceContainer.shared.secureStorageService.getDeviceId()
                 let trialData = TrialData(
                     startDate: Date(),
                     isActive: true,
                     deviceId: deviceId
                 )
                 
-                SecureStorageService.shared.storeTrialData(trialData)
+                ServiceContainer.shared.secureStorageService.storeTrialData(trialData)
                 
                 await MainActor.run {
                     self.isPremiumUser = true
                     self.subscriptionStatus = .trial
                 }
                 
-                AnalyticsService.shared.track(event: "free_trial_started_local", parameters: [
+                ServiceContainer.shared.analyticsService.track(event: "free_trial_started_local", parameters: [
                     "plan": plan.rawValue,
                     "device_id": deviceId,
                     "fallback": true
@@ -218,11 +218,11 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     private func isFreeTrialActive() -> Bool {
-        guard let trialData = SecureStorageService.shared.getTrialData() else { return false }
+        guard let trialData = ServiceContainer.shared.secureStorageService.getTrialData() else { return false }
         
         // CRITICAL: Always validate with server for security
         Task {
-            let serverValidation = await ServerValidationService.shared.validateTrialStatus()
+            let serverValidation = await ServiceContainer.shared.serverValidationService.validateTrialStatus()
             
             // Update local status based on server validation
             if !serverValidation.isValid || !serverValidation.serverValidated {
@@ -233,7 +233,7 @@ class SubscriptionManager: NSObject, ObservableObject {
                 }
                 
                 // Clear invalid trial data
-                SecureStorageService.shared.clearTrialData()
+                ServiceContainer.shared.secureStorageService.clearTrialData()
             }
         }
         
@@ -289,7 +289,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     private func getTrialDaysRemaining() -> Int {
-        guard let trialData = SecureStorageService.shared.getTrialData() else { return 0 }
+        guard let trialData = ServiceContainer.shared.secureStorageService.getTrialData() else { return 0 }
         
         let trialEndDate = trialData.startDate.addingTimeInterval(3 * 24 * 60 * 60)
         let daysRemaining = Calendar.current.dateComponents([.day], from: Date(), to: trialEndDate).day ?? 0

@@ -9,6 +9,11 @@ import CoreData
 class ConfigurationService: ObservableObject {
     static let shared = ConfigurationService()
     
+    // MARK: - Centralized Configuration State
+    @Published var isConfigurationLoaded = false
+    @Published var configurationStatus: ConfigurationStatus = .notConfigured
+    @Published var lastConfigurationError: String?
+    
     // MARK: - API Keys
     let replicateAPIKey: String
     let firebaseAPIKey: String
@@ -30,6 +35,15 @@ class ConfigurationService: ObservableObject {
         self.googleAppID = Self.loadAPIKey(for: "GOOGLE_APP_ID")
         self.firebaseProjectID = Self.loadAPIKey(for: "FIREBASE_PROJECT_ID")
         self.firebaseStorageBucket = Self.loadAPIKey(for: "FIREBASE_STORAGE_BUCKET")
+        
+        // Set centralized configuration state
+        self.configurationStatus = getConfigurationStatus()
+        self.isConfigurationLoaded = true
+        
+        // Log configuration status
+        if !isFullyConfigured {
+            self.lastConfigurationError = getConfigurationErrorMessage()
+        }
     }
     
     private static func loadAPIKey(for key: String) -> String {
@@ -89,19 +103,19 @@ class ConfigurationService: ObservableObject {
         var issues: [String] = []
         
         // Validate Replicate API key
-        let replicateValidation = SecurityService.shared.validateAPIKey(replicateAPIKey)
+        let replicateValidation = ServiceContainer.shared.securityService.validateAPIKey(replicateAPIKey)
         if !replicateValidation.isValid {
             issues.append(contentsOf: replicateValidation.issues.map { "Replicate API: \($0)" })
         }
         
         // Validate Firebase API key
-        let firebaseValidation = SecurityService.shared.validateAPIKey(firebaseAPIKey)
+        let firebaseValidation = ServiceContainer.shared.securityService.validateAPIKey(firebaseAPIKey)
         if !firebaseValidation.isValid {
             issues.append(contentsOf: firebaseValidation.issues.map { "Firebase API: \($0)" })
         }
         
         // Validate URLs
-        let replicateURLValidation = SecurityService.shared.validateURL(replicateBaseURL)
+        let replicateURLValidation = ServiceContainer.shared.securityService.validateURL(replicateBaseURL)
         if !replicateURLValidation.isValid {
             issues.append(contentsOf: replicateURLValidation.issues.map { "Replicate URL: \($0)" })
         }
@@ -109,6 +123,30 @@ class ConfigurationService: ObservableObject {
         return ValidationResult(
             isValid: issues.isEmpty,
             issues: issues
+        )
+    }
+    
+    // MARK: - Centralized Configuration Management
+    
+    func refreshConfiguration() {
+        // Refresh configuration state
+        self.configurationStatus = getConfigurationStatus()
+        self.lastConfigurationError = getConfigurationErrorMessage()
+        
+        // Notify observers of configuration changes
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
+    }
+    
+    func getConfigurationSummary() -> ConfigurationSummary {
+        return ConfigurationSummary(
+            status: configurationStatus,
+            isLoaded: isConfigurationLoaded,
+            lastError: lastConfigurationError,
+            replicateConfigured: isReplicateConfigured,
+            firebaseConfigured: isFirebaseConfigured,
+            fullyConfigured: isFullyConfigured
         )
     }
     
@@ -145,5 +183,23 @@ enum ConfigurationStatus {
         case .notConfigured:
             return "No APIs configured"
         }
+    }
+}
+
+// MARK: - Configuration Summary
+struct ConfigurationSummary {
+    let status: ConfigurationStatus
+    let isLoaded: Bool
+    let lastError: String?
+    let replicateConfigured: Bool
+    let firebaseConfigured: Bool
+    let fullyConfigured: Bool
+    
+    var hasErrors: Bool {
+        return lastError != nil
+    }
+    
+    var isReady: Bool {
+        return isLoaded && fullyConfigured && !hasErrors
     }
 }

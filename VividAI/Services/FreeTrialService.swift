@@ -15,8 +15,8 @@ class FreeTrialService: ObservableObject {
     @Published var canGenerate = true
     @Published var trialType: TrialType = .none
     
-    private let secureStorage = SecureStorageService.shared
-    private let analyticsService = AnalyticsService.shared
+    private let secureStorage = ServiceContainer.shared.secureStorageService
+    private let analyticsService = ServiceContainer.shared.analyticsService
     private let logger = Logger(subsystem: "VividAI", category: "FreeTrial")
     
     // MARK: - Trial Types
