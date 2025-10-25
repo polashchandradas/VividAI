@@ -1,4 +1,4 @@
-name: Generate iOS Simulator IPA (Fixed)
+name: Generate iOS Simulator IPA (Optimized)
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 jobs:
   generate-ipa:
     runs-on: macos-latest
+    timeout-minutes: 30  # Prevent infinite hanging
     
     steps:
     - name: Checkout repository
@@ -29,26 +30,38 @@ jobs:
         rm -rf ./DerivedData
         rm -rf ./build
         
-    - name: Boot iOS Simulator
+    - name: List available simulators
       run: |
-        echo "📱 Booting iOS Simulator..."
-        xcrun simctl boot "iPhone 16" || true
-        xcrun simctl bootstatus "iPhone 16" -b
+        echo "📱 Available simulators:"
+        xcrun simctl list devices available
         
-    - name: Build for iOS Simulator using archive
+    - name: Create and boot iOS Simulator with timeout
       run: |
-        echo "🔨 Building for iOS Simulator using archive..."
-        echo "📱 Target: iPhone 16, iOS 18.4"
+        echo "📱 Creating and booting iOS Simulator with timeout..."
+        
+        # Create simulator if it doesn't exist
+        xcrun simctl create "VividAI-Test" "iPhone 16" "iOS 18.4" || echo "Simulator already exists"
+        
+        # Boot simulator with timeout
+        timeout 60 xcrun simctl boot "VividAI-Test" || echo "Simulator boot timeout or already booted"
+        
+        # Check if simulator is running
+        xcrun simctl list devices | grep "VividAI-Test" | grep "Booted" || echo "Simulator not booted, continuing anyway"
+        
+    - name: Build for iOS Simulator using build
+      run: |
+        echo "🔨 Building for iOS Simulator..."
+        echo "📱 Target: VividAI-Test"
         
         set -e
         
-        # Use archive command which creates proper app bundles
-        xcodebuild archive \
+        # Use build command with explicit destination
+        xcodebuild build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
-          -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
+          -destination 'platform=iOS Simulator,name=VividAI-Test' \
           -configuration Release \
-          -archivePath ./VividAI.xcarchive \
+          -derivedDataPath ./DerivedData \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
@@ -56,38 +69,44 @@ jobs:
           -verbose \
           -showBuildTimingSummary
         
-        echo "✅ Archive completed successfully!"
+        echo "✅ Build completed successfully!"
         
-    - name: Find and verify app bundle in archive
+    - name: Find and verify app bundle
       run: |
-        echo "🔍 Looking for app bundle in archive..."
+        echo "🔍 Looking for app bundle..."
         
-        # Check if archive was created
-        if [ ! -d "./VividAI.xcarchive" ]; then
-          echo "❌ Archive not found!"
-          exit 1
-        fi
-        
-        echo "✅ Archive found at: ./VividAI.xcarchive"
-        
-        # Find app bundle in archive
-        APP_PATH=$(find ./VividAI.xcarchive/Products/Applications -name "VividAI.app" -type d | head -1)
+        # Look for app bundle in DerivedData
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "❌ App bundle not found in archive"
-          echo "📁 Archive contents:"
-          find ./VividAI.xcarchive -name "*.app" -type d || echo "No .app files found in archive"
-          exit 1
+          echo "❌ App bundle not found in DerivedData"
+          echo "📁 Searching in DerivedData:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          
+          # Try default DerivedData location
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "VividAI.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found in default DerivedData"
+            echo "📁 Searching in default DerivedData:"
+            find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d || echo "No .app files found"
+            exit 1
+          fi
         fi
         
-        echo "✅ App bundle found in archive at: $APP_PATH"
+        echo "✅ App bundle found at: $APP_PATH"
         echo "📱 App bundle size: $(du -sh "$APP_PATH")"
         
         # Verify app bundle contents
+        echo "📱 App bundle contents:"
+        ls -la "$APP_PATH"
+        
+        # Verify it's a valid app bundle
         if [ ! -f "$APP_PATH/Info.plist" ]; then
           echo "❌ Invalid app bundle - missing Info.plist"
           exit 1
         fi
+        
         echo "✅ App bundle is valid"
         
         # Set APP_PATH as an output for subsequent steps
@@ -136,4 +155,8 @@ jobs:
       run: |
         echo "🧹 Cleaning up..."
         rm -rf ./Payload
-        rm -rf ./VividAI.xcarchive
+        rm -rf ./DerivedData
+        
+        # Shutdown simulator
+        xcrun simctl shutdown "VividAI-Test" || echo "Simulator already shutdown"
+        xcrun simctl delete "VividAI-Test" || echo "Simulator already deleted"
