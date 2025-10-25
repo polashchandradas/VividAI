@@ -51,7 +51,7 @@ jobs:
         set -e  # Exit on any error
         
         xcodebuild build \
-          -workspace VividAI-Simplified.xcworkspace \
+          -project VividAI-Simplified.xcodeproj \
           -scheme VividAI \
           -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
           -configuration Release \
