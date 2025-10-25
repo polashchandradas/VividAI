@@ -189,7 +189,7 @@ struct ResultsView: View {
                 }
                 
                 Button(action: {
-                    analyticsService.track(event: "save_tapped")
+                    ServiceContainer.shared.analyticsService.track(event: "save_tapped")
                     // Save functionality
                 }) {
                     HStack(spacing: DesignSystem.Spacing.sm) {
@@ -214,7 +214,7 @@ struct ResultsView: View {
 
 struct HeadshotCard: View {
     let headshot: HeadshotStyle
-    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     let onTap: () -> Void
     
     var body: some View {
@@ -231,7 +231,7 @@ struct HeadshotCard: View {
                                     .font(.system(size: DesignSystem.IconSizes.xxlarge))
                                     .foregroundColor(DesignSystem.Colors.primary)
                                 
-                                if headshot.isPremium && !subscriptionStateManager.isPremiumUser {
+                                if headshot.isPremium && !unifiedState.isPremiumUser {
                                     Image(systemName: "lock.fill")
                                         .font(.system(size: DesignSystem.IconSizes.small))
                                         .foregroundColor(DesignSystem.Colors.warning)
@@ -240,7 +240,7 @@ struct HeadshotCard: View {
                         )
                     
                     // Premium Badge
-                    if headshot.isPremium && !subscriptionStateManager.isPremiumUser {
+                    if headshot.isPremium && !unifiedState.isPremiumUser {
                         VStack {
                             HStack {
                                 Spacer()
@@ -363,6 +363,5 @@ struct HeadshotStyle: Identifiable {
 
 #Preview {
     ResultsView()
-        .environmentObject(SubscriptionManager())
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

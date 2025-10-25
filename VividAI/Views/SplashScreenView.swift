@@ -4,7 +4,7 @@ import UIKit
 struct SplashScreenView: View {
     @State private var size = 0.8
     @State private var opacity = 0.5
-    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     
     var body: some View {
         ZStack {
@@ -77,17 +77,17 @@ struct SplashScreenView: View {
         // Initialize CoreML models in background
         DispatchQueue.global(qos: .background).async {
             // Load background removal model
-            serviceContainer.backgroundRemovalService.loadModel()
+            ServiceContainer.shared.backgroundRemovalService.loadModel()
             
             // Load photo enhancement model
-            serviceContainer.photoEnhancementService.loadModel()
+            ServiceContainer.shared.photoEnhancementService.loadModel()
             
-            serviceContainer.analyticsService.track(event: "splash_screen_displayed")
+            ServiceContainer.shared.analyticsService.track(event: "splash_screen_displayed")
         }
     }
 }
 
 #Preview {
     SplashScreenView()
-        .environmentObject(ServiceContainer.shared)
+        .environmentObject(UnifiedAppStateManager.shared)
 }

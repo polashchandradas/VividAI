@@ -5,9 +5,7 @@ import Combine
 // MARK: - Real-Time Preview View
 
 struct RealTimePreviewView: View {
-    @EnvironmentObject var serviceContainer: ServiceContainer
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     
     @State private var selectedImage: UIImage?
     @State private var selectedStyle: AvatarStyle?
@@ -574,6 +572,5 @@ struct StyleRow: View {
 
 #Preview {
     RealTimePreviewView()
-        .environmentObject(ServiceContainer.shared)
-        .environmentObject(AppCoordinator())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

@@ -1,10 +1,7 @@
 import SwiftUI
 
 struct QualitySelectionView: View {
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @Binding var selectedImage: UIImage?
     @State private var selectedQuality: HybridProcessingService.QualityLevel = .standard
     @State private var showingProcessing = false
@@ -39,14 +36,14 @@ struct QualitySelectionView: View {
             .navigationBarHidden(true)
         }
         .onAppear {
-            analyticsService.track(event: "quality_selection_viewed")
+            ServiceContainer.shared.analyticsService.track(event: "quality_selection_viewed")
         }
     }
     
     private var headerSection: some View {
         HStack {
             Button(action: {
-                navigationCoordinator.navigateBack()
+                ServiceContainer.shared.navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -358,6 +355,5 @@ struct QualityOptionCard: View {
 
 #Preview {
     QualitySelectionView(selectedImage: .constant(nil))
-        .environmentObject(AppCoordinator())
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

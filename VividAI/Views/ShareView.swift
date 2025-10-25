@@ -5,10 +5,7 @@ import UIKit
 import Photos
 
 struct ShareView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @State private var isGeneratingVideo = false
     @State private var generatedVideoURL: URL?
     @State private var showingShareSheet = false
@@ -45,9 +42,9 @@ struct ShareView: View {
             }
         }
         .onAppear {
-            analyticsService.track(event: "share_screen_viewed")
+            ServiceContainer.shared.analyticsService.track(event: "share_screen_viewed")
             // Get video URL from navigation coordinator
-            if let videoURL = navigationCoordinator.generatedVideoURL {
+            if let videoURL = ServiceContainer.shared.navigationCoordinator.generatedVideoURL {
                 generatedVideoURL = videoURL
             } else {
                 generateTransformationVideo()
@@ -58,7 +55,7 @@ struct ShareView: View {
     private var headerSection: some View {
         HStack {
             Button(action: { 
-                navigationCoordinator.navigateBack()
+                ServiceContainer.shared.navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -219,7 +216,7 @@ struct ShareView: View {
     
     private func platformButton(icon: String, name: String, color: Color) -> some View {
         Button(action: {
-            analyticsService.track(event: "platform_share_tapped", parameters: ["platform": name])
+            ServiceContainer.shared.analyticsService.track(event: "platform_share_tapped", parameters: ["platform": name])
             showingShareSheet = true
         }) {
             VStack(spacing: DesignSystem.Spacing.sm) {
@@ -247,8 +244,8 @@ struct ShareView: View {
     }
     
     private func generateVideoAsync() async {
-        guard let originalImage = navigationCoordinator.selectedImage,
-              let enhancedImage = navigationCoordinator.processingResults.first?.image else {
+        guard let originalImage = ServiceContainer.shared.navigationCoordinator.selectedImage,
+              let enhancedImage = ServiceContainer.shared.navigationCoordinator.processingResults.first?.image else {
             await MainActor.run {
                 self.isGeneratingVideo = false
             }
@@ -321,5 +318,5 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 #Preview {
     ShareView()
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

@@ -2,8 +2,7 @@ import SwiftUI
 import UIKit
 
 struct ProcessingView: View {
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @State private var progress: Double = 0.0
     @State private var currentStep = 0
     @State private var processingComplete = false
@@ -40,12 +39,12 @@ struct ProcessingView: View {
         .onAppear {
             startProcessing()
         }
-        .onReceive(appCoordinator.$processingProgress) { newProgress in
+        .onReceive(unifiedState.$processingProgress) { newProgress in
             withAnimation(DesignSystem.Animations.standard) {
                 self.progress = newProgress
             }
         }
-        .onReceive(appCoordinator.$processingStep) { newStep in
+        .onReceive(unifiedState.$processingStep) { newStep in
             withAnimation(DesignSystem.Animations.standard) {
                 if let stepIndex = processingSteps.firstIndex(of: newStep) {
                     self.currentStep = stepIndex
@@ -175,7 +174,7 @@ struct ProcessingView: View {
     }
     
     private func startProcessing() {
-        analyticsService.track(event: "processing_started")
+        ServiceContainer.shared.analyticsService.track(event: "processing_started")
         
         // The actual processing is handled by the app coordinator
         // This view just displays the progress
@@ -184,5 +183,5 @@ struct ProcessingView: View {
 
 #Preview {
     ProcessingView()
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

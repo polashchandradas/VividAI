@@ -3,11 +3,7 @@ import StoreKit
 import UIKit
 
 struct PaywallView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var serviceContainer: ServiceContainer
-    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
     @State private var showingTrial = false
     
@@ -45,14 +41,14 @@ struct PaywallView: View {
             .navigationBarHidden(true)
             .alert("Free Trial Started", isPresented: $showingTrial) {
                 Button("OK") {
-                    navigationCoordinator.navigateBack()
+                    ServiceContainer.shared.navigationCoordinator.navigateBack()
                 }
             } message: {
                 Text("Your 3-day free trial has started. You can cancel anytime.")
             }
         }
         .onAppear {
-            analyticsService.track(event: "paywall_viewed")
+            ServiceContainer.shared.analyticsService.track(event: "paywall_viewed")
         }
     }
     
@@ -197,11 +193,11 @@ struct PaywallView: View {
                         
                         HStack {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                Text("\(subscriptionStateManager.trialGenerationsUsed)/\(subscriptionStateManager.trialMaxGenerations) generations used")
+                                Text("\(ServiceContainer.shared.subscriptionStateManager.trialGenerationsUsed)/\(ServiceContainer.shared.subscriptionStateManager.trialMaxGenerations) generations used")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textSecondary)
                                 
-                                Text("\(subscriptionStateManager.trialDaysRemaining) days remaining")
+                                Text("\(ServiceContainer.shared.subscriptionStateManager.trialDaysRemaining) days remaining")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textSecondary)
                             }
@@ -210,7 +206,7 @@ struct PaywallView: View {
                             
                             Button("Upgrade Now") {
                                 // Handle subscription purchase
-                                analyticsService.track(event: "upgrade_from_trial_tapped")
+                                ServiceContainer.shared.analyticsService.track(event: "upgrade_from_trial_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
                             .foregroundColor(.white)
@@ -245,7 +241,7 @@ struct PaywallView: View {
     private var legalSection: some View {
         HStack(spacing: DesignSystem.Spacing.lg) {
             Button("Restore Purchases") {
-                appCoordinator.handleSubscriptionAction(.restorePurchases)
+                ServiceContainer.shared.appCoordinator.handleSubscriptionAction(.restorePurchases)
             }
             .font(DesignSystem.Typography.caption)
             .foregroundColor(DesignSystem.Colors.primary)
@@ -269,7 +265,7 @@ struct PaywallView: View {
     
     private func startFreeTrial() {
         // Start free trial logic
-        appCoordinator.handleSubscriptionAction(.startFreeTrial(SubscriptionManager.SubscriptionPlan(rawValue: selectedPlan.rawValue) ?? .monthly))
+        ServiceContainer.shared.appCoordinator.handleSubscriptionAction(.startFreeTrial(SubscriptionManager.SubscriptionPlan(rawValue: selectedPlan.rawValue) ?? .monthly))
         showingTrial = true
     }
 }
@@ -424,6 +420,5 @@ struct Benefit {
 
 #Preview {
     PaywallView()
-        .environmentObject(SubscriptionManager())
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

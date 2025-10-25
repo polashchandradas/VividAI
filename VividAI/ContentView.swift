@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 struct ContentView: View {
-    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     
     var body: some View {
         NavigationView {
@@ -14,5 +14,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(ServiceContainer.shared)
+        .environmentObject(UnifiedAppStateManager.shared)
 }

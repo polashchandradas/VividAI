@@ -2,12 +2,11 @@ import SwiftUI
 import UIKit
 
 struct MainAppView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     
     var body: some View {
         Group {
-            switch navigationCoordinator.currentView {
+            switch unifiedState.currentView {
             case .splash:
                 SplashScreenView()
             case .authentication:
@@ -32,13 +31,11 @@ struct MainAppView: View {
                 SettingsView()
             }
         }
-        .environmentObject(navigationCoordinator)
-        .environmentObject(appCoordinator)
+        .environmentObject(unifiedState)
     }
 }
 
 #Preview {
     MainAppView()
-        .environmentObject(NavigationCoordinator())
-        .environmentObject(AppCoordinator())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

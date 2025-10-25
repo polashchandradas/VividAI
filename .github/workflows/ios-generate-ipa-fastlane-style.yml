@@ -1,4 +1,4 @@
-name: Generate iOS Simulator IPA (Archive Working Solution)
+name: Generate iOS Simulator IPA (Fastlane Style)
 
 on:
   push:
@@ -29,7 +29,6 @@ jobs:
         rm -rf ~/Library/Developer/Xcode/DerivedData/*
         rm -rf ./DerivedData
         rm -rf ./build
-        rm -rf ./archive
         
     - name: List available simulators
       run: |
@@ -49,21 +48,21 @@ jobs:
         # Wait for simulator to be ready
         xcrun simctl bootstatus "VividAI-Test" -b || echo "Simulator status check failed"
         
-    - name: Archive for iOS Simulator
+    - name: Build for iOS Simulator using build_app approach
       run: |
-        echo "🔨 Archiving for iOS Simulator..."
+        echo "🔨 Building for iOS Simulator using build_app approach..."
         echo "📱 Target: VividAI-Test"
         
         set -e
         
-        # Use archive command which creates proper app bundles
-        xcodebuild archive \
+        # Use build_app approach similar to Fastlane
+        xcodebuild build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
           -destination 'platform=iOS Simulator,name=VividAI-Test' \
           -configuration Release \
-          -archivePath ./archive/VividAI.xcarchive \
           -derivedDataPath ./DerivedData \
+          -buildDir ./build \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
@@ -71,35 +70,41 @@ jobs:
           -verbose \
           -showBuildTimingSummary
         
-        echo "✅ Archive completed successfully!"
+        echo "✅ Build completed successfully!"
         
-    - name: Find and verify app bundle in archive
+    - name: Find and verify app bundle in build directory
       run: |
-        echo "🔍 Looking for app bundle in archive..."
+        echo "🔍 Looking for app bundle in build directory..."
         
-        # Check if archive was created
-        if [ ! -d "./archive/VividAI.xcarchive" ]; then
-          echo "❌ Archive not found!"
-          echo "📁 Archive directory contents:"
-          ls -la ./archive/ || echo "Archive directory not found"
-          exit 1
-        fi
-        
-        echo "✅ Archive found at: ./archive/VividAI.xcarchive"
-        
-        # Find app bundle in archive
-        APP_PATH=$(find ./archive/VividAI.xcarchive/Products/Applications -name "VividAI.app" -type d | head -1)
+        # Look for app bundle in build directory (Fastlane style)
+        APP_PATH=$(find ./build -name "VividAI.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "❌ App bundle not found in archive"
-          echo "📁 Archive contents:"
-          find ./archive/VividAI.xcarchive -name "*.app" -type d || echo "No .app files found in archive"
-          echo "📁 Archive structure:"
-          find ./archive/VividAI.xcarchive -type d | head -20
-          exit 1
+          echo "❌ App bundle not found in build directory"
+          echo "📁 Searching in build directory:"
+          find ./build -name "*.app" -type d || echo "No .app files found in build"
+          
+          # Method 2: Check DerivedData for the app bundle
+          APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found in DerivedData"
+            echo "📁 Searching in DerivedData:"
+            find ./DerivedData -name "*.app" -type d || echo "No .app files found in DerivedData"
+            
+            # Method 3: Check if build was successful by looking for any VividAI.app
+            echo "📁 Searching for any VividAI.app:"
+            find . -name "VividAI.app" -type d || echo "No VividAI.app found"
+            
+            # Method 4: Check the build output directory
+            echo "📁 Checking build output:"
+            find . -name "*.app" -type d || echo "No .app files found in current directory"
+            
+            exit 1
+          fi
         fi
         
-        echo "✅ App bundle found in archive at: $APP_PATH"
+        echo "✅ App bundle found at: $APP_PATH"
         echo "📱 App bundle size: $(du -sh "$APP_PATH")"
         
         # Verify app bundle contents
@@ -161,7 +166,7 @@ jobs:
         echo "🧹 Cleaning up..."
         rm -rf ./Payload
         rm -rf ./DerivedData
-        rm -rf ./archive
+        rm -rf ./build
         
         # Shutdown simulator
         xcrun simctl shutdown "VividAI-Test" || echo "Simulator already shutdown"

@@ -5,10 +5,7 @@ import Vision
 import CoreML
 
 struct PhotoUploadView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var serviceContainer: ServiceContainer
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
@@ -535,5 +532,5 @@ struct CameraView: UIViewControllerRepresentable {
 
 #Preview {
     PhotoUploadView()
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }
