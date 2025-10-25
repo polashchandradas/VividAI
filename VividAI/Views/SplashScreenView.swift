@@ -4,8 +4,7 @@ import UIKit
 struct SplashScreenView: View {
     @State private var size = 0.8
     @State private var opacity = 0.5
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var serviceContainer: ServiceContainer
     
     var body: some View {
         ZStack {
@@ -64,10 +63,10 @@ struct SplashScreenView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 withAnimation(DesignSystem.Animations.standard) {
                     // Check authentication status and navigate accordingly
-                    if AuthenticationService.shared.isAuthenticated {
-                        self.navigationCoordinator.navigateTo(.home)
+                    if serviceContainer.authenticationService.isAuthenticated {
+                        serviceContainer.navigationCoordinator.navigateTo(.home)
                     } else {
-                        self.navigationCoordinator.navigateTo(.authentication)
+                        serviceContainer.navigationCoordinator.navigateTo(.authentication)
                     }
                 }
             }
@@ -78,17 +77,17 @@ struct SplashScreenView: View {
         // Initialize CoreML models in background
         DispatchQueue.global(qos: .background).async {
             // Load background removal model
-            BackgroundRemovalService.shared.loadModel()
+            serviceContainer.backgroundRemovalService.loadModel()
             
             // Load photo enhancement model
-            PhotoEnhancementService.shared.loadModel()
+            serviceContainer.photoEnhancementService.loadModel()
             
-            analyticsService.track(event: "splash_screen_displayed")
+            serviceContainer.analyticsService.track(event: "splash_screen_displayed")
         }
     }
 }
 
 #Preview {
     SplashScreenView()
-        .environmentObject(AnalyticsService())
+        .environmentObject(ServiceContainer.shared)
 }

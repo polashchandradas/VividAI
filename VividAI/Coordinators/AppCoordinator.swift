@@ -16,24 +16,28 @@ class AppCoordinator: ObservableObject {
     @Published var isPremiumUser = false
     @Published var subscriptionStatus: SubscriptionStatus = .none
     
-    // MARK: - Services
+    // MARK: - Service Container
     
-    let navigationCoordinator = NavigationCoordinator()
-    let subscriptionManager = SubscriptionManager()
-    let analyticsService = AnalyticsService()
-    let hybridProcessingService = HybridProcessingService.shared
-    let backgroundRemovalService = BackgroundRemovalService()
-    let photoEnhancementService = PhotoEnhancementService()
-    let aiHeadshotService = AIHeadshotService()
-    let videoGenerationService = VideoGenerationService()
-    let watermarkService = WatermarkService()
-    let referralService = ReferralService()
-    let securityService = SecurityService()
-    let loggingService = LoggingService()
-    let errorHandlingService = ErrorHandlingService()
-    let authenticationService = AuthenticationService.shared
-    let freeTrialService = FreeTrialService.shared
-    let usageLimitService = UsageLimitService.shared
+    private let services = ServiceContainer.shared
+    
+    // MARK: - Service Access Properties (Computed)
+    
+    var navigationCoordinator: NavigationCoordinator { services.navigationCoordinator }
+    var subscriptionManager: SubscriptionManager { services.subscriptionManager }
+    var analyticsService: AnalyticsService { services.analyticsService }
+    var hybridProcessingService: HybridProcessingService { services.hybridProcessingService }
+    var backgroundRemovalService: BackgroundRemovalService { services.backgroundRemovalService }
+    var photoEnhancementService: PhotoEnhancementService { services.photoEnhancementService }
+    var aiHeadshotService: AIHeadshotService { services.aiHeadshotService }
+    var videoGenerationService: VideoGenerationService { services.videoGenerationService }
+    var watermarkService: WatermarkService { services.watermarkService }
+    var referralService: ReferralService { services.referralService }
+    var securityService: SecurityService { services.securityService }
+    var loggingService: LoggingService { services.loggingService }
+    var errorHandlingService: ErrorHandlingService { services.errorHandlingService }
+    var authenticationService: AuthenticationService { services.authenticationService }
+    var freeTrialService: FreeTrialService { services.freeTrialService }
+    var usageLimitService: UsageLimitService { services.usageLimitService }
     
     private let logger = Logger(subsystem: "VividAI", category: "AppCoordinator")
     private var cancellables = Set<AnyCancellable>()
@@ -70,6 +74,8 @@ class AppCoordinator: ObservableObject {
     
     private func configureServices() {
         // Configure services with coordinator references
+        // Note: These are strong references that could cause memory leaks
+        // TODO: Consider using weak references or delegate pattern
         backgroundRemovalService.coordinator = self
         photoEnhancementService.coordinator = self
         aiHeadshotService.coordinator = self

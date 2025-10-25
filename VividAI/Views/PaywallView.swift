@@ -7,8 +7,8 @@ struct PaywallView: View {
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var analyticsService: AnalyticsService
-    @StateObject private var freeTrialService = FreeTrialService.shared
-    @StateObject private var usageLimitService = UsageLimitService.shared
+    @EnvironmentObject var freeTrialService: FreeTrialService
+    @EnvironmentObject var usageLimitService: UsageLimitService
     @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
     @State private var showingTrial = false
     

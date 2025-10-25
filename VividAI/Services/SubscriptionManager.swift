@@ -220,9 +220,29 @@ class SubscriptionManager: NSObject, ObservableObject {
     private func isFreeTrialActive() -> Bool {
         guard let trialData = SecureStorageService.shared.getTrialData() else { return false }
         
-        // Check if trial is expired
+        // CRITICAL: Always validate with server for security
+        Task {
+            let serverValidation = await ServerValidationService.shared.validateTrialStatus()
+            
+            // Update local status based on server validation
+            if !serverValidation.isValid || !serverValidation.serverValidated {
+                // Server says trial is invalid - update local state
+                await MainActor.run {
+                    self.isPremiumUser = false
+                    self.subscriptionStatus = .none
+                }
+                
+                // Clear invalid trial data
+                SecureStorageService.shared.clearTrialData()
+            }
+        }
+        
+        // Basic local check (but server validation takes precedence)
         let trialEndDate = trialData.startDate.addingTimeInterval(3 * 24 * 60 * 60) // 3 days
-        return Date() < trialEndDate && trialData.isActive
+        let isLocallyValid = Date() < trialEndDate && trialData.isActive
+        
+        // Only trust local validation if server validation is not available
+        return isLocallyValid && trialData.serverValidated
     }
     
     // MARK: - Transaction Listening

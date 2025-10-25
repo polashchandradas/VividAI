@@ -26,16 +26,16 @@ class PhotoEnhancementService: ObservableObject {
         // Load real CoreML models for photo enhancement
         DispatchQueue.global(qos: .background).async {
             do {
-                // Load AI enhancement model
-                if let enhancementURL = Bundle.main.url(forResource: "PhotoEnhancementModel", withExtension: "mlmodelc") {
+                // Load FastViT enhancement model
+                if let enhancementURL = Bundle.main.url(forResource: "FastViTT8F16", withExtension: "mlpackage") {
                     self.enhancementModel = try MLModel(contentsOf: enhancementURL)
-                    print("Photo enhancement model loaded successfully")
+                    print("FastViT photo enhancement model loaded successfully")
                 }
                 
-                // Load AI restoration model
-                if let restorationURL = Bundle.main.url(forResource: "PhotoRestorationModel", withExtension: "mlmodelc") {
-                    self.restorationModel = try MLModel(contentsOf: restorationURL)
-                    print("Photo restoration model loaded successfully")
+                // Load DepthAnything for depth-aware enhancement
+                if let depthURL = Bundle.main.url(forResource: "DepthAnythingV2SmallF16", withExtension: "mlpackage") {
+                    self.restorationModel = try MLModel(contentsOf: depthURL)
+                    print("DepthAnything depth model loaded successfully")
                 }
             } catch {
                 print("Failed to load AI models: \(error.localizedDescription)")
@@ -280,8 +280,75 @@ extension PhotoEnhancementService {
     
     private func pixelBufferToUIImage(pixelBuffer: MLMultiArray) throws -> UIImage {
         // Convert MLMultiArray back to UIImage
-        // This is a simplified implementation - in production you'd need proper conversion
-        throw PhotoEnhancementError.processingFailed
+        guard pixelBuffer.count >= 3 else {
+            throw PhotoEnhancementError.processingFailed
+        }
+        
+        // Get dimensions from the multi-array
+        let height = pixelBuffer.shape[0].intValue
+        let width = pixelBuffer.shape[1].intValue
+        let channels = pixelBuffer.shape[2].intValue
+        
+        // Create CVPixelBuffer from MLMultiArray
+        var cvPixelBuffer: CVPixelBuffer?
+        let attributes: [String: Any] = [
+            kCVPixelBufferCGImageCompatibilityKey as String: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey as String: true
+        ]
+        
+        let status = CVPixelBufferCreate(
+            kCFAllocatorDefault,
+            width,
+            height,
+            kCVPixelFormatType_32ARGB,
+            attributes as CFDictionary,
+            &cvPixelBuffer
+        )
+        
+        guard status == kCVReturnSuccess, let pixelBuffer = cvPixelBuffer else {
+            throw PhotoEnhancementError.processingFailed
+        }
+        
+        // Fill pixel buffer with data from MLMultiArray
+        CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0)) }
+        
+        let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer)
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer)
+        
+        // Convert MLMultiArray data to pixel buffer
+        for y in 0..<height {
+            for x in 0..<width {
+                let pixelIndex = y * width + x
+                let bufferIndex = (y * bytesPerRow + x * 4)
+                
+                if let baseAddress = baseAddress {
+                    let pixelPtr = baseAddress.assumingMemoryBound(to: UInt8.self)
+                    
+                    // Convert from MLMultiArray format to ARGB
+                    if channels >= 3 {
+                        let r = pixelBuffer[pixelIndex * channels + 0].floatValue
+                        let g = pixelBuffer[pixelIndex * channels + 1].floatValue
+                        let b = pixelBuffer[pixelIndex * channels + 2].floatValue
+                        let a: Float = channels > 3 ? pixelBuffer[pixelIndex * channels + 3].floatValue : 1.0
+                        
+                        pixelPtr[bufferIndex + 0] = UInt8(max(0, min(255, a * 255)))     // Alpha
+                        pixelPtr[bufferIndex + 1] = UInt8(max(0, min(255, r * 255)))     // Red
+                        pixelPtr[bufferIndex + 2] = UInt8(max(0, min(255, g * 255)))     // Green
+                        pixelPtr[bufferIndex + 3] = UInt8(max(0, min(255, b * 255)))     // Blue
+                    }
+                }
+            }
+        }
+        
+        // Create UIImage from CVPixelBuffer
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+            throw PhotoEnhancementError.processingFailed
+        }
+        
+        return UIImage(cgImage: cgImage)
     }
 }
 

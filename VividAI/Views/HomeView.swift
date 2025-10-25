@@ -2,13 +2,8 @@ import SwiftUI
 import UIKit
 
 struct HomeView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @StateObject private var freeTrialService = FreeTrialService.shared
-    @StateObject private var usageLimitService = UsageLimitService.shared
-    @StateObject private var realTimeService = RealTimeGenerationService.shared
     
     // Modern UI State
     @State private var isDarkMode = false
@@ -52,7 +47,7 @@ struct HomeView: View {
             .preferredColorScheme(isDarkMode ? .dark : .light)
         }
         .onAppear {
-            analyticsService.track(event: "home_screen_viewed")
+            serviceContainer.analyticsService.track(event: "home_screen_viewed")
             startAnimations()
         }
         .sheet(isPresented: $showingRealTimePreview) {
@@ -133,7 +128,7 @@ struct HomeView: View {
                 
                 // Settings Button
                 Button(action: { 
-                    navigationCoordinator.showSettings()
+                    serviceContainer.navigationCoordinator.showSettings()
                 }) {
                     Image(systemName: "gearshape.fill")
                         .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -170,11 +165,11 @@ struct HomeView: View {
             
             // Modern Primary CTA Button with Animation
             Button(action: {
-                analyticsService.track(event: "create_headshot_tapped")
+                serviceContainer.analyticsService.track(event: "create_headshot_tapped")
                 withAnimation(DesignSystem.Animations.spring) {
                     showMicroInteractions.toggle()
                 }
-                navigationCoordinator.startPhotoUpload()
+                serviceContainer.navigationCoordinator.startPhotoUpload()
             }) {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "camera.fill")
@@ -215,7 +210,7 @@ struct HomeView: View {
                 Spacer()
                 
                 Button(action: {
-                    analyticsService.track(event: "realtime_preview_tapped")
+                    serviceContainer.analyticsService.track(event: "realtime_preview_tapped")
                     showingRealTimePreview = true
                 }) {
                     HStack(spacing: 8) {
@@ -242,10 +237,10 @@ struct HomeView: View {
                     ForEach(AvatarStyle.allStyles.prefix(4), id: \.id) { style in
                         RealTimePreviewCard(
                             style: style,
-                            isGenerating: realTimeService.isGeneratingPreview,
+                            isGenerating: serviceContainer.realTimeGenerationService.isGeneratingPreview,
                             onTap: {
                                 selectedStyle = style
-                                analyticsService.track(event: "style_preview_tapped", parameters: ["style": style.name])
+                                serviceContainer.analyticsService.track(event: "style_preview_tapped", parameters: ["style": style.name])
                             }
                         )
                     }
@@ -371,7 +366,7 @@ struct HomeView: View {
                     subtitle: "Preview",
                     color: DesignSystem.Colors.warning,
                     action: {
-                        analyticsService.track(event: "realtime_preview_tapped")
+                        serviceContainer.analyticsService.track(event: "realtime_preview_tapped")
                         showingRealTimePreview = true
                     }
                 )
@@ -383,8 +378,8 @@ struct HomeView: View {
                     subtitle: "Removal",
                     color: DesignSystem.Colors.primary,
                     action: {
-                        analyticsService.track(event: "background_removal_tapped")
-                        navigationCoordinator.startPhotoUpload()
+                        serviceContainer.analyticsService.track(event: "background_removal_tapped")
+                        serviceContainer.navigationCoordinator.startPhotoUpload()
                     }
                 )
                 
@@ -395,8 +390,8 @@ struct HomeView: View {
                     subtitle: "Enhance",
                     color: DesignSystem.Colors.secondary,
                     action: {
-                        analyticsService.track(event: "photo_enhancement_tapped")
-                        navigationCoordinator.startPhotoUpload()
+                        serviceContainer.analyticsService.track(event: "photo_enhancement_tapped")
+                        serviceContainer.navigationCoordinator.startPhotoUpload()
                     }
                 )
                 
@@ -407,8 +402,8 @@ struct HomeView: View {
                     subtitle: "Generation",
                     color: DesignSystem.Colors.success,
                     action: {
-                        analyticsService.track(event: "video_generation_tapped")
-                        navigationCoordinator.startPhotoUpload()
+                        serviceContainer.analyticsService.track(event: "video_generation_tapped")
+                        serviceContainer.navigationCoordinator.startPhotoUpload()
                     }
                 )
             }
@@ -418,7 +413,7 @@ struct HomeView: View {
     // MARK: - Smart Trial Status Section
     private var smartTrialStatusSection: some View {
         VStack(spacing: DesignSystem.Spacing.md) {
-            if freeTrialService.isTrialActive {
+            if serviceContainer.freeTrialService.isTrialActive {
                 // Active Trial Status
                 ModernCard(
                     padding: DesignSystem.Spacing.md,
@@ -436,19 +431,19 @@ struct HomeView: View {
                             
                             Spacer()
                             
-                            Text("\(freeTrialService.trialDaysRemaining) days left")
+                            Text("\(serviceContainer.freeTrialService.trialDaysRemaining) days left")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                         
                         HStack {
-                            Text("\(freeTrialService.generationsUsed)/\(freeTrialService.maxGenerations) generations used")
+                            Text("\(serviceContainer.freeTrialService.generationsUsed)/\(serviceContainer.freeTrialService.maxGenerations) generations used")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             
                             Spacer()
                             
-                            if freeTrialService.canGenerate {
+                            if serviceContainer.freeTrialService.canGenerate {
                                 Text("Can generate")
                                     .font(DesignSystem.Typography.captionBold)
                                     .foregroundColor(DesignSystem.Colors.success)
@@ -461,7 +456,7 @@ struct HomeView: View {
                     }
                 }
                 .background(DesignSystem.Colors.warning.opacity(0.1))
-            } else if !subscriptionManager.isPremiumUser {
+            } else if !serviceContainer.subscriptionManager.isPremiumUser {
                 // Free User Status
                 ModernCard(
                     padding: DesignSystem.Spacing.md,
@@ -481,22 +476,22 @@ struct HomeView: View {
                             
                             Button("Start Free Trial") {
                                 appCoordinator.startFreeTrial(type: .limited)
-                                analyticsService.track(event: "start_free_trial_tapped")
+                                serviceContainer.analyticsService.track(event: "start_free_trial_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
                             .foregroundColor(DesignSystem.Colors.primary)
                         }
                         
                         HStack {
-                            Text("\(usageLimitService.getRemainingGenerations(isPremium: false, isTrialActive: false)) generations remaining today")
+                            Text("\(serviceContainer.usageLimitService.getRemainingGenerations(isPremium: false, isTrialActive: false)) generations remaining today")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             
                             Spacer()
                             
                             Button("Upgrade to Pro") {
-                                navigationCoordinator.showPaywall()
-                                analyticsService.track(event: "upgrade_to_pro_tapped")
+                                serviceContainer.navigationCoordinator.showPaywall()
+                                serviceContainer.analyticsService.track(event: "upgrade_to_pro_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
                             .foregroundColor(DesignSystem.Colors.success)
@@ -718,7 +713,7 @@ struct TrustIndicator: View {
 
 struct RealTimePreviewView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var realTimeService = RealTimeGenerationService.shared
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @State private var selectedImage: UIImage?
     @State private var selectedStyle: AvatarStyle?
     @State private var isShowingImagePicker = false
@@ -855,6 +850,6 @@ struct ImagePicker: UIViewControllerRepresentable {
 
 #Preview {
     HomeView()
-        .environmentObject(SubscriptionManager())
-        .environmentObject(AnalyticsService())
+        .environmentObject(ServiceContainer.shared)
+        .environmentObject(AppCoordinator())
 }

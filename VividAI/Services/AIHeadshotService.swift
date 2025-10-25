@@ -14,7 +14,10 @@ class AIHeadshotService: ObservableObject {
     @Published var processingProgress: Double = 0.0
     
     private let configuration = ConfigurationService.shared
-    private let realTimeService = RealTimeGenerationService.shared
+    // Use ServiceContainer to avoid creating multiple instances
+    private var realTimeService: RealTimeGenerationService {
+        return ServiceContainer.shared.realTimeGenerationService
+    }
     private var baseURL: String {
         configuration.replicateBaseURL
     }

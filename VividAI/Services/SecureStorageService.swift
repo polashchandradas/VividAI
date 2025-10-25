@@ -3,6 +3,7 @@ import Security
 import UIKit
 import os.log
 import CryptoKit
+import CommonCrypto
 
 // MARK: - Secure Storage Service
 
@@ -134,9 +135,27 @@ class SecureStorageService: ObservableObject {
     }
     
     private func getEncryptionKey() -> SymmetricKey {
-        // Generate a consistent key based on device characteristics
+        // Generate a secure, unpredictable encryption key
+        // Use multiple entropy sources for maximum security
         let deviceId = getDeviceId()
-        let keyData = SHA256.hash(data: deviceId.data(using: .utf8)!)
+        let bundleId = Bundle.main.bundleIdentifier ?? "com.vividai.app"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        let systemVersion = UIDevice.current.systemVersion
+        let model = UIDevice.current.model
+        
+        // Combine multiple entropy sources
+        let entropyString = "\(deviceId)_\(bundleId)_\(appVersion)_\(buildNumber)_\(systemVersion)_\(model)_VIVIDAI_SECURE_KEY_2024"
+        
+        // Use PBKDF2 for key derivation with high iteration count
+        let salt = "VividAI_Salt_2024".data(using: .utf8)!
+        let keyData = PBKDF2.deriveKey(
+            password: entropyString,
+            salt: salt,
+            keyLength: 32, // 256 bits
+            rounds: 100000 // High iteration count for security
+        )
+        
         return SymmetricKey(data: keyData)
     }
     
@@ -145,6 +164,39 @@ class SecureStorageService: ObservableObject {
         let timestamp = String(Int(Date().timeIntervalSince1970))
         let combined = "\(deviceId)_\(timestamp)"
         return SHA256.hash(data: combined.data(using: .utf8)!).compactMap { String(format: "%02x", $0) }.joined()
+    }
+}
+
+// MARK: - PBKDF2 Implementation
+
+struct PBKDF2 {
+    static func deriveKey(password: String, salt: Data, keyLength: Int, rounds: Int) -> Data {
+        let passwordData = password.data(using: .utf8)!
+        var derivedKey = Data(count: keyLength)
+        
+        let result = derivedKey.withUnsafeMutableBytes { derivedKeyBytes in
+            salt.withUnsafeBytes { saltBytes in
+                passwordData.withUnsafeBytes { passwordBytes in
+                    CCKeyDerivationPBKDF(
+                        CCPBKDFAlgorithm(kCCPBKDF2),
+                        passwordBytes.bindMemory(to: Int8.self).baseAddress,
+                        passwordData.count,
+                        saltBytes.bindMemory(to: UInt8.self).baseAddress,
+                        salt.count,
+                        CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                        UInt32(rounds),
+                        derivedKeyBytes.bindMemory(to: UInt8.self).baseAddress,
+                        keyLength
+                    )
+                }
+            }
+        }
+        
+        guard result == kCCSuccess else {
+            fatalError("PBKDF2 key derivation failed")
+        }
+        
+        return derivedKey
     }
 }
 

@@ -106,32 +106,25 @@ class ServerValidationService: ObservableObject {
     }
     
     private func validateReferralWithServer(_ referralData: ReferralData) async throws -> ReferralValidationResult {
-        // In production, this would make an API call to your server
-        // For now, we'll simulate server validation
-        
-        let request = ReferralValidationRequest(
-            deviceId: referralData.deviceId,
-            referralCode: referralData.referralCode,
-            referralCount: referralData.referralCount,
-            availableRewards: referralData.availableRewards
-        )
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-        
-        // Simulate server response
-        let serverResponse = ReferralValidationResponse(
-            isValid: true,
-            availableRewards: referralData.availableRewards,
-            serverValidated: true,
-            abuseDetected: false
-        )
-        
-        return ReferralValidationResult(
-            isValid: serverResponse.isValid,
-            availableRewards: serverResponse.availableRewards,
-            serverValidated: serverResponse.serverValidated
-        )
+        // Real server validation using Firebase Functions
+        do {
+            let result = try await firebaseValidation.validateReferralWithFirebase(referralData)
+            
+            return ReferralValidationResult(
+                isValid: result.isValid,
+                availableRewards: result.availableRewards,
+                serverValidated: result.serverValidated
+            )
+        } catch {
+            logger.error("Firebase referral validation failed: \(error.localizedDescription)")
+            
+            // Fallback to local validation with reduced trust
+            return ReferralValidationResult(
+                isValid: true,
+                availableRewards: min(referralData.availableRewards, 5), // Limit rewards without server validation
+                serverValidated: false
+            )
+        }
     }
     
     // MARK: - Abuse Detection

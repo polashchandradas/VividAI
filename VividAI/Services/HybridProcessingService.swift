@@ -404,15 +404,35 @@ class HybridProcessingService: ObservableObject {
     // MARK: - Cloud Processing Implementation
     
     private func processBackgroundRemovalCloud(image: UIImage, completion: @escaping (Result<UIImage, Error>) -> Void) {
-        // Implement cloud-based background removal
-        // This would call a cloud API for background removal
-        completion(.success(image)) // Placeholder
+        // Use on-device CoreML model for background removal
+        Task {
+            do {
+                let result = try await backgroundRemovalService.removeBackground(from: image)
+                DispatchQueue.main.async {
+                    completion(.success(result))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }
     }
     
     private func processPhotoEnhancementCloud(image: UIImage, completion: @escaping (Result<UIImage, Error>) -> Void) {
-        // Implement cloud-based photo enhancement
-        // This would call a cloud API for photo enhancement
-        completion(.success(image)) // Placeholder
+        // Use on-device CoreML model for photo enhancement
+        Task {
+            do {
+                let result = try await photoEnhancementService.enhancePhoto(image)
+                DispatchQueue.main.async {
+                    completion(.success(result))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }
     }
     
     // MARK: - Utility Methods

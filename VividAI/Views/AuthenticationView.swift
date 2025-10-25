@@ -3,8 +3,7 @@ import AuthenticationServices
 import FirebaseAuth
 
 struct AuthenticationView: View {
-    @EnvironmentObject var authService: AuthenticationService
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @State private var selectedTab: AuthTab = .signIn
     @State private var showingAlert = false
     @State private var alertMessage = ""
@@ -44,7 +43,7 @@ struct AuthenticationView: View {
         } message: {
             Text(alertMessage)
         }
-        .onReceive(authService.$errorMessage) { errorMessage in
+        .onReceive(serviceContainer.authenticationService.$errorMessage) { errorMessage in
             if let error = errorMessage {
                 alertMessage = error
                 showingAlert = true
@@ -139,7 +138,7 @@ struct AuthenticationView: View {
                 SignInWithAppleButton(
                     onRequest: { request in
                         request.requestedScopes = [.fullName, .email]
-                        request.nonce = authService.generateNonce()
+                        request.nonce = serviceContainer.authenticationService.generateNonce()
                     },
                     onCompletion: { result in
                         handleAppleSignIn(result)
@@ -208,8 +207,8 @@ struct AuthenticationView: View {
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
                 Task {
                     do {
-                        _ = try await authService.signInWithApple(credential: appleIDCredential)
-                        navigationCoordinator.navigateTo(.home)
+                        _ = try await serviceContainer.authenticationService.signInWithApple(credential: appleIDCredential)
+                        serviceContainer.navigationCoordinator.navigateTo(.home)
                     } catch {
                         // Error is handled by the service
                     }
@@ -232,8 +231,7 @@ struct AuthenticationView: View {
 // MARK: - Sign In Form
 
 struct SignInForm: View {
-    @EnvironmentObject var authService: AuthenticationService
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @State private var email = ""
     @State private var password = ""
     @State private var showingAlert = false
@@ -279,7 +277,7 @@ struct SignInForm: View {
                 handleSignIn()
             }) {
                 HStack {
-                    if authService.isLoading {
+                    if serviceContainer.authenticationService.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)
@@ -294,7 +292,7 @@ struct SignInForm: View {
                 .background(DesignSystem.Colors.primary)
                 .cornerRadius(DesignSystem.CornerRadius.md)
             }
-            .disabled(authService.isLoading || email.isEmpty || password.isEmpty)
+            .disabled(serviceContainer.authenticationService.isLoading || email.isEmpty || password.isEmpty)
         }
         .alert("Authentication Error", isPresented: $showingAlert) {
             Button("OK") { }
@@ -306,8 +304,8 @@ struct SignInForm: View {
     private func handleSignIn() {
         Task {
             do {
-                _ = try await authService.signIn(email: email, password: password)
-                navigationCoordinator.navigateTo(.home)
+                _ = try await serviceContainer.authenticationService.signIn(email: email, password: password)
+                serviceContainer.navigationCoordinator.navigateTo(.home)
             } catch {
                 alertMessage = error.localizedDescription
                 showingAlert = true
@@ -318,7 +316,7 @@ struct SignInForm: View {
     private func handleForgotPassword() {
         Task {
             do {
-                try await authService.resetPassword(email: email)
+                try await serviceContainer.authenticationService.resetPassword(email: email)
                 alertMessage = "Password reset email sent to \(email)"
                 showingAlert = true
             } catch {
@@ -332,8 +330,7 @@ struct SignInForm: View {
 // MARK: - Sign Up Form
 
 struct SignUpForm: View {
-    @EnvironmentObject var authService: AuthenticationService
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var serviceContainer: ServiceContainer
     @State private var fullName = ""
     @State private var email = ""
     @State private var password = ""
@@ -392,7 +389,7 @@ struct SignUpForm: View {
                 handleSignUp()
             }) {
                 HStack {
-                    if authService.isLoading {
+                    if serviceContainer.authenticationService.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)
@@ -407,7 +404,7 @@ struct SignUpForm: View {
                 .background(DesignSystem.Colors.primary)
                 .cornerRadius(DesignSystem.CornerRadius.md)
             }
-            .disabled(authService.isLoading || !isFormValid)
+            .disabled(serviceContainer.authenticationService.isLoading || !isFormValid)
         }
         .alert("Authentication Error", isPresented: $showingAlert) {
             Button("OK") { }
@@ -440,8 +437,8 @@ struct SignUpForm: View {
         
         Task {
             do {
-                _ = try await authService.signUp(email: email, password: password, fullName: fullName)
-                navigationCoordinator.navigateTo(.home)
+                _ = try await serviceContainer.authenticationService.signUp(email: email, password: password, fullName: fullName)
+                serviceContainer.navigationCoordinator.navigateTo(.home)
             } catch {
                 alertMessage = error.localizedDescription
                 showingAlert = true
@@ -474,5 +471,5 @@ struct ModernTextFieldStyle: TextFieldStyle {
 
 #Preview {
     AuthenticationView()
-        .environmentObject(AuthenticationService.shared)
+        .environmentObject(ServiceContainer.shared)
 }

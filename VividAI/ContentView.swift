@@ -2,8 +2,7 @@ import SwiftUI
 import UIKit
 
 struct ContentView: View {
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
-    @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var serviceContainer: ServiceContainer
     
     var body: some View {
         NavigationView {
@@ -15,6 +14,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(SubscriptionManager())
-        .environmentObject(AnalyticsService())
+        .environmentObject(ServiceContainer.shared)
 }

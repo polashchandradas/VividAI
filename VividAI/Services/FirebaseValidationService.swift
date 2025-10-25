@@ -252,6 +252,40 @@ class FirebaseValidationService: ObservableObject {
         logger.info("Trial status updated successfully")
     }
     
+    // MARK: - Referral Validation with Firebase Functions
+    
+    func validateReferralWithFirebase(_ referralData: ReferralData) async throws -> ReferralValidationResult {
+        logger.info("Validating referral with Firebase for device: \(referralData.deviceId)")
+        
+        guard let user = Auth.auth().currentUser else {
+            throw ValidationError.notAuthenticated
+        }
+        
+        let idToken = try await user.getIDToken()
+        let appCheckToken = try await appCheck.token(forcingRefresh: false)
+        
+        let requestData: [String: Any] = [
+            "deviceId": referralData.deviceId,
+            "referralCode": referralData.referralCode,
+            "referralCount": referralData.referralCount,
+            "availableRewards": referralData.availableRewards,
+            "deviceFingerprint": generateDeviceFingerprint(),
+            "userId": user.uid
+        ]
+        
+        let result = try await functions.httpsCallable("validateReferral").call(requestData)
+        
+        guard let data = result.data as? [String: Any] else {
+            throw ValidationError.invalidResponse
+        }
+        
+        return ReferralValidationResult(
+            isValid: data["isValid"] as? Bool ?? false,
+            availableRewards: data["availableRewards"] as? Int ?? 0,
+            serverValidated: data["serverValidated"] as? Bool ?? false
+        )
+    }
+    
     // MARK: - Analytics Integration
     
     func trackTrialEvent(_ event: String, parameters: [String: Any] = [:]) {

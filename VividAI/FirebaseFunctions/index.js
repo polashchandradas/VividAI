@@ -171,6 +171,85 @@ exports.startTrial = functions.https.onCall(async (data, context) => {
     }
 });
 
+// MARK: - Referral Validation Function
+exports.validateReferral = functions.https.onCall(async (data, context) => {
+    // Verify App Check token
+    if (!context.app) {
+        throw new functions.https.HttpsError('failed-precondition', 'App Check token required');
+    }
+    
+    // Verify Firebase Auth token
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+    
+    const { deviceId, referralCode, referralCount, availableRewards, deviceFingerprint, userId } = data;
+    
+    try {
+        // Check for referral abuse patterns
+        const abuseResult = await detectReferralAbuse(deviceId, referralCode, referralCount, deviceFingerprint, userId);
+        if (abuseResult.isAbuse) {
+            return {
+                isValid: false,
+                availableRewards: 0,
+                serverValidated: true,
+                abuseDetected: true,
+                reason: abuseResult.reason
+            };
+        }
+        
+        // Get referral data from Firestore
+        const referralRef = db.collection('referrals').doc(deviceId);
+        const referralDoc = await referralRef.get();
+        
+        if (!referralDoc.exists) {
+            return {
+                isValid: false,
+                availableRewards: 0,
+                serverValidated: true,
+                abuseDetected: false,
+                reason: 'Referral data not found'
+            };
+        }
+        
+        const referralData = referralDoc.data();
+        
+        // Validate referral code
+        if (referralData.referralCode !== referralCode) {
+            return {
+                isValid: false,
+                availableRewards: 0,
+                serverValidated: true,
+                abuseDetected: true,
+                reason: 'Invalid referral code'
+            };
+        }
+        
+        // Check for excessive rewards
+        if (availableRewards > 100) {
+            return {
+                isValid: false,
+                availableRewards: 0,
+                serverValidated: true,
+                abuseDetected: true,
+                reason: 'Excessive rewards detected'
+            };
+        }
+        
+        return {
+            isValid: true,
+            availableRewards: Math.min(availableRewards, referralData.availableRewards),
+            serverValidated: true,
+            abuseDetected: false,
+            reason: null
+        };
+        
+    } catch (error) {
+        console.error('Error validating referral:', error);
+        throw new functions.https.HttpsError('internal', 'Failed to validate referral');
+    }
+});
+
 // MARK: - Abuse Detection Function
 exports.detectAbuse = functions.https.onCall(async (data, context) => {
     // Verify App Check token
@@ -202,6 +281,75 @@ exports.detectAbuse = functions.https.onCall(async (data, context) => {
 });
 
 // MARK: - Helper Functions
+
+async function detectReferralAbuse(deviceId, referralCode, referralCount, deviceFingerprint, userId) {
+    const detectedPatterns = [];
+    let confidence = 0.0;
+    let reason = null;
+    
+    try {
+        // Check for excessive referral counts
+        if (referralCount > 50) {
+            detectedPatterns.push('excessive_referral_count');
+            confidence += 0.4;
+        }
+        
+        // Check for suspicious referral codes
+        if (referralCode.includes('TEST') || referralCode.includes('FAKE') || referralCode.includes('DUMMY')) {
+            detectedPatterns.push('suspicious_referral_code');
+            confidence += 0.5;
+        }
+        
+        // Check for multiple referrals from same device
+        const deviceReferralsQuery = await db.collection('referrals')
+            .where('deviceId', '==', deviceId)
+            .get();
+        
+        if (deviceReferralsQuery.size > 1) {
+            detectedPatterns.push('multiple_referrals_same_device');
+            confidence += 0.3;
+        }
+        
+        // Check for rapid referral attempts
+        const recentReferralsQuery = await db.collection('referrals')
+            .where('deviceId', '==', deviceId)
+            .where('createdAt', '>', admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 60 * 1000))) // 1 hour
+            .get();
+        
+        if (recentReferralsQuery.size > 0) {
+            detectedPatterns.push('rapid_referral_attempts');
+            confidence += 0.4;
+        }
+        
+        // Check for device fingerprint manipulation
+        if (deviceFingerprint.length < 32 || deviceFingerprint === 'test' || deviceFingerprint === 'fake') {
+            detectedPatterns.push('manipulated_fingerprint');
+            confidence += 0.5;
+        }
+        
+        const isAbuse = confidence > 0.5;
+        
+        if (isAbuse) {
+            reason = `Referral abuse detected: ${detectedPatterns.join(', ')}`;
+        }
+        
+        return {
+            isAbuse: isAbuse,
+            reason: reason,
+            confidence: confidence,
+            detectedPatterns: detectedPatterns
+        };
+        
+    } catch (error) {
+        console.error('Error in referral abuse detection:', error);
+        return {
+            isAbuse: false,
+            reason: null,
+            confidence: 0.0,
+            detectedPatterns: []
+        };
+    }
+}
 
 async function detectTrialAbuse(deviceId, deviceFingerprint, userId) {
     const detectedPatterns = [];

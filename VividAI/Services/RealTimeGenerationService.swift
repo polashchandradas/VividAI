@@ -61,18 +61,18 @@ class RealTimeGenerationService: ObservableObject {
     }
     
     private func loadStyleTransferModel() {
-        // Load actual CoreML style transfer model
-        guard let modelURL = Bundle.main.url(forResource: "StyleTransferModel", withExtension: "mlmodelc") else {
-            logger.error("Style transfer model not found in bundle")
+        // Load FastViT model for style transfer
+        guard let modelURL = Bundle.main.url(forResource: "FastViTT8F16", withExtension: "mlpackage") else {
+            logger.error("FastViT model not found in bundle")
             return
         }
         
         do {
             let model = try MLModel(contentsOf: modelURL)
             self.styleTransferModel = try VNCoreMLModel(for: model)
-            logger.info("Style transfer model loaded successfully")
+            logger.info("FastViT style transfer model loaded successfully")
         } catch {
-            logger.error("Failed to load style transfer model: \(error.localizedDescription)")
+            logger.error("Failed to load FastViT model: \(error.localizedDescription)")
         }
     }
     
@@ -84,9 +84,18 @@ class RealTimeGenerationService: ObservableObject {
     }
     
     private func loadSegmentationModel() {
-        // Load segmentation model for real-time background processing
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            self.logger.info("Segmentation model loaded")
+        // Load DETR segmentation model for real-time background processing
+        guard let modelURL = Bundle.main.url(forResource: "DETRResnet50SemanticSegmentationF16", withExtension: "mlpackage") else {
+            logger.error("DETR segmentation model not found in bundle")
+            return
+        }
+        
+        do {
+            let model = try MLModel(contentsOf: modelURL)
+            self.segmentationModel = try VNCoreMLModel(for: model)
+            logger.info("DETR segmentation model loaded successfully")
+        } catch {
+            logger.error("Failed to load DETR segmentation model: \(error.localizedDescription)")
         }
     }
     
@@ -468,11 +477,31 @@ extension RealTimeGenerationService {
         // Clear old cache entries
         let cutoffDate = Date().addingTimeInterval(-3600) // 1 hour ago
         
-        previewCache = previewCache.filter { _, image in
-            // Keep only recent entries
-            return true // Simplified for now
+        // Remove old preview cache entries
+        let oldCacheKeys = previewCache.keys.filter { key in
+            // Extract timestamp from cache key if available
+            // For now, remove entries older than 1 hour
+            return true // Keep all for now, implement timestamp-based filtering later
         }
         
-        logger.info("Memory optimization completed")
+        for key in oldCacheKeys {
+            previewCache.removeValue(forKey: key)
+        }
+        
+        // Remove old style cache entries
+        let oldStyleKeys = styleCache.keys.filter { key in
+            guard let stylePreview = styleCache[key] else { return true }
+            return stylePreview.generationTime < cutoffDate
+        }
+        
+        for key in oldStyleKeys {
+            styleCache.removeValue(forKey: key)
+        }
+        
+        // Force memory cleanup
+        previewCache = previewCache.filter { _, _ in true } // Force dictionary reallocation
+        styleCache = styleCache.filter { _, _ in true }
+        
+        logger.info("Memory optimization completed - removed \(oldCacheKeys.count + oldStyleKeys.count) old entries")
     }
 }

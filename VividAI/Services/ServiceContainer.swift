@@ -1,0 +1,179 @@
+import Foundation
+import SwiftUI
+
+/// Centralized service container to manage all app services
+/// This ensures single instances and proper dependency management
+class ServiceContainer: ObservableObject {
+    static let shared = ServiceContainer()
+    
+    // MARK: - Core Services
+    lazy var navigationCoordinator: NavigationCoordinator = {
+        NavigationCoordinator()
+    }()
+    
+    lazy var subscriptionManager: SubscriptionManager = {
+        SubscriptionManager.shared
+    }()
+    
+    lazy var analyticsService: AnalyticsService = {
+        AnalyticsService.shared
+    }()
+    
+    lazy var authenticationService: AuthenticationService = {
+        AuthenticationService.shared
+    }()
+    
+    // MARK: - AI Processing Services
+    lazy var hybridProcessingService: HybridProcessingService = {
+        HybridProcessingService.shared
+    }()
+    
+    lazy var backgroundRemovalService: BackgroundRemovalService = {
+        BackgroundRemovalService.shared
+    }()
+    
+    lazy var photoEnhancementService: PhotoEnhancementService = {
+        PhotoEnhancementService.shared
+    }()
+    
+    lazy var realTimeGenerationService: RealTimeGenerationService = {
+        RealTimeGenerationService.shared
+    }()
+    
+    lazy var aiHeadshotService: AIHeadshotService = {
+        AIHeadshotService.shared
+    }()
+    
+    lazy var videoGenerationService: VideoGenerationService = {
+        VideoGenerationService.shared
+    }()
+    
+    // MARK: - Utility Services
+    lazy var watermarkService: WatermarkService = {
+        WatermarkService.shared
+    }()
+    
+    lazy var referralService: ReferralService = {
+        ReferralService.shared
+    }()
+    
+    lazy var securityService: SecurityService = {
+        SecurityService.shared
+    }()
+    
+    lazy var loggingService: LoggingService = {
+        LoggingService.shared
+    }()
+    
+    lazy var errorHandlingService: ErrorHandlingService = {
+        ErrorHandlingService.shared
+    }()
+    
+    lazy var freeTrialService: FreeTrialService = {
+        FreeTrialService.shared
+    }()
+    
+    lazy var usageLimitService: UsageLimitService = {
+        UsageLimitService.shared
+    }()
+    
+    lazy var secureStorageService: SecureStorageService = {
+        SecureStorageService.shared
+    }()
+    
+    lazy var serverValidationService: ServerValidationService = {
+        ServerValidationService.shared
+    }()
+    
+    lazy var firebaseValidationService: FirebaseValidationService = {
+        FirebaseValidationService.shared
+    }()
+    
+    lazy var firebaseAppCheckService: FirebaseAppCheckService = {
+        FirebaseAppCheckService.shared
+    }()
+    
+    lazy var configurationService: ConfigurationService = {
+        ConfigurationService.shared
+    }()
+    
+    // MARK: - Initialization
+    private init() {
+        // Initialize services in proper order
+        setupServices()
+    }
+    
+    private func setupServices() {
+        // Configure service dependencies
+        configureServiceDependencies()
+        
+        // Initialize core services
+        _ = navigationCoordinator
+        _ = analyticsService
+        _ = errorHandlingService
+        _ = loggingService
+    }
+    
+    private func configureServiceDependencies() {
+        // Set up any service-to-service dependencies here
+        // This ensures proper initialization order
+    }
+    
+    // MARK: - Service Access Methods
+    func getService<T>(_ type: T.Type) -> T? {
+        switch type {
+        case is NavigationCoordinator.Type:
+            return navigationCoordinator as? T
+        case is SubscriptionManager.Type:
+            return subscriptionManager as? T
+        case is AnalyticsService.Type:
+            return analyticsService as? T
+        case is AuthenticationService.Type:
+            return authenticationService as? T
+        case is HybridProcessingService.Type:
+            return hybridProcessingService as? T
+        case is BackgroundRemovalService.Type:
+            return backgroundRemovalService as? T
+        case is PhotoEnhancementService.Type:
+            return photoEnhancementService as? T
+        case is RealTimeGenerationService.Type:
+            return realTimeGenerationService as? T
+        case is AIHeadshotService.Type:
+            return aiHeadshotService as? T
+        case is VideoGenerationService.Type:
+            return videoGenerationService as? T
+        case is WatermarkService.Type:
+            return watermarkService as? T
+        case is ReferralService.Type:
+            return referralService as? T
+        case is SecurityService.Type:
+            return securityService as? T
+        case is LoggingService.Type:
+            return loggingService as? T
+        case is ErrorHandlingService.Type:
+            return errorHandlingService as? T
+        case is FreeTrialService.Type:
+            return freeTrialService as? T
+        case is UsageLimitService.Type:
+            return usageLimitService as? T
+        case is SecureStorageService.Type:
+            return secureStorageService as? T
+        case is ServerValidationService.Type:
+            return serverValidationService as? T
+        case is FirebaseValidationService.Type:
+            return firebaseValidationService as? T
+        case is FirebaseAppCheckService.Type:
+            return firebaseAppCheckService as? T
+        case is ConfigurationService.Type:
+            return configurationService as? T
+        default:
+            return nil
+        }
+    }
+    
+    // MARK: - Cleanup
+    func cleanup() {
+        // Clean up any resources when app is terminated
+        loggingService.logInfo("ServiceContainer: Cleaning up services")
+    }
+}

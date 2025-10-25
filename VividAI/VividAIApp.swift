@@ -124,9 +124,11 @@ enum AppView: String, CaseIterable {
     }
 }
 
-// MARK: - App Coordinator
+// MARK: - App Coordinator (Using ServiceContainer)
 
 class AppCoordinator: ObservableObject {
+    // MARK: - Published Properties
+    
     @Published var isProcessing = false
     @Published var currentProcessingStep = ""
     @Published var processingProgress: Double = 0.0
@@ -135,18 +137,28 @@ class AppCoordinator: ObservableObject {
     @Published var isPremiumUser = false
     @Published var subscriptionStatus: SubscriptionStatus = .none
     
-    let navigationCoordinator = NavigationCoordinator()
-    let subscriptionManager = SubscriptionManager()
-    let analyticsService = AnalyticsService()
-    let backgroundRemovalService = BackgroundRemovalService()
-    let photoEnhancementService = PhotoEnhancementService()
-    let aiHeadshotService = AIHeadshotService()
-    let videoGenerationService = VideoGenerationService()
-    let watermarkService = WatermarkService()
-    let referralService = ReferralService()
-    let securityService = SecurityService()
-    let loggingService = LoggingService()
-    let errorHandlingService = ErrorHandlingService()
+    // MARK: - Service Container
+    
+    private let services = ServiceContainer.shared
+    
+    // MARK: - Service Access Properties (Computed)
+    
+    var navigationCoordinator: NavigationCoordinator { services.navigationCoordinator }
+    var subscriptionManager: SubscriptionManager { services.subscriptionManager }
+    var analyticsService: AnalyticsService { services.analyticsService }
+    var hybridProcessingService: HybridProcessingService { services.hybridProcessingService }
+    var backgroundRemovalService: BackgroundRemovalService { services.backgroundRemovalService }
+    var photoEnhancementService: PhotoEnhancementService { services.photoEnhancementService }
+    var aiHeadshotService: AIHeadshotService { services.aiHeadshotService }
+    var videoGenerationService: VideoGenerationService { services.videoGenerationService }
+    var watermarkService: WatermarkService { services.watermarkService }
+    var referralService: ReferralService { services.referralService }
+    var securityService: SecurityService { services.securityService }
+    var loggingService: LoggingService { services.loggingService }
+    var errorHandlingService: ErrorHandlingService { services.errorHandlingService }
+    var authenticationService: AuthenticationService { services.authenticationService }
+    var freeTrialService: FreeTrialService { services.freeTrialService }
+    var usageLimitService: UsageLimitService { services.usageLimitService }
     
     private let logger = Logger(subsystem: "VividAI", category: "AppCoordinator")
     private var cancellables = Set<AnyCancellable>()
@@ -460,6 +472,7 @@ struct MainAppView: View {
 
 @main
 struct VividAIApp: App {
+    @StateObject private var serviceContainer = ServiceContainer.shared
     @StateObject private var appCoordinator = AppCoordinator()
     @State private var isFirebaseConfigured = false
     @State private var configurationError: String?
@@ -475,10 +488,28 @@ struct VividAIApp: App {
             } else {
                    MainAppView()
                        .environmentObject(appCoordinator)
-                       .environmentObject(appCoordinator.navigationCoordinator)
-                       .environmentObject(appCoordinator.subscriptionManager)
-                       .environmentObject(appCoordinator.analyticsService)
-                       .environmentObject(appCoordinator.authenticationService)
+                       .environmentObject(serviceContainer.navigationCoordinator)
+                       .environmentObject(serviceContainer.subscriptionManager)
+                       .environmentObject(serviceContainer.analyticsService)
+                       .environmentObject(serviceContainer.authenticationService)
+                       .environmentObject(serviceContainer.freeTrialService)
+                       .environmentObject(serviceContainer.usageLimitService)
+                       .environmentObject(serviceContainer.realTimeGenerationService)
+                       .environmentObject(serviceContainer.hybridProcessingService)
+                       .environmentObject(serviceContainer.backgroundRemovalService)
+                       .environmentObject(serviceContainer.photoEnhancementService)
+                       .environmentObject(serviceContainer.aiHeadshotService)
+                       .environmentObject(serviceContainer.videoGenerationService)
+                       .environmentObject(serviceContainer.watermarkService)
+                       .environmentObject(serviceContainer.referralService)
+                       .environmentObject(serviceContainer.securityService)
+                       .environmentObject(serviceContainer.loggingService)
+                       .environmentObject(serviceContainer.errorHandlingService)
+                       .environmentObject(serviceContainer.secureStorageService)
+                       .environmentObject(serviceContainer.serverValidationService)
+                       .environmentObject(serviceContainer.firebaseValidationService)
+                       .environmentObject(serviceContainer.firebaseAppCheckService)
+                       .environmentObject(serviceContainer.configurationService)
                        .errorHandling()
                     .onAppear {
                         appCoordinator.handleAppBecameActive()
@@ -496,8 +527,8 @@ struct VividAIApp: App {
               let plist = NSDictionary(contentsOfFile: path),
               let apiKey = plist["API_KEY"] as? String,
               let googleAppId = plist["GOOGLE_APP_ID"] as? String,
-              apiKey != "YOUR_FIREBASE_API_KEY",
-              googleAppId != "YOUR_GOOGLE_APP_ID" else {
+              !apiKey.isEmpty,
+              !googleAppId.isEmpty else {
             configurationError = "Firebase configuration is incomplete. Please update GoogleService-Info.plist with your actual Firebase credentials."
             return
         }

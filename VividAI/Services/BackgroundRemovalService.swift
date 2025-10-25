@@ -101,12 +101,17 @@ class BackgroundRemovalService: ObservableObject {
     init() {}
     
     func loadModel() {
-        // Load CoreML model for background removal
-        // In production, you would load an actual segmentation model
+        // Load real CoreML models for background removal
         DispatchQueue.global(qos: .background).async {
-            // Simulate model loading
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                print("Background removal model loaded")
+            do {
+                // Load DETR semantic segmentation model
+                if let modelURL = Bundle.main.url(forResource: "DETRResnet50SemanticSegmentationF16", withExtension: "mlpackage") {
+                    let model = try MLModel(contentsOf: modelURL)
+                    self.segmentationModel = try VNCoreMLModel(for: model)
+                    print("DETR semantic segmentation model loaded successfully")
+                }
+            } catch {
+                print("Failed to load AI models: \(error.localizedDescription)")
             }
         }
     }
