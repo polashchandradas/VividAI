@@ -39,11 +39,23 @@ jobs:
       run: |
         echo "📱 Creating and booting iOS Simulator..."
         
-        # Create simulator if it doesn't exist
-        xcrun simctl create "VividAI-Test" "iPhone 16" "iOS 18.4" || echo "Simulator already exists"
+        # List available runtimes first
+        echo "📱 Available iOS runtimes:"
+        xcrun simctl list runtimes | grep iOS
         
-        # Boot simulator with timeout
-        timeout 30 xcrun simctl boot "VividAI-Test" || echo "Simulator boot timeout or already booted"
+        # Use available iOS runtime (usually latest)
+        IOS_RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | awk '{print $NF}')
+        echo "📱 Using iOS runtime: $IOS_RUNTIME"
+        
+        # Create simulator with available runtime
+        xcrun simctl create "VividAI-Test" "iPhone 16" "$IOS_RUNTIME" || echo "Simulator already exists"
+        
+        # Boot simulator without timeout (use gtimeout if available, otherwise just boot)
+        if command -v gtimeout >/dev/null 2>&1; then
+          gtimeout 30 xcrun simctl boot "VividAI-Test" || echo "Simulator boot timeout or already booted"
+        else
+          xcrun simctl boot "VividAI-Test" || echo "Simulator already booted"
+        fi
         
         # Wait for simulator to be ready
         xcrun simctl bootstatus "VividAI-Test" -b || echo "Simulator status check failed"
