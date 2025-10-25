@@ -56,7 +56,17 @@ jobs:
         
         set -e
         
+        # Create archive directory first
+        mkdir -p ./archive
+        
+        echo "📁 Current directory contents before archive:"
+        ls -la ./
+        
+        echo "📁 Archive directory before archive:"
+        ls -la ./archive/ || echo "Archive directory not found"
+        
         # Use archive approach which creates proper app bundles
+        echo "🔨 Starting xcodebuild archive..."
         xcodebuild archive \
           -project VividAI.xcodeproj \
           -scheme VividAI \
@@ -73,19 +83,59 @@ jobs:
         
         echo "✅ Archive completed successfully!"
         
+        echo "📁 Current directory contents after archive:"
+        ls -la ./
+        
+        echo "📁 Archive directory after archive:"
+        ls -la ./archive/ || echo "Archive directory not found"
+        
+        echo "📁 DerivedData contents after archive:"
+        ls -la ./DerivedData/ || echo "DerivedData directory not found"
+        
+        echo "📁 Looking for any .xcarchive files:"
+        find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
+        
+        echo "📁 Looking for any .app files:"
+        find . -name "*.app" -type d || echo "No .app files found"
+        
     - name: Find app bundle in archive
       run: |
         echo "🔍 Looking for app bundle in archive..."
+        
+        echo "📁 Current directory contents:"
+        ls -la ./
+        
+        echo "📁 Archive directory contents:"
+        ls -la ./archive/ || echo "Archive directory not found"
+        
+        echo "📁 Looking for any .xcarchive files:"
+        find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
         
         # Check if archive was created
         if [ ! -d "./archive/VividAI.xcarchive" ]; then
           echo "❌ Archive not found!"
           echo "📁 Archive directory contents:"
           ls -la ./archive/ || echo "Archive directory not found"
+          
+          echo "📁 Looking for any .xcarchive files in current directory:"
+          find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
+          
+          echo "📁 Looking for any .app files in current directory:"
+          find . -name "*.app" -type d || echo "No .app files found"
+          
           exit 1
         fi
         
         echo "✅ Archive found at: ./archive/VividAI.xcarchive"
+        
+        echo "📁 Archive contents:"
+        ls -la ./archive/VividAI.xcarchive/
+        
+        echo "📁 Archive Products directory:"
+        ls -la ./archive/VividAI.xcarchive/Products/ || echo "Products directory not found"
+        
+        echo "📁 Archive Applications directory:"
+        ls -la ./archive/VividAI.xcarchive/Products/Applications/ || echo "Applications directory not found"
         
         # Find app bundle in archive
         APP_PATH=$(find ./archive/VividAI.xcarchive/Products/Applications -name "VividAI.app" -type d | head -1)
