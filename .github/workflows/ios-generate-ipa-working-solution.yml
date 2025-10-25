@@ -106,37 +106,113 @@ jobs:
         echo "📁 Current directory contents after archive:"
         ls -la ./
         
-        echo "📁 Archive contents:"
-        ls -la ./VividAI.xcarchive/ || echo "Archive not found"
-        
-        echo "📁 Looking for any .app files in archive:"
-        find ./VividAI.xcarchive -name "*.app" -type d || echo "No .app files found in archive"
-        
         echo "📁 Looking for any .xcarchive files:"
         find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
         
-    - name: Find app bundle using SKETCHAI SUCCESS PATTERN
-      run: |
-        echo "🔍 Looking for app bundle using SKETCHAI SUCCESS PATTERN..."
+        echo "📁 Looking for any .app files anywhere:"
+        find . -name "*.app" -type d || echo "No .app files found"
         
-        # SKETCHAI SUCCESS PATTERN: Look for app bundle in archive
-        echo "📁 Searching for app bundle in archive..."
+        echo "📁 Looking for any build products:"
+        find . -name "*VividAI*" -type d || echo "No VividAI products found"
+        
+        echo "📁 Looking in DerivedData:"
+        find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData"
+        
+        echo "📁 Looking in build directories:"
+        find . -name "*Build*" -type d || echo "No Build directories found"
+        
+        echo "📁 Looking in Products directories:"
+        find . -name "*Products*" -type d || echo "No Products directories found"
+        
+    - name: Find app bundle using COMPREHENSIVE SEARCH
+      run: |
+        echo "🔍 Looking for app bundle using COMPREHENSIVE SEARCH..."
+        
+        # Search in multiple locations for app bundle
+        echo "📁 Searching for app bundle in all possible locations..."
+        
+        # Method 1: Look for app bundle in archive (if it exists)
         APP_PATH=$(find ./VividAI.xcarchive -name "VividAI.app" -type d | head -1)
         
-        if [ -n "$APP_PATH" ]; then
-          echo "✅ App bundle found in archive: $APP_PATH"
-        else
+        if [ -z "$APP_PATH" ]; then
           echo "❌ App bundle not found in archive"
-          echo "📁 Archive contents:"
-          ls -la ./VividAI.xcarchive/ || echo "Archive not found"
           
-          echo "📁 Looking for any .app files in archive:"
-          find ./VividAI.xcarchive -name "*.app" -type d || echo "No .app files found in archive"
+          # Method 2: Look for app bundle in DerivedData
+          echo "📁 Searching in DerivedData..."
+          APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
           
-          echo "📁 Archive structure:"
-          find ./VividAI.xcarchive -type d | head -20 || echo "No directories found"
-          
-          exit 1
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found in DerivedData"
+            
+            # Method 3: Look for any .app files anywhere
+            echo "📁 Searching for any .app files anywhere..."
+            APP_PATH=$(find . -name "*.app" -type d | head -1)
+            
+            if [ -z "$APP_PATH" ]; then
+              echo "❌ No .app files found anywhere"
+              
+              # Method 4: Look for VividAI products
+              echo "📁 Searching for VividAI products..."
+              APP_PATH=$(find . -name "*VividAI*" -type d | head -1)
+              
+              if [ -z "$APP_PATH" ]; then
+                echo "❌ No VividAI products found"
+                
+                # Method 5: Look in build directories
+                echo "📁 Searching in build directories..."
+                APP_PATH=$(find . -name "*Build*" -type d | head -1)
+                
+                if [ -z "$APP_PATH" ]; then
+                  echo "❌ No build directories found"
+                  
+                  # Method 6: Look in Products directories
+                  echo "📁 Searching in Products directories..."
+                  APP_PATH=$(find . -name "*Products*" -type d | head -1)
+                  
+                  if [ -z "$APP_PATH" ]; then
+                    echo "❌ No Products directories found"
+                    echo "📁 Final search - all files:"
+                    find . -type f | head -20 || echo "No files found"
+                    exit 1
+                  else
+                    echo "✅ Found Products directory: $APP_PATH"
+                    # Look for app bundle in Products directory
+                    APP_PATH=$(find "$APP_PATH" -name "VividAI.app" -type d | head -1)
+                    if [ -z "$APP_PATH" ]; then
+                      echo "❌ No VividAI.app found in Products directory"
+                      exit 1
+                    fi
+                  fi
+                else
+                  echo "✅ Found build directory: $APP_PATH"
+                  # Look for app bundle in build directory
+                  APP_PATH=$(find "$APP_PATH" -name "VividAI.app" -type d | head -1)
+                  if [ -z "$APP_PATH" ]; then
+                    echo "❌ No VividAI.app found in build directory"
+                    exit 1
+                  fi
+                fi
+              else
+                echo "✅ Found VividAI product: $APP_PATH"
+                # Check if it's an app bundle
+                if [ ! -f "$APP_PATH/Info.plist" ]; then
+                  echo "❌ VividAI product is not an app bundle"
+                  exit 1
+                fi
+              fi
+            else
+              echo "✅ Found .app file: $APP_PATH"
+              # Check if it's VividAI app
+              if [[ "$APP_PATH" != *"VividAI.app" ]]; then
+                echo "❌ Found .app file but it's not VividAI.app"
+                exit 1
+              fi
+            fi
+          else
+            echo "✅ App bundle found in DerivedData: $APP_PATH"
+          fi
+        else
+          echo "✅ App bundle found in archive: $APP_PATH"
         fi
         
         # SKETCHAI SUCCESS PATTERN: App bundle should be found in archive
