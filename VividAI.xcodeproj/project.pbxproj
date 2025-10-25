@@ -1,0 +1,460 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1234567890ABCDEF001 /* VividAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF000 /* VividAIApp.swift */; };
+		A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* ContentView.swift */; };
+		A1234567890ABCDEF005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* Assets.xcassets */; };
+		A1234567890ABCDEF008 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF007 /* Preview Assets.xcassets */; };
+		A1234567890ABCDEF010 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF009 /* SplashScreenView.swift */; };
+		A1234567890ABCDEF012 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF011 /* HomeView.swift */; };
+		A1234567890ABCDEF014 /* PhotoUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF013 /* PhotoUploadView.swift */; };
+		A1234567890ABCDEF016 /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF015 /* ProcessingView.swift */; };
+		A1234567890ABCDEF018 /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF017 /* ResultsView.swift */; };
+		A1234567890ABCDEF020 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF019 /* PaywallView.swift */; };
+		A1234567890ABCDEF022 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF021 /* ShareView.swift */; };
+		A1234567890ABCDEF024 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF023 /* SettingsView.swift */; };
+		A1234567890ABCDEF026 /* AIHeadshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF025 /* AIHeadshotService.swift */; };
+		A1234567890ABCDEF028 /* BackgroundRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF027 /* BackgroundRemovalService.swift */; };
+		A1234567890ABCDEF030 /* PhotoEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF029 /* PhotoEnhancementService.swift */; };
+		A1234567890ABCDEF032 /* VideoGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF031 /* VideoGenerationService.swift */; };
+		A1234567890ABCDEF034 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF033 /* SubscriptionManager.swift */; };
+		A1234567890ABCDEF036 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF035 /* WatermarkService.swift */; };
+		A1234567890ABCDEF038 /* ReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF037 /* ReferralService.swift */; };
+		A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF039 /* AnalyticsService.swift */; };
+		A1234567890ABCDEF048 /* StoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF047 /* StoreKit */; };
+		A1234567890ABCDEF050 /* CoreML in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF049 /* CoreML */; };
+		A1234567890ABCDEF052 /* Vision in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF051 /* Vision */; };
+		A1234567890ABCDEF054 /* AVFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF053 /* AVFoundation */; };
+		A1234567890ABCDEF056 /* CoreAnimation in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF055 /* CoreAnimation */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A1234567890ABCDEF000 /* VividAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VividAIApp.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1234567890ABCDEF007 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A1234567890ABCDEF009 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF011 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF013 /* PhotoUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF015 /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF017 /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF021 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF023 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF025 /* AIHeadshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIHeadshotService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF027 /* BackgroundRemovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRemovalService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF029 /* PhotoEnhancementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEnhancementService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF031 /* VideoGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoGenerationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF033 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF035 /* WatermarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF037 /* ReferralService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF039 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF057 /* VividAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VividAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1234567890ABCDEF058 /* VividAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VividAI.entitlements; sourceTree = "<group>"; };
+		A1234567890ABCDEF059 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1234567890ABCDEF060 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (A1234567890ABCDEF048 /* StoreKit in Frameworks */,
+				A1234567890ABCDEF050 /* CoreML in Frameworks */,
+				A1234567890ABCDEF052 /* Vision in Frameworks */,
+				A1234567890ABCDEF054 /* AVFoundation in Frameworks */,
+				A1234567890ABCDEF056 /* CoreAnimation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1234567890ABCDEF061 = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF062 /* VividAI */,
+				A1234567890ABCDEF063 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF062 /* VividAI */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF000 /* VividAIApp.swift */,
+				A1234567890ABCDEF002 /* ContentView.swift */,
+				A1234567890ABCDEF064 /* Views */,
+				A1234567890ABCDEF065 /* Services */,
+				A1234567890ABCDEF004 /* Assets.xcassets */,
+				A1234567890ABCDEF058 /* VividAI.entitlements */,
+				A1234567890ABCDEF059 /* GoogleService-Info.plist */,
+				A1234567890ABCDEF066 /* Preview Content */,
+			);
+			path = VividAI;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF063 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF057 /* VividAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF064 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF009 /* SplashScreenView.swift */,
+				A1234567890ABCDEF011 /* HomeView.swift */,
+				A1234567890ABCDEF013 /* PhotoUploadView.swift */,
+				A1234567890ABCDEF015 /* ProcessingView.swift */,
+				A1234567890ABCDEF017 /* ResultsView.swift */,
+				A1234567890ABCDEF019 /* PaywallView.swift */,
+				A1234567890ABCDEF021 /* ShareView.swift */,
+				A1234567890ABCDEF023 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF065 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF025 /* AIHeadshotService.swift */,
+				A1234567890ABCDEF027 /* BackgroundRemovalService.swift */,
+				A1234567890ABCDEF029 /* PhotoEnhancementService.swift */,
+				A1234567890ABCDEF031 /* VideoGenerationService.swift */,
+				A1234567890ABCDEF033 /* SubscriptionManager.swift */,
+				A1234567890ABCDEF035 /* WatermarkService.swift */,
+				A1234567890ABCDEF037 /* ReferralService.swift */,
+				A1234567890ABCDEF039 /* AnalyticsService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF066 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF007 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1234567890ABCDEF067 /* VividAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1234567890ABCDEF068 /* Build configuration list for PBXNativeTarget "VividAI" */;
+			buildPhases = (
+				A1234567890ABCDEF069 /* Sources */,
+				A1234567890ABCDEF060 /* Frameworks */,
+				A1234567890ABCDEF070 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VividAI;
+			packageProductDependencies = ();
+			productName = VividAI;
+			productReference = A1234567890ABCDEF057 /* VividAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1234567890ABCDEF071 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A1234567890ABCDEF067 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A1234567890ABCDEF072 /* Build configuration list for PBXProject "VividAI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A1234567890ABCDEF061;
+			packageReferences = (
+				A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			productRefGroup = A1234567890ABCDEF063 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1234567890ABCDEF067 /* VividAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+/* End XCSwiftPackageProductDependency section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1234567890ABCDEF070 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1234567890ABCDEF008 /* Preview Assets.xcassets in Resources */,
+				A1234567890ABCDEF005 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1234567890ABCDEF069 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1234567890ABCDEF003 /* ContentView.swift in Sources */,
+				A1234567890ABCDEF001 /* VividAIApp.swift in Sources */,
+				A1234567890ABCDEF010 /* SplashScreenView.swift in Sources */,
+				A1234567890ABCDEF012 /* HomeView.swift in Sources */,
+				A1234567890ABCDEF014 /* PhotoUploadView.swift in Sources */,
+				A1234567890ABCDEF016 /* ProcessingView.swift in Sources */,
+				A1234567890ABCDEF018 /* ResultsView.swift in Sources */,
+				A1234567890ABCDEF020 /* PaywallView.swift in Sources */,
+				A1234567890ABCDEF022 /* ShareView.swift in Sources */,
+				A1234567890ABCDEF024 /* SettingsView.swift in Sources */,
+				A1234567890ABCDEF026 /* AIHeadshotService.swift in Sources */,
+				A1234567890ABCDEF028 /* BackgroundRemovalService.swift in Sources */,
+				A1234567890ABCDEF030 /* PhotoEnhancementService.swift in Sources */,
+				A1234567890ABCDEF032 /* VideoGenerationService.swift in Sources */,
+				A1234567890ABCDEF034 /* SubscriptionManager.swift in Sources */,
+				A1234567890ABCDEF036 /* WatermarkService.swift in Sources */,
+				A1234567890ABCDEF038 /* ReferralService.swift in Sources */,
+				A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1234567890ABCDEF073 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A1234567890ABCDEF074 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1234567890ABCDEF075 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VividAI/VividAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"VividAI/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vividai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A1234567890ABCDEF076 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VividAI/VividAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"VividAI/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vividai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1234567890ABCDEF068 /* Build configuration list for PBXNativeTarget "VividAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1234567890ABCDEF075 /* Debug */,
+				A1234567890ABCDEF076 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1234567890ABCDEF072 /* Build configuration list for PBXProject "VividAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1234567890ABCDEF073 /* Debug */,
+				A1234567890ABCDEF074 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1234567890ABCDEF071 /* Project object */;
+}
