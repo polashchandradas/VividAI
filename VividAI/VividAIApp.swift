@@ -3,6 +3,8 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseAnalytics
+import FirebaseAppCheck
+import FirebaseFunctions
 import UIKit
 import Combine
 import os.log
@@ -516,7 +518,29 @@ struct VividAIApp: App {
         _ = Firestore.firestore()
         _ = Analytics.self
         
+        // Initialize Firebase App Check
+        initializeAppCheck()
+        
+        // Initialize Firebase Functions
+        _ = Functions.functions()
+        
         isFirebaseConfigured = true
+    }
+    
+    private func initializeAppCheck() {
+        // Configure App Check with DeviceCheck for iOS
+        #if DEBUG
+        // Use debug provider for development
+        let debugProvider = AppCheckDebugProvider()
+        AppCheck.setAppCheckProviderFactory(debugProvider)
+        #else
+        // Use DeviceCheck for production
+        let deviceCheckProvider = DeviceCheckProvider()
+        AppCheck.setAppCheckProviderFactory(deviceCheckProvider)
+        #endif
+        
+        // Initialize App Check
+        _ = AppCheck.appCheck()
     }
 }
 
@@ -548,3 +572,4 @@ struct ConfigurationErrorView: View {
         .padding()
     }
 }
+

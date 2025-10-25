@@ -91,25 +91,70 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     func startFreeTrial(plan: SubscriptionPlan) {
-        // Start 3-day free trial with secure storage
-        let deviceId = SecureStorageService.shared.getDeviceId()
-        let trialData = TrialData(
-            startDate: Date(),
-            isActive: true,
-            deviceId: deviceId
-        )
-        
-        SecureStorageService.shared.storeTrialData(trialData)
-        
-        // Update status
-        isPremiumUser = true
-        subscriptionStatus = .trial
-        
-        // Track analytics
-        AnalyticsService.shared.track(event: "free_trial_started", parameters: [
-            "plan": plan.rawValue,
-            "device_id": deviceId
-        ])
+        Task {
+            do {
+                // Use Firebase validation for trial start
+                let trialType: TrialType = plan == .annual ? .unlimited : .limited
+                let result = try await FirebaseValidationService.shared.startTrialWithFirebase(type: trialType)
+                
+                if result.isValid && !result.abuseDetected {
+                    // Store trial data locally
+                    let deviceId = SecureStorageService.shared.getDeviceId()
+                    let trialData = TrialData(
+                        startDate: Date(),
+                        isActive: true,
+                        deviceId: deviceId
+                    )
+                    
+                    SecureStorageService.shared.storeTrialData(trialData)
+                    
+                    // Update status
+                    await MainActor.run {
+                        self.isPremiumUser = true
+                        self.subscriptionStatus = .trial
+                    }
+                    
+                    // Track analytics
+                    AnalyticsService.shared.track(event: "free_trial_started", parameters: [
+                        "plan": plan.rawValue,
+                        "device_id": deviceId,
+                        "server_validated": result.serverValidated
+                    ])
+                } else {
+                    // Handle abuse or validation failure
+                    await MainActor.run {
+                        self.isPremiumUser = false
+                        self.subscriptionStatus = .none
+                    }
+                    
+                    AnalyticsService.shared.track(event: "trial_start_blocked", parameters: [
+                        "reason": result.reason ?? "unknown",
+                        "abuse_detected": result.abuseDetected
+                    ])
+                }
+            } catch {
+                // Fallback to local trial start
+                let deviceId = SecureStorageService.shared.getDeviceId()
+                let trialData = TrialData(
+                    startDate: Date(),
+                    isActive: true,
+                    deviceId: deviceId
+                )
+                
+                SecureStorageService.shared.storeTrialData(trialData)
+                
+                await MainActor.run {
+                    self.isPremiumUser = true
+                    self.subscriptionStatus = .trial
+                }
+                
+                AnalyticsService.shared.track(event: "free_trial_started_local", parameters: [
+                    "plan": plan.rawValue,
+                    "device_id": deviceId,
+                    "fallback": true
+                ])
+            }
+        }
     }
     
     func restorePurchases() {

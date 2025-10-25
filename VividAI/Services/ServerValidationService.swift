@@ -2,6 +2,9 @@ import Foundation
 import UIKit
 import os.log
 import CryptoKit
+import FirebaseAuth
+import FirebaseFirestore
+import FirebaseFunctions
 
 // MARK: - Server Validation Service
 
@@ -10,6 +13,9 @@ class ServerValidationService: ObservableObject {
     
     private let logger = Logger(subsystem: "VividAI", category: "ServerValidation")
     private let secureStorage = SecureStorageService.shared
+    private let firebaseValidation = FirebaseValidationService.shared
+    private let functions = Functions.functions()
+    private let db = Firestore.firestore()
     
     // MARK: - Trial Validation
     
@@ -46,41 +52,35 @@ class ServerValidationService: ObservableObject {
     }
     
     private func validateTrialWithServer(_ trialData: TrialData) async throws -> TrialValidationResult {
-        // In production, this would make an API call to your server
-        // For now, we'll simulate server validation
-        
-        let request = TrialValidationRequest(
-            deviceId: trialData.deviceId,
-            trialId: trialData.trialId,
-            startDate: trialData.startDate,
-            isActive: trialData.isActive
-        )
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-        
-        // Simulate server response
-        let serverResponse = TrialValidationResponse(
-            isValid: true,
-            isActive: trialData.isActive,
-            daysRemaining: calculateDaysRemaining(from: trialData.startDate),
-            serverValidated: true,
-            abuseDetected: false
-        )
-        
-        // Update local data with server validation
-        if serverResponse.serverValidated {
-            var updatedTrialData = trialData
-            // In a real implementation, you'd update the serverValidated flag
-            secureStorage.storeTrialData(updatedTrialData)
+        // Use Firebase Functions for real server validation
+        do {
+            let result = try await firebaseValidation.validateTrialWithFirebase(trialData)
+            
+            // Update local data with server validation
+            if result.serverValidated {
+                var updatedTrialData = trialData
+                updatedTrialData.serverValidated = true
+                secureStorage.storeTrialData(updatedTrialData)
+            }
+            
+            return TrialValidationResult(
+                isValid: result.isValid,
+                isActive: result.isActive,
+                daysRemaining: result.daysRemaining,
+                serverValidated: result.serverValidated
+            )
+        } catch {
+            logger.error("Firebase validation failed: \(error.localizedDescription)")
+            
+            // Fallback to local validation
+            let daysRemaining = calculateDaysRemaining(from: trialData.startDate)
+            return TrialValidationResult(
+                isValid: daysRemaining > 0,
+                isActive: trialData.isActive && daysRemaining > 0,
+                daysRemaining: daysRemaining,
+                serverValidated: false
+            )
         }
-        
-        return TrialValidationResult(
-            isValid: serverResponse.isValid,
-            isActive: serverResponse.isActive,
-            daysRemaining: serverResponse.daysRemaining,
-            serverValidated: serverResponse.serverValidated
-        )
     }
     
     // MARK: - Referral Validation

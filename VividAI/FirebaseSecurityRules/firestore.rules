@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only access their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Trial data access rules
+    match /trials/{trialId} {
+      // Users can read their own trials
+      allow read: if request.auth != null && 
+                     (resource.data.userId == request.auth.uid || 
+                      request.auth.token.admin == true);
+      
+      // Only authenticated users can create trials
+      allow create: if request.auth != null && 
+                      request.auth.uid == resource.data.userId &&
+                      validateTrialData(request.resource.data);
+      
+      // Only server can update trial status
+      allow update: if request.auth != null && 
+                      (request.auth.token.admin == true || 
+                       request.auth.uid == resource.data.userId) &&
+                      validateTrialUpdate(request.resource.data);
+      
+      // Only admins can delete trials
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Analytics data access rules
+    match /analytics/{analyticsId} {
+      // Users can create analytics events for themselves
+      allow create: if request.auth != null && 
+                      request.auth.uid == resource.data.userId &&
+                      validateAnalyticsData(request.resource.data);
+      
+      // Only admins can read analytics
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+    
+    // Device fingerprints access rules
+    match /deviceFingerprints/{fingerprintId} {
+      // Users can create their own device fingerprints
+      allow create: if request.auth != null && 
+                      request.auth.uid == resource.data.userId &&
+                      validateDeviceFingerprint(request.resource.data);
+      
+      // Users can read their own device fingerprints
+      allow read: if request.auth != null && 
+                     (resource.data.userId == request.auth.uid || 
+                      request.auth.token.admin == true);
+      
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+    
+    // Abuse detection results access rules
+    match /abuseDetection/{detectionId} {
+      // Only admins can access abuse detection results
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Reports access rules
+    match /reports/{reportId} {
+      // Only admins can access reports
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Helper functions for validation
+    function validateTrialData(data) {
+      return data.keys().hasAll(['userId', 'deviceId', 'trialId', 'startDate', 'isActive', 'deviceFingerprint']) &&
+             data.userId is string &&
+             data.deviceId is string &&
+             data.trialId is string &&
+             data.startDate is timestamp &&
+             data.isActive is bool &&
+             data.deviceFingerprint is string &&
+             data.userId == request.auth.uid;
+    }
+    
+    function validateTrialUpdate(data) {
+      return data.keys().hasAny(['isActive', 'updatedAt']) &&
+             (data.isActive == null || data.isActive is bool) &&
+             (data.updatedAt == null || data.updatedAt is timestamp);
+    }
+    
+    function validateAnalyticsData(data) {
+      return data.keys().hasAll(['event', 'userId', 'timestamp']) &&
+             data.event is string &&
+             data.userId is string &&
+             data.timestamp is timestamp &&
+             data.userId == request.auth.uid;
+    }
+    
+    function validateDeviceFingerprint(data) {
+      return data.keys().hasAll(['userId', 'deviceFingerprint', 'deviceInfo', 'timestamp']) &&
+             data.userId is string &&
+             data.deviceFingerprint is string &&
+             data.deviceInfo is map &&
+             data.timestamp is timestamp &&
+             data.userId == request.auth.uid;
+    }
+  }
+}
