@@ -15,9 +15,15 @@ class SubscriptionManager: NSObject, ObservableObject {
     @Published var availableProducts: [StoreKit.Product] = []
     @Published var isLoading = false
     
-    // MARK: - Private State (No longer published - delegated to AuthenticationService)
-    private var _isPremiumUser = false
-    private var _subscriptionStatus: SubscriptionStatus = .none
+    // MARK: - Private State (Delegated to Unified State Manager)
+    // All core state is now managed by UnifiedAppStateManager to avoid duplication
+    // These are kept for backward compatibility but delegate to unified state
+    private var _isPremiumUser: Bool { 
+        return ServiceContainer.shared.unifiedAppStateManager.isPremiumUser 
+    }
+    private var _subscriptionStatus: SubscriptionStatus { 
+        return ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus 
+    }
     
     // MARK: - Callback for state changes
     var onSubscriptionStateChanged: ((Bool, SubscriptionStatus) -> Void)?
@@ -114,10 +120,10 @@ class SubscriptionManager: NSObject, ObservableObject {
                     
                     ServiceContainer.shared.secureStorageService.storeTrialData(trialData)
                     
-                    // Update status
+                    // Update unified state manager
                     await MainActor.run {
-                        self._isPremiumUser = true
-                        self._subscriptionStatus = .trial
+                        ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = true
+                        ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .trial
                         self.onSubscriptionStateChanged?(true, .trial)
                     }
                     
@@ -130,8 +136,8 @@ class SubscriptionManager: NSObject, ObservableObject {
                 } else {
                     // Handle abuse or validation failure
                     await MainActor.run {
-                        self._isPremiumUser = false
-                        self._subscriptionStatus = .none
+                        ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = false
+                        ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .none
                         self.onSubscriptionStateChanged?(false, .none)
                     }
                     
@@ -152,8 +158,8 @@ class SubscriptionManager: NSObject, ObservableObject {
                 ServiceContainer.shared.secureStorageService.storeTrialData(trialData)
                 
                 await MainActor.run {
-                    self._isPremiumUser = true
-                    self._subscriptionStatus = .trial
+                    ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = true
+                    ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .trial
                     self.onSubscriptionStateChanged?(true, .trial)
                 }
                 
@@ -188,8 +194,8 @@ class SubscriptionManager: NSObject, ObservableObject {
                 if case .verified(let transaction) = result {
                     if transaction.productType == .autoRenewable {
                         await MainActor.run {
-                            self._isPremiumUser = true
-                            self._subscriptionStatus = .active
+                            ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = true
+                            ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .active
                             self.onSubscriptionStateChanged?(true, .active)
                         }
                         return
@@ -200,8 +206,8 @@ class SubscriptionManager: NSObject, ObservableObject {
             // Check for free trial
             if isFreeTrialActive() {
                 await MainActor.run {
-                    self._isPremiumUser = true
-                    self._subscriptionStatus = .trial
+                    ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = true
+                    ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .trial
                     self.onSubscriptionStateChanged?(true, .trial)
                 }
             }
@@ -222,9 +228,9 @@ class SubscriptionManager: NSObject, ObservableObject {
             }
             
             await MainActor.run {
-                self._isPremiumUser = hasActiveSubscription || self.isFreeTrialActive()
-                self._subscriptionStatus = hasActiveSubscription ? .active : (self.isFreeTrialActive() ? .trial : .none)
-                self.onSubscriptionStateChanged?(self._isPremiumUser, self._subscriptionStatus)
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = hasActiveSubscription || self.isFreeTrialActive()
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = hasActiveSubscription ? .active : (self.isFreeTrialActive() ? .trial : .none)
+                self.onSubscriptionStateChanged?(ServiceContainer.shared.unifiedAppStateManager.isPremiumUser, ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus)
             }
         }
     }
@@ -240,8 +246,8 @@ class SubscriptionManager: NSObject, ObservableObject {
             if !serverValidation.isValid || !serverValidation.serverValidated {
                 // Server says trial is invalid - update local state
                 await MainActor.run {
-                    self._isPremiumUser = false
-                    self._subscriptionStatus = .none
+                    ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = false
+                    ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .none
                     self.onSubscriptionStateChanged?(false, .none)
                 }
                 
@@ -293,20 +299,20 @@ class SubscriptionManager: NSObject, ObservableObject {
         return availableProducts.first { $0.id == productID }
     }
     
-    // MARK: - Current State Access (for AuthenticationService)
+    // MARK: - Current State Access (Delegated to Unified State Manager)
     
     var currentIsPremiumUser: Bool {
-        return _isPremiumUser
+        return ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
     }
     
     var currentSubscriptionStatus: SubscriptionStatus {
-        return _subscriptionStatus
+        return ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
     }
     
     func getSubscriptionInfo() -> SubscriptionInfo {
         return SubscriptionInfo(
-            isPremium: _isPremiumUser,
-            status: _subscriptionStatus,
+            isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
+            status: ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus,
             trialDaysRemaining: getTrialDaysRemaining()
         )
     }

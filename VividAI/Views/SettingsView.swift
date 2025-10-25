@@ -2,11 +2,7 @@ import SwiftUI
 import UIKit
 
 struct SettingsView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var serviceContainer: ServiceContainer
-    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @State private var notificationsEnabled = false
     @State private var saveToPhotosEnabled = true
     @State private var hdQualityEnabled = true
@@ -50,14 +46,14 @@ struct SettingsView: View {
             .navigationBarHidden(true)
         }
         .onAppear {
-            analyticsService.track(event: "settings_screen_viewed")
+            ServiceContainer.shared.analyticsService.track(event: "settings_screen_viewed")
         }
     }
     
     private var headerSection: some View {
         HStack {
             Button(action: { 
-                navigationCoordinator.navigateBack()
+                ServiceContainer.shared.navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -106,18 +102,18 @@ struct SettingsView: View {
                         )
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(serviceContainer.authenticationService.currentUser?.displayName ?? "User")
+                        Text(ServiceContainer.shared.authenticationService.currentUser?.displayName ?? "User")
                             .font(DesignSystem.Typography.bodyBold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                         
-                        Text(serviceContainer.authenticationService.currentUser?.email ?? "user@example.com")
+                        Text(ServiceContainer.shared.authenticationService.currentUser?.email ?? "user@example.com")
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.Colors.textSecondary)
                         
-                        if !subscriptionStateManager.isPremiumUser {
+                        if !unifiedState.isPremiumUser {
                             Button(action: {
-                                analyticsService.track(event: "upgrade_tapped_from_settings")
-                                navigationCoordinator.showPaywall()
+                                ServiceContainer.shared.analyticsService.track(event: "upgrade_tapped_from_settings")
+                                ServiceContainer.shared.navigationCoordinator.showPaywall()
                             }) {
                                 Text("⭐ Upgrade to Pro")
                                     .font(DesignSystem.Typography.captionBold)
@@ -156,7 +152,7 @@ struct SettingsView: View {
                     icon: "person.circle",
                     title: "Profile",
                     action: {
-                        analyticsService.track(event: "profile_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "profile_tapped")
                         // Show profile management
                     }
                 )
@@ -165,7 +161,7 @@ struct SettingsView: View {
                     icon: "key.fill",
                     title: "Change Password",
                     action: {
-                        analyticsService.track(event: "change_password_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "change_password_tapped")
                         // Show change password flow
                     }
                 )
@@ -174,8 +170,8 @@ struct SettingsView: View {
                     icon: "arrow.right.square",
                     title: "Sign Out",
                     action: {
-                        analyticsService.track(event: "sign_out_tapped")
-                        appCoordinator.signOut()
+                        ServiceContainer.shared.analyticsService.track(event: "sign_out_tapped")
+                        ServiceContainer.shared.appCoordinator.signOut()
                     }
                 )
             }
@@ -198,7 +194,7 @@ struct SettingsView: View {
                     icon: "creditcard.fill",
                     title: "Manage Subscription",
                     action: {
-                        analyticsService.track(event: "manage_subscription_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "manage_subscription_tapped")
                         // Open subscription management
                     }
                 )
@@ -207,8 +203,8 @@ struct SettingsView: View {
                     icon: "arrow.clockwise",
                     title: "Restore Purchases",
                     action: {
-                        analyticsService.track(event: "restore_purchases_tapped")
-                        appCoordinator.handleSubscriptionAction(.restorePurchases)
+                        ServiceContainer.shared.analyticsService.track(event: "restore_purchases_tapped")
+                        ServiceContainer.shared.appCoordinator.handleSubscriptionAction(.restorePurchases)
                     }
                 )
             }
@@ -264,7 +260,7 @@ struct SettingsView: View {
                     icon: "play.fill",
                     title: "Tutorial",
                     action: {
-                        analyticsService.track(event: "tutorial_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "tutorial_tapped")
                         // Show tutorial
                     }
                 )
@@ -273,7 +269,7 @@ struct SettingsView: View {
                     icon: "questionmark.circle.fill",
                     title: "FAQ",
                     action: {
-                        analyticsService.track(event: "faq_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "faq_tapped")
                         // Show FAQ
                     }
                 )
@@ -282,7 +278,7 @@ struct SettingsView: View {
                     icon: "envelope.fill",
                     title: "Contact Support",
                     action: {
-                        analyticsService.track(event: "contact_support_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "contact_support_tapped")
                         // Open support
                     }
                 )
@@ -291,7 +287,7 @@ struct SettingsView: View {
                     icon: "star.fill",
                     title: "Rate App ⭐⭐⭐⭐⭐",
                     action: {
-                        analyticsService.track(event: "rate_app_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "rate_app_tapped")
                         // Open App Store rating
                     }
                 )
@@ -315,7 +311,7 @@ struct SettingsView: View {
                     icon: "doc.text.fill",
                     title: "Terms of Service",
                     action: {
-                        analyticsService.track(event: "terms_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "terms_tapped")
                         // Open terms
                     }
                 )
@@ -324,7 +320,7 @@ struct SettingsView: View {
                     icon: "hand.raised.fill",
                     title: "Privacy Policy",
                     action: {
-                        analyticsService.track(event: "privacy_tapped")
+                        ServiceContainer.shared.analyticsService.track(event: "privacy_tapped")
                         // Open privacy policy
                     }
                 )
@@ -400,6 +396,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(SubscriptionManager())
-        .environmentObject(AnalyticsService())
+        .environmentObject(UnifiedAppStateManager.shared)
 }

@@ -2,11 +2,7 @@ import SwiftUI
 import UIKit
 
 struct ResultsView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var analyticsService: AnalyticsService
-    @EnvironmentObject var serviceContainer: ServiceContainer
-    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @State private var selectedHeadshot: HeadshotStyle?
     @State private var showingPaywall = false
     @State private var showingShareView = false
@@ -14,7 +10,7 @@ struct ResultsView: View {
     
     // Get headshot styles from navigation coordinator
     private var headshotStyles: [HeadshotStyle] {
-        navigationCoordinator.processingResults.map { result in
+        ServiceContainer.shared.navigationCoordinator.processingResults.map { result in
             HeadshotStyle(
                 id: result.id,
                 name: result.style,
@@ -62,14 +58,14 @@ struct ResultsView: View {
             }
         }
         .onAppear {
-            analyticsService.track(event: "results_screen_viewed")
+            ServiceContainer.shared.analyticsService.track(event: "results_screen_viewed")
         }
     }
     
     private var headerSection: some View {
         HStack {
             Button(action: { 
-                navigationCoordinator.navigateBack()
+                ServiceContainer.shared.navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -85,7 +81,7 @@ struct ResultsView: View {
             Spacer()
             
             Button(action: { 
-                navigationCoordinator.showSettings()
+                ServiceContainer.shared.navigationCoordinator.showSettings()
             }) {
                 Image(systemName: "gearshape")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -106,8 +102,8 @@ struct ResultsView: View {
                         headshot: headshot,
                         onTap: {
                             selectedHeadshot = headshot
-                            if headshot.isPremium && !subscriptionStateManager.isPremiumUser {
-                                navigationCoordinator.showPaywall()
+                            if headshot.isPremium && !unifiedState.isPremiumUser {
+                                ServiceContainer.shared.navigationCoordinator.showPaywall()
                             } else {
                                 showingFullScreen = true
                             }
@@ -148,8 +144,8 @@ struct ResultsView: View {
         VStack(spacing: DesignSystem.Spacing.md) {
             // Primary CTA - Remove Watermark
             Button(action: {
-                analyticsService.track(event: "remove_watermark_tapped")
-                navigationCoordinator.showPaywall()
+                ServiceContainer.shared.analyticsService.track(event: "remove_watermark_tapped")
+                ServiceContainer.shared.navigationCoordinator.showPaywall()
             }) {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "lock.open.fill")
@@ -169,13 +165,13 @@ struct ResultsView: View {
             // Secondary Actions
             HStack(spacing: DesignSystem.Spacing.md) {
                 Button(action: {
-                    analyticsService.track(event: "share_tapped")
+                    ServiceContainer.shared.analyticsService.track(event: "share_tapped")
                     // Generate video and show share view
-                    if let originalImage = navigationCoordinator.selectedImage,
-                       let firstResult = navigationCoordinator.processingResults.first {
+                    if let originalImage = ServiceContainer.shared.navigationCoordinator.selectedImage,
+                       let firstResult = ServiceContainer.shared.navigationCoordinator.processingResults.first {
                         // Use actual AI-generated headshot for video generation
                         let enhancedImage = loadHeadshotImage(from: firstResult.imageURL) ?? originalImage
-                        appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
+                        ServiceContainer.shared.appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
                     }
                 }) {
                     HStack(spacing: DesignSystem.Spacing.sm) {

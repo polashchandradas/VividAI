@@ -1,0 +1,178 @@
+name: Generate iOS Simulator IPA (Working Solution)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  generate-ipa:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+      
+    - name: Install dependencies
+      run: |
+        echo "📦 Resolving dependencies..."
+        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+        
+    - name: Clean environment
+      run: |
+        echo "🧹 Cleaning build environment..."
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf ./DerivedData
+        rm -rf ./build
+        
+    - name: List available simulators
+      run: |
+        echo "📱 Available simulators:"
+        xcrun simctl list devices available
+        
+    - name: Create and boot iOS Simulator
+      run: |
+        echo "📱 Creating and booting iOS Simulator..."
+        
+        # Create simulator if it doesn't exist
+        xcrun simctl create "VividAI-Test" "iPhone 16" "iOS 18.4" || echo "Simulator already exists"
+        
+        # Boot simulator with timeout
+        timeout 30 xcrun simctl boot "VividAI-Test" || echo "Simulator boot timeout or already booted"
+        
+        # Wait for simulator to be ready
+        xcrun simctl bootstatus "VividAI-Test" -b || echo "Simulator status check failed"
+        
+    - name: Build for iOS Simulator using build-for-testing
+      run: |
+        echo "🔨 Building for iOS Simulator using build-for-testing..."
+        echo "📱 Target: VividAI-Test"
+        
+        set -e
+        
+        # Use build-for-testing which creates test bundles
+        xcodebuild build-for-testing \
+          -project VividAI.xcodeproj \
+          -scheme VividAI \
+          -destination 'platform=iOS Simulator,name=VividAI-Test' \
+          -configuration Release \
+          -derivedDataPath ./DerivedData \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -resolvePackageDependencies \
+          -verbose \
+          -showBuildTimingSummary
+        
+        echo "✅ Build-for-testing completed successfully!"
+        
+    - name: Find and extract app bundle from test bundle
+      run: |
+        echo "🔍 Looking for app bundle in test bundles..."
+        
+        # Look for .xctest bundles first
+        TEST_BUNDLES=$(find ./DerivedData -name "*.xctest" -type d)
+        echo "📁 Found test bundles: $TEST_BUNDLES"
+        
+        # Look for app bundle in multiple locations
+        APP_PATH=""
+        
+        # Method 1: Check DerivedData for the app bundle
+        APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+        
+        if [ -z "$APP_PATH" ]; then
+          echo "❌ App bundle not found in DerivedData"
+          echo "📁 Searching in DerivedData:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+          
+          # Method 2: Check if build was successful by looking for any VividAI.app
+          echo "📁 Searching for any VividAI.app:"
+          find . -name "VividAI.app" -type d || echo "No VividAI.app found"
+          
+          # Method 3: Check the build output directory
+          echo "📁 Checking build output:"
+          find . -name "*.app" -type d || echo "No .app files found in current directory"
+          
+          # Method 4: Try to find app bundle in test bundle
+          if [ ! -z "$TEST_BUNDLES" ]; then
+            echo "📁 Checking test bundles for app bundle..."
+            for bundle in $TEST_BUNDLES; do
+              echo "Checking bundle: $bundle"
+              find "$bundle" -name "*.app" -type d || echo "No .app files in $bundle"
+            done
+          fi
+          
+          exit 1
+        fi
+        
+        echo "✅ App bundle found at: $APP_PATH"
+        echo "📱 App bundle size: $(du -sh "$APP_PATH")"
+        
+        # Verify app bundle contents
+        echo "📱 App bundle contents:"
+        ls -la "$APP_PATH"
+        
+        # Verify it's a valid app bundle
+        if [ ! -f "$APP_PATH/Info.plist" ]; then
+          echo "❌ Invalid app bundle - missing Info.plist"
+          exit 1
+        fi
+        
+        echo "✅ App bundle is valid"
+        
+        # Set APP_PATH as an output for subsequent steps
+        echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+        
+    - name: Create IPA file
+      run: |
+        echo "📦 Creating IPA file..."
+        
+        # Create Payload directory
+        mkdir -p ./Payload
+        
+        # Copy app bundle to Payload
+        cp -R "$APP_PATH" ./Payload/
+        
+        # Create IPA file
+        zip -r VividAI-Simulator.ipa ./Payload
+        
+        echo "✅ IPA file created: VividAI-Simulator.ipa"
+        echo "📱 IPA file size: $(du -sh VividAI-Simulator.ipa)"
+        
+    - name: Verify IPA file
+      run: |
+        echo "🔍 Verifying IPA file..."
+        
+        if [ ! -f "VividAI-Simulator.ipa" ]; then
+          echo "❌ IPA file not found!"
+          exit 1
+        fi
+        
+        echo "✅ IPA file exists"
+        echo "📱 IPA file size: $(du -sh VividAI-Simulator.ipa)"
+        
+        # List contents of IPA
+        echo "📦 IPA contents:"
+        unzip -l VividAI-Simulator.ipa | head -20
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VividAI-Simulator-IPA
+        path: VividAI-Simulator.ipa
+        retention-days: 30
+        
+    - name: Cleanup
+      run: |
+        echo "🧹 Cleaning up..."
+        rm -rf ./Payload
+        rm -rf ./DerivedData
+        
+        # Shutdown simulator
+        xcrun simctl shutdown "VividAI-Test" || echo "Simulator already shutdown"
+        xcrun simctl delete "VividAI-Test" || echo "Simulator already deleted"

@@ -6,24 +6,27 @@ import UIKit
 // MARK: - App Coordinator
 
 class AppCoordinator: ObservableObject {
-    // MARK: - Published Properties
+    // MARK: - Published Properties (Delegated to Unified State Manager)
+    // All state is now managed by UnifiedAppStateManager to avoid duplication
     
     @Published var isProcessing = false
     @Published var currentProcessingStep = ""
     @Published var processingProgress: Double = 0.0
-    // Error state is managed by ErrorHandlingService to avoid conflicts
-    // Authentication state is centralized in AuthenticationService
-    // Subscription state is centralized in SubscriptionStateManager
-    var isPremiumUser: Bool { subscriptionStateManager.isPremiumUser }
-    var subscriptionStatus: SubscriptionStatus { subscriptionStateManager.subscriptionStatus }
-    var isAuthenticated: Bool { authenticationService.isAuthenticated }
-    var currentUser: User? { authenticationService.currentUser }
+    
+    // State is now accessed through unified state manager
+    var isPremiumUser: Bool { unifiedAppStateManager.isPremiumUser }
+    var subscriptionStatus: SubscriptionStatus { unifiedAppStateManager.subscriptionStatus }
+    var isAuthenticated: Bool { unifiedAppStateManager.isAuthenticated }
+    var currentUser: User? { unifiedAppStateManager.currentUser }
     
     // MARK: - Service Container
     
     private let services = ServiceContainer.shared
     
     // MARK: - Service Access Properties (Computed)
+    
+    // Unified State Manager (Single Source of Truth)
+    var unifiedAppStateManager: UnifiedAppStateManager { services.unifiedAppStateManager }
     
     var navigationCoordinator: NavigationCoordinator { services.navigationCoordinator }
     var subscriptionStateManager: SubscriptionStateManager { services.subscriptionStateManager }
@@ -56,14 +59,25 @@ class AppCoordinator: ObservableObject {
     // MARK: - Setup Methods
     
     private func setupSubscriptions() {
-        // Monitor subscription status - no need to assign since we use computed properties
-        // The computed properties automatically reflect the current state
-        
-        // Monitor authentication status
-        authenticationService.$isAuthenticated
+        // Monitor unified state manager for all state changes
+        unifiedAppStateManager.$isAuthenticated
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isAuthenticated in
                 self?.handleAuthenticationStateChange(isAuthenticated)
+            }
+            .store(in: &cancellables)
+        
+        unifiedAppStateManager.$isProcessing
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isProcessing in
+                self?.isProcessing = isProcessing
+            }
+            .store(in: &cancellables)
+        
+        unifiedAppStateManager.$processingProgress
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] progress in
+                self?.processingProgress = progress
             }
             .store(in: &cancellables)
     }
@@ -139,27 +153,30 @@ class AppCoordinator: ObservableObject {
     
     func startProcessing() {
         logger.info("Starting processing")
-        isProcessing = true
+        unifiedAppStateManager.startProcessing(image: UIImage(), quality: .standard)
         currentProcessingStep = "Initializing..."
-        processingProgress = 0.0
         navigationCoordinator.startProcessing()
         analyticsService.track(event: "processing_started")
     }
     
     func completeProcessing() {
         logger.info("Processing completed")
-        isProcessing = false
+        let results = unifiedAppStateManager.processingResults.map { result in
+            HeadshotResult(id: 1, style: result.style, imageURL: "", isPremium: result.isPremium)
+        }
+        unifiedAppStateManager.completeProcessing(results: results)
         currentProcessingStep = "Complete"
-        processingProgress = 1.0
         navigationCoordinator.showResults()
         analyticsService.track(event: "processing_completed")
     }
     
     func completeProcessing(with results: [HeadshotResult]) {
         logger.info("Processing completed with \(results.count) results")
-        isProcessing = false
+        let processingResults = results.map { result in
+            ProcessingResult(image: UIImage(), style: result.style, isPremium: result.isPremium, processingTime: 0, quality: .good)
+        }
+        unifiedAppStateManager.completeProcessing(results: processingResults)
         currentProcessingStep = "Complete"
-        processingProgress = 1.0
         navigationCoordinator.showResults(with: results)
         analyticsService.track(event: "processing_completed", parameters: [
             "result_count": results.count
@@ -167,9 +184,8 @@ class AppCoordinator: ObservableObject {
     }
     
     private func resetProcessingState() {
-        isProcessing = false
+        unifiedAppStateManager.resetProcessingState()
         currentProcessingStep = ""
-        processingProgress = 0.0
         // Error state is managed by ErrorHandlingService
     }
     

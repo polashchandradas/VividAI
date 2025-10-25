@@ -33,6 +33,7 @@ import GoogleSignIn
 struct MainAppView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
+    @EnvironmentObject var unifiedAppStateManager: UnifiedAppStateManager
     
     var body: some View {
         ZStack {
@@ -40,7 +41,7 @@ struct MainAppView: View {
                 .ignoresSafeArea()
             
             Group {
-                switch navigationCoordinator.currentView {
+                switch unifiedAppStateManager.currentView {
                 case .splash:
                     SplashScreenView()
                 case .authentication:
@@ -63,7 +64,7 @@ struct MainAppView: View {
                     SettingsView()
                 }
             }
-            .animation(.easeInOut(duration: 0.3), value: navigationCoordinator.currentView)
+            .animation(.easeInOut(duration: 0.3), value: unifiedAppStateManager.currentView)
         }
         .onAppear {
             appCoordinator.handleAppBecameActive()
@@ -89,6 +90,7 @@ struct VividAIApp: App {
             } else {
                           MainAppView()
                               .environmentObject(appCoordinator)
+                              .environmentObject(serviceContainer.unifiedAppStateManager)
                               .environmentObject(serviceContainer.navigationCoordinator)
                               .environmentObject(serviceContainer.subscriptionStateManager)
                               .environmentObject(serviceContainer.analyticsService)

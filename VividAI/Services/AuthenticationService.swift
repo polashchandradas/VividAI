@@ -13,17 +13,21 @@ import GoogleSignIn
 class AuthenticationService: ObservableObject {
     static let shared = AuthenticationService()
     
-    // MARK: - Centralized Authentication State
+    // MARK: - Centralized Authentication State (Delegated to Unified State Manager)
+    // State is now managed by UnifiedAppStateManager to avoid duplication
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var authState: AuthState = .unknown
     
-    // MARK: - Centralized User State (combines auth + subscription)
-    @Published var isPremiumUser = false
-    @Published var subscriptionStatus: SubscriptionStatus = .none
+    // MARK: - User Profile (Local to Authentication Service)
     @Published var userProfile: UserProfile?
+    
+    // MARK: - Service Dependencies
+    private var unifiedAppStateManager: UnifiedAppStateManager {
+        return ServiceContainer.shared.unifiedAppStateManager
+    }
     
     private var auth: Auth {
         return ServiceContainer.shared.firebaseConfigurationService.getAuth()
@@ -197,6 +201,9 @@ class AuthenticationService: ObservableObject {
             let authResult = try await auth.signIn(withEmail: email, password: password)
             let user = authResult.user
             
+            // Update unified state manager
+            await unifiedAppStateManager.signIn(email: email, password: password)
+            
             await MainActor.run {
                 self.isLoading = false
             }
@@ -225,7 +232,10 @@ class AuthenticationService: ObservableObject {
             // 1. Sign out from Firebase
             try auth.signOut()
             
-            // 2. Clear all user data and reset app state
+            // 2. Update unified state manager
+            unifiedAppStateManager.signOut()
+            
+            // 3. Clear all user data and reset app state
             await performLogoutCleanup()
             
             logger.info("User signed out successfully with full cleanup")

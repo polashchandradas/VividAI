@@ -7,6 +7,11 @@ class ServiceContainer: ObservableObject {
     static let shared = ServiceContainer()
     
     // MARK: - Core Services
+    // Unified State Management (Single Source of Truth)
+    lazy var unifiedAppStateManager: UnifiedAppStateManager = {
+        UnifiedAppStateManager.shared
+    }()
+    
     lazy var navigationCoordinator: NavigationCoordinator = {
         NavigationCoordinator()
     }()
@@ -112,6 +117,9 @@ class ServiceContainer: ObservableObject {
     }
     
     private func setupServices() {
+        // Initialize unified state manager first (single source of truth)
+        _ = unifiedAppStateManager
+        
         // Initialize services in dependency order (no dependencies first)
         _ = configurationService
         _ = loggingService
@@ -161,6 +169,8 @@ class ServiceContainer: ObservableObject {
     // MARK: - Service Access Methods
     func getService<T>(_ type: T.Type) -> T? {
         switch type {
+        case is UnifiedAppStateManager.Type:
+            return unifiedAppStateManager as? T
         case is NavigationCoordinator.Type:
             return navigationCoordinator as? T
         case is SubscriptionStateManager.Type:

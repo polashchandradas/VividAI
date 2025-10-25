@@ -10,10 +10,10 @@ import os.log
 class SubscriptionStateManager: ObservableObject {
     static let shared = SubscriptionStateManager()
     
-    // MARK: - Published Properties (Single Source of Truth)
+    // MARK: - Published Properties (Delegated to Unified State Manager)
+    // All core state is now managed by UnifiedAppStateManager to avoid duplication
     
-    @Published var isPremiumUser = false
-    @Published var subscriptionStatus: SubscriptionStatus = .none
+    // Local state for subscription-specific operations
     @Published var isTrialActive = false
     @Published var trialType: TrialType = .none
     @Published var trialDaysRemaining = 0
@@ -22,10 +22,20 @@ class SubscriptionStateManager: ObservableObject {
     @Published var canGenerate = true
     @Published var remainingGenerations = 0
     
+    // MARK: - Unified State Access (Computed Properties)
+    
+    var isPremiumUser: Bool { 
+        return ServiceContainer.shared.unifiedAppStateManager.isPremiumUser 
+    }
+    
+    var subscriptionStatus: SubscriptionStatus { 
+        return ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus 
+    }
+    
     // MARK: - Computed Properties
     
     var userStatus: UserStatus {
-        if isPremiumUser {
+        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return .premium
         } else if isTrialActive {
             return .trial(trialType)
@@ -35,7 +45,7 @@ class SubscriptionStateManager: ObservableObject {
     }
     
     var generationLimits: GenerationLimits {
-        if isPremiumUser {
+        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return .unlimited
         } else if isTrialActive {
             return .trial(
@@ -123,6 +133,10 @@ class SubscriptionStateManager: ObservableObject {
         
         // Calculate unified state
         calculateUnifiedState()
+        
+        // Sync with unified state manager
+        ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = subscriptionManager.currentIsPremiumUser
+        ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = subscriptionManager.currentSubscriptionStatus
     }
     
     // MARK: - State Updates
@@ -133,8 +147,9 @@ class SubscriptionStateManager: ObservableObject {
         let status = subscriptionManager.currentSubscriptionStatus
         
         DispatchQueue.main.async {
-            self.isPremiumUser = isPremium
-            self.subscriptionStatus = status
+            // Update unified state manager
+            ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
+            ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
             self.calculateUnifiedState()
         }
         
@@ -157,7 +172,7 @@ class SubscriptionStateManager: ObservableObject {
     private func updateUsageLimits() {
         DispatchQueue.main.async {
             self.remainingGenerations = self.usageLimitService.getRemainingGenerations(
-                isPremium: self.isPremiumUser,
+                isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
                 isTrialActive: self.isTrialActive
             )
             self.calculateUnifiedState()
@@ -178,7 +193,7 @@ class SubscriptionStateManager: ObservableObject {
         
         // Track analytics
         analyticsService.track(event: "subscription_state_updated", parameters: [
-            "is_premium": isPremiumUser,
+            "is_premium": ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
             "is_trial_active": isTrialActive,
             "trial_type": "\(trialType)",
             "can_generate": canGenerate,
@@ -188,7 +203,7 @@ class SubscriptionStateManager: ObservableObject {
     
     private func calculateCanGenerate() -> Bool {
         // Premium users can always generate
-        if isPremiumUser {
+        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return true
         }
         
@@ -199,7 +214,7 @@ class SubscriptionStateManager: ObservableObject {
         
         // Check usage limits for free users
         return usageLimitService.canGenerate(
-            isPremium: isPremiumUser,
+            isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
             isTrialActive: isTrialActive
         )
     }
@@ -247,14 +262,14 @@ class SubscriptionStateManager: ObservableObject {
         updateTrialState()
         
         analyticsService.track(event: "generation_recorded", parameters: [
-            "is_premium": isPremiumUser,
+            "is_premium": ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
             "is_trial_active": isTrialActive,
             "trial_type": "\(trialType)"
         ])
     }
     
     func getRemainingGenerations() -> Int {
-        if isPremiumUser {
+        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return 999 // Unlimited
         }
         
@@ -266,7 +281,7 @@ class SubscriptionStateManager: ObservableObject {
     }
     
     func getLimitMessage() -> String {
-        if isPremiumUser {
+        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return "You have unlimited generations with Pro"
         }
         
@@ -292,7 +307,7 @@ class SubscriptionStateManager: ObservableObject {
     
     private func getFreeUserLimitMessage() -> String {
         return usageLimitService.getLimitMessage(
-            isPremium: isPremiumUser,
+            isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
             isTrialActive: isTrialActive
         )
     }
