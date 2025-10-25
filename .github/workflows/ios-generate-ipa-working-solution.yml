@@ -1,4 +1,4 @@
-name: Generate iOS Simulator IPA (Actual Solution)
+name: Generate iOS Simulator IPA (Working Solution)
 
 on:
   push:
@@ -60,31 +60,20 @@ jobs:
         # Wait for simulator to be ready
         xcrun simctl bootstatus "VividAI-Test" -b || echo "Simulator status check failed"
         
-    - name: Build for iOS Simulator using archive approach
+    - name: Build for iOS Simulator using build approach
       run: |
-        echo "🔨 Building for iOS Simulator using archive approach..."
+        echo "🔨 Building for iOS Simulator using build approach..."
         echo "📱 Target: VividAI-Test"
         echo "📱 App: VividAI (Firebase-integrated complex app)"
         
         set -e
         
-        # Create archive directory first
-        mkdir -p ./archive
-        
-        echo "📁 Current directory contents before archive:"
-        ls -la ./
-        
-        echo "📁 Archive directory before archive:"
-        ls -la ./archive/ || echo "Archive directory not found"
-        
-        # Use archive approach which creates proper app bundles
-        echo "🔨 Starting xcodebuild archive..."
-        xcodebuild archive \
+        # Use build approach with explicit output management
+        xcodebuild build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
           -destination 'platform=iOS Simulator,name=VividAI-Test' \
           -configuration Release \
-          -archivePath ./archive/VividAI.xcarchive \
           -derivedDataPath ./DerivedData \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
@@ -93,75 +82,71 @@ jobs:
           -verbose \
           -showBuildTimingSummary
         
-        echo "✅ Archive completed successfully!"
+        echo "✅ Build completed successfully!"
         
-        echo "📁 Current directory contents after archive:"
+        echo "📁 Current directory contents after build:"
         ls -la ./
         
-        echo "📁 Archive directory after archive:"
-        ls -la ./archive/ || echo "Archive directory not found"
-        
-        echo "📁 DerivedData contents after archive:"
+        echo "📁 DerivedData contents after build:"
         ls -la ./DerivedData/ || echo "DerivedData directory not found"
-        
-        echo "📁 Looking for any .xcarchive files:"
-        find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
         
         echo "📁 Looking for any .app files:"
         find . -name "*.app" -type d || echo "No .app files found"
         
-    - name: Find app bundle in archive
+    - name: Find app bundle using comprehensive search
       run: |
-        echo "🔍 Looking for app bundle in archive..."
+        echo "🔍 Looking for app bundle using comprehensive search..."
         
-        echo "📁 Current directory contents:"
-        ls -la ./
-        
-        echo "📁 Archive directory contents:"
-        ls -la ./archive/ || echo "Archive directory not found"
-        
-        echo "📁 Looking for any .xcarchive files:"
-        find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
-        
-        # Check if archive was created
-        if [ ! -d "./archive/VividAI.xcarchive" ]; then
-          echo "❌ Archive not found!"
-          echo "📁 Archive directory contents:"
-          ls -la ./archive/ || echo "Archive directory not found"
-          
-          echo "📁 Looking for any .xcarchive files in current directory:"
-          find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
-          
-          echo "📁 Looking for any .app files in current directory:"
-          find . -name "*.app" -type d || echo "No .app files found"
-          
-          exit 1
-        fi
-        
-        echo "✅ Archive found at: ./archive/VividAI.xcarchive"
-        
-        echo "📁 Archive contents:"
-        ls -la ./archive/VividAI.xcarchive/
-        
-        echo "📁 Archive Products directory:"
-        ls -la ./archive/VividAI.xcarchive/Products/ || echo "Products directory not found"
-        
-        echo "📁 Archive Applications directory:"
-        ls -la ./archive/VividAI.xcarchive/Products/Applications/ || echo "Applications directory not found"
-        
-        # Find app bundle in archive
-        APP_PATH=$(find ./archive/VividAI.xcarchive/Products/Applications -name "VividAI.app" -type d | head -1)
+        # Method 1: Check DerivedData/Build/Products/Release-iphonesimulator
+        APP_PATH=$(find ./DerivedData/Build/Products/Release-iphonesimulator -name "VividAI.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "❌ App bundle not found in archive"
-          echo "📁 Archive contents:"
-          find ./archive/VividAI.xcarchive -name "*.app" -type d || echo "No .app files found in archive"
-          echo "📁 Archive structure:"
-          find ./archive/VividAI.xcarchive -type d | head -20
-          exit 1
+          echo "❌ App bundle not found in Release-iphonesimulator"
+          echo "📁 Searching in Release-iphonesimulator:"
+          find ./DerivedData/Build/Products/Release-iphonesimulator -name "*.app" -type d || echo "No .app files found"
+          
+          # Method 2: Check DerivedData/Build/Products/Debug-iphonesimulator
+          APP_PATH=$(find ./DerivedData/Build/Products/Debug-iphonesimulator -name "VividAI.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found in Debug-iphonesimulator"
+            echo "📁 Searching in Debug-iphonesimulator:"
+            find ./DerivedData/Build/Products/Debug-iphonesimulator -name "*.app" -type d || echo "No .app files found"
+            
+            # Method 3: Check entire DerivedData directory
+            APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+            
+            if [ -z "$APP_PATH" ]; then
+              echo "❌ App bundle not found in DerivedData"
+              echo "📁 Searching in DerivedData:"
+              find ./DerivedData -name "*.app" -type d || echo "No .app files found"
+              
+              # Method 4: Check if build was successful by looking for any VividAI.app
+              echo "📁 Searching for any VividAI.app:"
+              find . -name "VividAI.app" -type d || echo "No VividAI.app found"
+              
+              # Method 5: Check the build output directory
+              echo "📁 Checking build output:"
+              find . -name "*.app" -type d || echo "No .app files found in current directory"
+              
+              # Method 6: Check for any .app files in the entire project
+              echo "📁 Checking for any .app files:"
+              find . -name "*.app" -type d || echo "No .app files found anywhere"
+              
+              # Method 7: List all files in DerivedData to see what was created
+              echo "📁 DerivedData contents:"
+              find ./DerivedData -type f | head -20 || echo "No files in DerivedData"
+              
+              # Method 8: Check if the build actually created anything
+              echo "📁 Build output analysis:"
+              ls -la ./DerivedData/ || echo "DerivedData directory not found"
+              
+              exit 1
+            fi
+          fi
         fi
         
-        echo "✅ App bundle found in archive at: $APP_PATH"
+        echo "✅ App bundle found at: $APP_PATH"
         echo "📱 App bundle size: $(du -sh "$APP_PATH")"
         
         # Verify app bundle contents
@@ -224,7 +209,6 @@ jobs:
         rm -rf ./Payload
         rm -rf ./DerivedData
         rm -rf ./build
-        rm -rf ./archive
         
         # Shutdown simulator
         xcrun simctl shutdown "VividAI-Test" || echo "Simulator already shutdown"
