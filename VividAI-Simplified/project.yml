@@ -23,7 +23,7 @@ targets:
     platform: iOS
     deploymentTarget: '16.0'
     sources:
-      - path: .
+      - path: ../VividAI
         excludes:
           - "build/**"
           - "**/*.app"
@@ -44,8 +44,8 @@ targets:
           - "Tests/**"
           - "LaunchScreen.storyboard"
     resources:
-      - path: Assets.xcassets
-      - path: LaunchScreen.storyboard
+      - path: ../VividAI/Assets.xcassets
+      - path: ../VividAI/LaunchScreen.storyboard
     dependencies:
       - sdk: Foundation.framework
       - sdk: SwiftUI.framework
@@ -119,16 +119,14 @@ targets:
         ENABLE_TESTABILITY: YES
         GCC_OPTIMIZATION_LEVEL: 0
         ONLY_ACTIVE_ARCH: YES
-        CODE_SIGN_ENTITLEMENTS: VividAI.entitlements
+        CODE_SIGN_ENTITLEMENTS: ../VividAI/VividAI.entitlements
       release:
         SWIFT_OPTIMIZATION_LEVEL: -O
         ENABLE_TESTABILITY: NO
         GCC_OPTIMIZATION_LEVEL: s
         ONLY_ACTIVE_ARCH: NO
         VALIDATE_PRODUCT: YES
-        CODE_SIGN_ENTITLEMENTS: VividAI.entitlements
-    info:
-      path: Info.plist
+        CODE_SIGN_ENTITLEMENTS: ../VividAI/VividAI.entitlements
 
 schemes:
   VividAI:
