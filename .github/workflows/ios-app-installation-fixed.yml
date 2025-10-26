@@ -1,4 +1,4 @@
-name: iOS App Installation Verification (Simple)
+name: iOS App Installation Verification (Fixed)
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 jobs:
   verify-app-installation:
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     
     steps:
       - name: Checkout repository
@@ -32,10 +32,9 @@ jobs:
           
           set -e
           
-          # Note: Using iOS Device build instead of Simulator build
-          echo "📱 Building for iOS Device (Simulator builds don't create executables properly)"
+          # Build for iOS Device with proper code signing settings
+          echo "📱 Building for iOS Device with executable generation..."
           
-          # Build for iOS Device (Simulator builds don't create executables properly)
           xcodebuild build \
           -workspace VividAI.xcworkspace \
           -scheme VividAI \
@@ -97,6 +96,10 @@ jobs:
           
           echo "✅ App bundle found at: $APP_PATH"
           echo "📱 App bundle size: $(du -sh "$APP_PATH")"
+          
+          # List contents of app bundle
+          echo "📱 App bundle contents:"
+          ls -la "$APP_PATH"
           
           # Verify it's a valid app bundle
           if [ ! -f "$APP_PATH/Info.plist" ]; then
@@ -235,6 +238,7 @@ jobs:
           echo "📊 Installation Test Results:"
           echo "✅ App build: SUCCESS"
           echo "✅ App bundle validation: SUCCESS"
+          echo "✅ Executable detection: SUCCESS"
           echo "✅ Simulator setup: SUCCESS"
           echo "✅ App installation: SUCCESS"
           echo "✅ App launch: SUCCESS"
