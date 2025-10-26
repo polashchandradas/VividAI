@@ -30,11 +30,6 @@
 		A1234567890ABCDEF041 /* FastViTT8F16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */; };
 		A1234567890ABCDEF043 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF044 /* DETRResnet50SemanticSegmentationF16.mlpackage */; };
 		A1234567890ABCDEF045 /* DepthAnythingV2SmallF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */; };
-		A1234567890ABCDEF048 /* StoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF047 /* StoreKit */; };
-		A1234567890ABCDEF050 /* CoreML in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF049 /* CoreML */; };
-		A1234567890ABCDEF052 /* Vision in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF051 /* Vision */; };
-		A1234567890ABCDEF054 /* AVFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF053 /* AVFoundation */; };
-		A1234567890ABCDEF056 /* CoreAnimation in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF055 /* CoreAnimation */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,11 +65,7 @@
 		A1234567890ABCDEF060 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
-			files = (A1234567890ABCDEF048 /* StoreKit in Frameworks */,
-				A1234567890ABCDEF050 /* CoreML in Frameworks */,
-				A1234567890ABCDEF052 /* Vision in Frameworks */,
-				A1234567890ABCDEF054 /* AVFoundation in Frameworks */,
-				A1234567890ABCDEF056 /* CoreAnimation in Frameworks */,
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
