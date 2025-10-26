@@ -18,10 +18,12 @@ jobs:
       - name: Set up Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
         
-      - name: Install dependencies
+      - name: Install CocoaPods dependencies
         run: |
-          echo "📦 Resolving dependencies..."
-          xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+          echo "📦 Installing CocoaPods dependencies..."
+          sudo gem install cocoapods
+          pod install
+          echo "✅ CocoaPods dependencies installed"
           
       - name: Clean environment
         run: |
@@ -41,10 +43,10 @@ jobs:
           echo "📁 Current directory contents before build:"
           ls -la ./
           
-          # ULTIMATE SOLUTION: Use build-for-testing to create test bundles with app bundles
+          # ABSOLUTE FINAL SOLUTION: Use CocoaPods workspace and build-for-testing
           echo "🔨 Starting xcodebuild build-for-testing for iOS Device..."
           xcodebuild build-for-testing \
-            -project VividAI.xcodeproj \
+            -workspace VividAI.xcworkspace \
             -scheme VividAI \
             -destination 'generic/platform=iOS' \
             -configuration Release \
@@ -63,7 +65,6 @@ jobs:
             ARCHS="arm64" \
             EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
             -allowProvisioningUpdates \
-            -resolvePackageDependencies \
             -verbose \
             -showBuildTimingSummary \
             2>&1 | tee build_output.log
