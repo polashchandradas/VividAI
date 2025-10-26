@@ -40,7 +40,7 @@
 		A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */; };
 		A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF064 /* FirebaseValidationService.swift */; };
 		A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF066 /* ServerValidationService.swift */; };
-		A1234567890ABCDEF067 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF068 /* SecureStorageService.swift */; };
+		A1234567890ABCDEF113 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF114 /* SecureStorageService.swift */; };
 		A1234567890ABCDEF069 /* HybridProcessingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF070 /* HybridProcessingService.swift */; };
 		A1234567890ABCDEF071 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF072 /* NavigationCoordinator.swift */; };
 		A1234567890ABCDEF073 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF074 /* AppCoordinator.swift */; };
@@ -100,7 +100,7 @@
 		A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppCheckService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF064 /* FirebaseValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseValidationService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF066 /* ServerValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerValidationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF068 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF114 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF070 /* HybridProcessingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridProcessingService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF072 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF074 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -209,7 +209,7 @@
 				A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */,
 				A1234567890ABCDEF064 /* FirebaseValidationService.swift */,
 				A1234567890ABCDEF066 /* ServerValidationService.swift */,
-				A1234567890ABCDEF068 /* SecureStorageService.swift */,
+				A1234567890ABCDEF114 /* SecureStorageService.swift */,
 				A1234567890ABCDEF070 /* HybridProcessingService.swift */,
 				A1234567890ABCDEF078 /* SubscriptionStateManager.swift */,
 				A1234567890ABCDEF108 /* UsageLimitService.swift */,
@@ -361,7 +361,7 @@
 				A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */,
 				A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */,
 				A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */,
-				A1234567890ABCDEF067 /* SecureStorageService.swift in Sources */,
+				A1234567890ABCDEF113 /* SecureStorageService.swift in Sources */,
 				A1234567890ABCDEF069 /* HybridProcessingService.swift in Sources */,
 				A1234567890ABCDEF071 /* NavigationCoordinator.swift in Sources */,
 				A1234567890ABCDEF073 /* AppCoordinator.swift in Sources */,
