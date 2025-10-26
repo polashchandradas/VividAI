@@ -45,7 +45,7 @@
 		A1234567890ABCDEF119 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF120 /* NavigationCoordinator.swift */; };
 		A1234567890ABCDEF121 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF122 /* AppCoordinator.swift */; };
 		A1234567890ABCDEF117 /* StyleExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF118 /* StyleExample.swift */; };
-		A1234567890ABCDEF077 /* SubscriptionStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF078 /* SubscriptionStateManager.swift */; };
+		A1234567890ABCDEF125 /* SubscriptionStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF126 /* SubscriptionStateManager.swift */; };
 		A1234567890ABCDEF109 /* UsageLimitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF108 /* UsageLimitService.swift */; };
 		A1234567890ABCDEF081 /* FreeTrialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF082 /* FreeTrialService.swift */; };
 		A1234567890ABCDEF083 /* ErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF084 /* ErrorHandlingService.swift */; };
@@ -105,7 +105,7 @@
 		A1234567890ABCDEF120 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF122 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF118 /* StyleExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExample.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF078 /* SubscriptionStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStateManager.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF126 /* SubscriptionStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStateManager.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF108 /* UsageLimitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLimitService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF082 /* FreeTrialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTrialService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF084 /* ErrorHandlingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingService.swift; sourceTree = "<group>"; };
@@ -211,7 +211,7 @@
 				A1234567890ABCDEF066 /* ServerValidationService.swift */,
 				A1234567890ABCDEF114 /* SecureStorageService.swift */,
 				A1234567890ABCDEF116 /* HybridProcessingService.swift */,
-				A1234567890ABCDEF078 /* SubscriptionStateManager.swift */,
+				A1234567890ABCDEF126 /* SubscriptionStateManager.swift */,
 				A1234567890ABCDEF108 /* UsageLimitService.swift */,
 				A1234567890ABCDEF082 /* FreeTrialService.swift */,
 				A1234567890ABCDEF084 /* ErrorHandlingService.swift */,
@@ -366,7 +366,7 @@
 				A1234567890ABCDEF119 /* NavigationCoordinator.swift in Sources */,
 				A1234567890ABCDEF121 /* AppCoordinator.swift in Sources */,
 				A1234567890ABCDEF117 /* StyleExample.swift in Sources */,
-				A1234567890ABCDEF077 /* SubscriptionStateManager.swift in Sources */,
+				A1234567890ABCDEF125 /* SubscriptionStateManager.swift in Sources */,
 				A1234567890ABCDEF109 /* UsageLimitService.swift in Sources */,
 				A1234567890ABCDEF081 /* FreeTrialService.swift in Sources */,
 				A1234567890ABCDEF083 /* ErrorHandlingService.swift in Sources */,
