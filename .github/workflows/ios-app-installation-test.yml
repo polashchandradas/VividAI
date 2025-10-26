@@ -43,8 +43,8 @@ jobs:
           echo "📱 Available simulators:"
           xcrun simctl list devices | grep "iPhone" | head -10
           
-          # Get first available iPhone simulator
-          AVAILABLE_SIMULATOR=$(xcrun simctl list devices | grep "iPhone" | grep "Available" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
+          # Get first iPhone simulator (regardless of status)
+          AVAILABLE_SIMULATOR=$(xcrun simctl list devices | grep "iPhone" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
           echo "📱 Using simulator: $AVAILABLE_SIMULATOR"
           
           # Build for iOS Simulator
