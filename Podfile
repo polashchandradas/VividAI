@@ -10,6 +10,11 @@ target 'VividAI' do
   pod 'Firebase/Analytics'
   pod 'Firebase/Auth'
   pod 'Firebase/Firestore'
+  pod 'Firebase/AppCheck'
+  pod 'Firebase/Functions'
+  
+  # Google Sign-In
+  pod 'GoogleSignIn'
 
 end
 
