@@ -268,7 +268,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A1234567890ABCDEF068 /* Build configuration list for PBXNativeTarget "VividAI" */;
 			buildPhases = (
-				A1234567890ABCDEF069 /* Sources */,
+				A1234567890ABCDEF133 /* Sources */,
 				A1234567890ABCDEF060 /* Frameworks */,
 				A1234567890ABCDEF070 /* Resources */,
 			);
@@ -340,7 +340,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A1234567890ABCDEF069 /* Sources */ = {
+		A1234567890ABCDEF133 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
