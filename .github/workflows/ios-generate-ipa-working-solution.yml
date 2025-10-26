@@ -94,9 +94,9 @@ jobs:
           echo "⚠️ Simulator boot failed, but continuing with build..."
         fi
         
-    - name: Build for iOS Device using SKETCHAI SUCCESS PATTERN
+    - name: Build for iOS Device using ULTIMATE SOLUTION
       run: |
-        echo "🔨 Building for iOS Device using SKETCHAI SUCCESS PATTERN..."
+        echo "🔨 Building for iOS Device using ULTIMATE SOLUTION..."
         echo "📱 Target: iOS Device (not simulator)"
         echo "📱 App: VividAI (Firebase-integrated complex app)"
         
@@ -109,14 +109,14 @@ jobs:
         echo "🔧 Killing lingering simulator processes..."
         sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
         
-        # SKETCHAI SUCCESS PATTERN: Build for device using generic/platform=iOS
-        echo "🔨 Starting xcodebuild archive for iOS Device (SKETCHAI SUCCESS PATTERN)..."
-        xcodebuild archive \
+        # ULTIMATE SOLUTION: Use build command with explicit output directory
+        echo "🔨 Starting xcodebuild build for iOS Device (ULTIMATE SOLUTION)..."
+        xcodebuild build \
           -project VividAI.xcodeproj \
           -scheme VividAI \
           -destination 'generic/platform=iOS' \
           -configuration Release \
-          -archivePath ./VividAI.xcarchive \
+          -derivedDataPath ./DerivedData \
           DEVELOPMENT_TEAM="" \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
@@ -135,13 +135,13 @@ jobs:
           -verbose \
           -showBuildTimingSummary
         
-        echo "✅ Archive completed successfully!"
+        echo "✅ Build completed successfully!"
         
-        echo "📁 Current directory contents after archive:"
+        echo "📁 Current directory contents after build:"
         ls -la ./
         
-        echo "📁 Looking for any .xcarchive files:"
-        find . -name "*.xcarchive" -type d || echo "No .xcarchive files found"
+        echo "📁 DerivedData contents after build:"
+        ls -la ./DerivedData/ || echo "DerivedData directory not found"
         
         echo "📁 Looking for any .app files anywhere:"
         find . -name "*.app" -type d || echo "No .app files found"
@@ -165,15 +165,23 @@ jobs:
         # Search in multiple locations for app bundle
         echo "📁 Searching for app bundle in all possible locations..."
         
-        # Method 1: Look for app bundle in archive (if it exists)
-        APP_PATH=$(find ./VividAI.xcarchive -name "VividAI.app" -type d | head -1)
+        # ULTIMATE SOLUTION: Look for app bundle in DerivedData Build Products
+        echo "📁 Searching in DerivedData Build Products..."
+        APP_PATH=$(find ./DerivedData/Build/Products/Release-iphoneos -name "VividAI.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "❌ App bundle not found in archive"
+          echo "❌ App bundle not found in Release-iphoneos"
           
-          # Method 2: Look for app bundle in DerivedData
-          echo "📁 Searching in DerivedData..."
-          APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+          # Method 2: Look for app bundle in Debug-iphoneos
+          echo "📁 Searching in Debug-iphoneos..."
+          APP_PATH=$(find ./DerivedData/Build/Products/Debug-iphoneos -name "VividAI.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found in Debug-iphoneos"
+            
+            # Method 3: Look for app bundle anywhere in DerivedData
+            echo "📁 Searching anywhere in DerivedData..."
+            APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
           
           if [ -z "$APP_PATH" ]; then
             echo "❌ App bundle not found in DerivedData"
