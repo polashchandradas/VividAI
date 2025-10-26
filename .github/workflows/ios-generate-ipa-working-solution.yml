@@ -1,4 +1,4 @@
-name: Generate iOS Simulator IPA (Working Solution)
+name: Generate iOS Device IPA (Working Solution)
 
 on:
   push:
@@ -12,218 +12,56 @@ jobs:
     timeout-minutes: 15 # CRITICAL FIX: Reduced timeout to prevent hanging
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      
-    - name: Set up Xcode
-      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
-      
-    - name: Install dependencies
-      run: |
-        echo "📦 Resolving dependencies..."
-        xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
+      - name: Checkout repository
+        uses: actions/checkout@v4
         
-    - name: Clean environment
-      run: |
-        echo "🧹 Cleaning build environment..."
-        rm -rf ~/Library/Developer/Xcode/DerivedData/*
-        rm -rf ./DerivedData
-        rm -rf ./build
+      - name: Set up Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
         
-    - name: List available simulators
-      run: |
-        echo "📱 Available simulators:"
-        xcrun simctl list devices available
-        
-    - name: Create and boot iOS Simulator with CRITICAL TIMEOUT FIX
-      run: |
-        echo "📱 Creating and booting iOS Simulator with CRITICAL TIMEOUT FIX..."
-        
-        # CRITICAL FIX: Kill any existing simulator processes first
-        echo "🔧 Killing existing simulator processes..."
-        sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
-        sudo killall -9 Simulator 2>/dev/null || true
-        
-        # List available iOS runtimes first
-        echo "📱 Available iOS runtimes:"
-        xcrun simctl list runtimes | grep iOS
-        
-        # Use available iOS runtime (usually latest)
-        IOS_RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | awk '{print $NF}')
-        echo "📱 Using iOS runtime: $IOS_RUNTIME"
-        
-        # Delete existing simulator if it exists
-        xcrun simctl delete "VividAI-Test" 2>/dev/null || true
-        
-        # Create simulator with available runtime
-        xcrun simctl create "VividAI-Test" "iPhone 16" "$IOS_RUNTIME" || echo "Simulator already exists"
-        
-        # CRITICAL FIX: Boot simulator with strict timeout using background process
-        echo "🔧 Booting simulator with strict timeout..."
-        
-        # Start boot process in background
-        xcrun simctl boot "VividAI-Test" &
-        BOOT_PID=$!
-        
-        # Wait for boot with timeout
-        TIMEOUT=60
-        COUNTER=0
-        
-        while [ $COUNTER -lt $TIMEOUT ]; do
-          if kill -0 $BOOT_PID 2>/dev/null; then
-            echo "⏳ Boot process still running... ($COUNTER/$TIMEOUT)"
-            sleep 2
-            COUNTER=$((COUNTER + 2))
-          else
-            echo "✅ Boot process completed"
-            break
-          fi
-        done
-        
-        # Kill boot process if it's still running
-        if kill -0 $BOOT_PID 2>/dev/null; then
-          echo "⚠️ Boot process timed out, killing..."
-          kill -9 $BOOT_PID 2>/dev/null || true
-        fi
-        
-        # Check if simulator is actually booted
-        echo "🔍 Checking simulator status..."
-        if xcrun simctl list devices | grep "VividAI-Test" | grep "Booted"; then
-          echo "✅ Simulator is booted successfully"
-        else
-          echo "⚠️ Simulator boot failed, but continuing with build..."
-        fi
-        
-    - name: Build for iOS Device using ULTIMATE SOLUTION
-      run: |
-        echo "🔨 Building for iOS Device using ULTIMATE SOLUTION..."
-        echo "📱 Target: iOS Device (not simulator)"
-        echo "📱 App: VividAI (Firebase-integrated complex app)"
-        
-        set -e
-        
-        echo "📁 Current directory contents before build:"
-        ls -la ./
-        
-        # Kill any lingering simulator processes that could cause runtime conflicts
-        echo "🔧 Killing lingering simulator processes..."
-        sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
-        
-        # FINAL SOLUTION: Build with comprehensive logging and explicit target
-        echo "🔨 Starting xcodebuild build for iOS Device (FINAL SOLUTION)..."
-        echo "📱 Building VividAI target explicitly..."
-        
-        # ULTIMATE SOLUTION: Use archive for iOS Device builds (like SketchAI)
-        xcodebuild archive \
-          -project VividAI.xcodeproj \
-          -scheme VividAI \
-          -destination 'generic/platform=iOS' \
-          -configuration Release \
-          -archivePath ./archive/VividAI.xcarchive \
-          -derivedDataPath ./DerivedData \
-          DEVELOPMENT_TEAM="" \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          PROVISIONING_PROFILE="" \
-          ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS=NO \
-          ASSETCATALOG_COMPILER_OPTIMIZATION=space \
-          ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
-          ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOLS=NO \
-          SUPPORTED_PLATFORMS="iphoneos" \
-          VALID_ARCHS="arm64" \
-          ARCHS="arm64" \
-          EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
-          -allowProvisioningUpdates \
-          -resolvePackageDependencies \
-          -verbose \
-          -showBuildTimingSummary \
-          2>&1 | tee build_output.log
-        
-        echo "✅ Build completed!"
-        
-        # Check build output for errors
-        echo "📁 Build output analysis:"
-        if grep -i "error" build_output.log; then
-          echo "❌ Build errors found:"
-          grep -i "error" build_output.log
-        else
-          echo "✅ No build errors found"
-        fi
-        
-        if grep -i "warning" build_output.log; then
-          echo "⚠️ Build warnings found:"
-          grep -i "warning" build_output.log
-        else
-          echo "✅ No build warnings found"
-        fi
-        
-        # Check if build actually built anything
-        echo "📁 Build completion analysis:"
-        if grep -i "build succeeded" build_output.log; then
-          echo "✅ Build succeeded"
-        else
-          echo "❌ Build did not succeed"
-        fi
-        
-        if grep -i "target" build_output.log; then
-          echo "📁 Target information:"
-          grep -i "target" build_output.log | head -5
-        fi
-        
-        # Show last 20 lines of build output for debugging
-        echo "📁 Last 20 lines of build output:"
-        tail -20 build_output.log
-        
-        echo "📁 Current directory contents after build:"
-        ls -la ./
-        
-        echo "📁 DerivedData contents after build:"
-        ls -la ./DerivedData/ || echo "DerivedData directory not found"
-        
-        echo "📁 Looking for any build products:"
-        find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData"
-        find ./DerivedData -name "*.framework" -type d || echo "No .framework files in DerivedData"
-        find ./DerivedData -name "*.dylib" -type f || echo "No .dylib files in DerivedData"
-        
-        echo "📁 Build products analysis:"
-        if [ -d "./DerivedData/Build" ]; then
-          echo "✅ Build directory exists"
-          find ./DerivedData/Build -type d | head -10
-        else
-          echo "❌ Build directory does not exist"
-        fi
-        
-        echo "📁 Looking for any .app files anywhere:"
-        find . -name "*.app" -type d || echo "No .app files found"
-        
-        echo "📁 Looking for any build products:"
-        find . -name "*VividAI*" -type d || echo "No VividAI products found"
-        
-        echo "📁 Looking in DerivedData:"
-        find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData"
-        
-        echo "📁 Looking in build directories:"
-        find . -name "*Build*" -type d || echo "No Build directories found"
-        
-        echo "📁 Looking in Products directories:"
-        find . -name "*Products*" -type d || echo "No Products directories found"
-        
-        # ULTIMATE FALLBACK: Try building without explicit target
-        if [ ! -d "./DerivedData/Build" ] || [ -z "$(find ./DerivedData -name "*.app" -type d)" ]; then
-          echo "🔄 ULTIMATE FALLBACK: Trying build without explicit target..."
+      - name: Install dependencies
+        run: |
+          echo "📦 Resolving dependencies..."
+          xcodebuild -resolvePackageDependencies -project VividAI.xcodeproj
           
-          xcodebuild build \
+      - name: Clean environment
+        run: |
+          echo "🧹 Cleaning build environment..."
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf ./DerivedData
+          rm -rf ./build
+          rm -rf ./archive
+          
+      - name: Build for iOS Device using ULTIMATE SOLUTION
+        run: |
+          echo "🔨 Building for iOS Device using ULTIMATE SOLUTION..."
+          echo "📱 Building VividAI app for iOS Device..."
+          
+          set -e
+          
+          echo "📁 Current directory contents before build:"
+          ls -la ./
+          
+          # Create archive directory
+          mkdir -p ./archive
+          
+          # ULTIMATE SOLUTION: Use archive for iOS Device builds (like SketchAI)
+          echo "🔨 Starting xcodebuild archive for iOS Device..."
+          xcodebuild archive \
             -project VividAI.xcodeproj \
             -scheme VividAI \
             -destination 'generic/platform=iOS' \
             -configuration Release \
+            -archivePath ./archive/VividAI.xcarchive \
             -derivedDataPath ./DerivedData \
             DEVELOPMENT_TEAM="" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             PROVISIONING_PROFILE="" \
+            ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS=NO \
+            ASSETCATALOG_COMPILER_OPTIMIZATION=space \
+            ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
+            ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOLS=NO \
             SUPPORTED_PLATFORMS="iphoneos" \
             VALID_ARCHS="arm64" \
             ARCHS="arm64" \
@@ -231,36 +69,42 @@ jobs:
             -allowProvisioningUpdates \
             -resolvePackageDependencies \
             -verbose \
-            2>&1 | tee build_output_fallback.log
+            -showBuildTimingSummary \
+            2>&1 | tee build_output.log
           
-          echo "📁 Fallback build output analysis:"
-          if grep -i "error" build_output_fallback.log; then
-            echo "❌ Fallback build errors found:"
-            grep -i "error" build_output_fallback.log
+          echo "✅ Archive completed!"
+          
+          # Check build output for errors
+          echo "📁 Build output analysis:"
+          if grep -i "error" build_output.log; then
+            echo "❌ Build errors found:"
+            grep -i "error" build_output.log
           else
-            echo "✅ No fallback build errors found"
+            echo "✅ No build errors found"
           fi
           
-          echo "📁 Last 20 lines of fallback build output:"
-          tail -20 build_output_fallback.log
+          if grep -i "warning" build_output.log; then
+            echo "⚠️ Build warnings found:"
+            grep -i "warning" build_output.log
+          else
+            echo "✅ No build warnings found"
+          fi
           
-          echo "📁 Checking for app bundles after fallback build:"
-          find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData after fallback"
-        fi
-      
-    - name: Upload Build Logs for Analysis
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: build-logs
-        path: |
-          build_output.log
-          build_output_fallback.log
-        retention-days: 7
-        
-      - name: Find app bundle in archive (ULTIMATE SOLUTION)
+          # Check if archive was created
+          echo "📁 Archive creation analysis:"
+          if [ -d "./archive/VividAI.xcarchive" ]; then
+            echo "✅ Archive created successfully"
+            echo "📁 Archive size: $(du -sh ./archive/VividAI.xcarchive)"
+          else
+            echo "❌ Archive not created"
+            echo "📁 Archive directory contents:"
+            ls -la ./archive/ || echo "Archive directory not found"
+            exit 1
+          fi
+          
+      - name: Find app bundle in archive
         run: |
-          echo "🔍 Looking for app bundle in archive (ULTIMATE SOLUTION)..."
+          echo "🔍 Looking for app bundle in archive..."
           
           echo "📁 Current directory contents:"
           ls -la ./
@@ -370,7 +214,3 @@ jobs:
           rm -rf ./DerivedData
           rm -rf ./build
           rm -rf ./archive
-          
-          # Shutdown simulator
-          xcrun simctl shutdown "VividAI-Test" || echo "Simulator already shutdown"
-          xcrun simctl delete "VividAI-Test" || echo "Simulator already deleted"
