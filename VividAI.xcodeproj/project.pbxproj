@@ -11,8 +11,6 @@
 		1A0000032A00000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000022A00000000000001 /* ContentView.swift */; };
 		1A0000052A00000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000042A00000000000001 /* Assets.xcassets */; };
 		1A0000082A00000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000072A00000000000001 /* Preview Assets.xcassets */; };
-		1A00000B2A00000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000C2A00000000000001 /* GoogleService-Info.plist */; };
-		1A00000D2A00000000000001 /* VividAI.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000E2A00000000000001 /* VividAI.entitlements */; };
 		1A00000F2A00000000000001 /* FastViTT8F16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000102A00000000000001 /* FastViTT8F16.mlpackage */; };
 		1A0000112A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000122A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage */; };
 		1A0000132A00000000000001 /* DepthAnythingV2SmallF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000142A00000000000001 /* DepthAnythingV2SmallF16.mlpackage */; };
@@ -419,8 +417,6 @@
 			files = (
 				1A0000082A00000000000001 /* Preview Assets.xcassets in Resources */,
 				1A0000052A00000000000001 /* Assets.xcassets in Resources */,
-				1A00000B2A00000000000001 /* GoogleService-Info.plist in Resources */,
-				1A00000D2A00000000000001 /* VividAI.entitlements in Resources */,
 				1A00000F2A00000000000001 /* FastViTT8F16.mlpackage in Resources */,
 				1A0000112A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */,
 				1A0000132A00000000000001 /* DepthAnythingV2SmallF16.mlpackage in Resources */,
