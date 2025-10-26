@@ -30,6 +30,36 @@
 		A1234567890ABCDEF041 /* FastViTT8F16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */; };
 		A1234567890ABCDEF043 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF044 /* DETRResnet50SemanticSegmentationF16.mlpackage */; };
 		A1234567890ABCDEF045 /* DepthAnythingV2SmallF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */; };
+		A1234567890ABCDEF047 /* UnifiedAppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF048 /* UnifiedAppStateManager.swift */; };
+		A1234567890ABCDEF049 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF050 /* DesignSystem.swift */; };
+		A1234567890ABCDEF051 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF052 /* ServiceContainer.swift */; };
+		A1234567890ABCDEF053 /* ConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF054 /* ConfigurationService.swift */; };
+		A1234567890ABCDEF055 /* RealTimeGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF056 /* RealTimeGenerationService.swift */; };
+		A1234567890ABCDEF057 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF058 /* AuthenticationService.swift */; };
+		A1234567890ABCDEF059 /* FirebaseConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF060 /* FirebaseConfigurationService.swift */; };
+		A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */; };
+		A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF064 /* FirebaseValidationService.swift */; };
+		A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF066 /* ServerValidationService.swift */; };
+		A1234567890ABCDEF067 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF068 /* SecureStorageService.swift */; };
+		A1234567890ABCDEF069 /* HybridProcessingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF070 /* HybridProcessingService.swift */; };
+		A1234567890ABCDEF071 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF072 /* NavigationCoordinator.swift */; };
+		A1234567890ABCDEF073 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF074 /* AppCoordinator.swift */; };
+		A1234567890ABCDEF075 /* StyleExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF076 /* StyleExample.swift */; };
+		A1234567890ABCDEF077 /* SubscriptionStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF078 /* SubscriptionStateManager.swift */; };
+		A1234567890ABCDEF109 /* UsageLimitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF108 /* UsageLimitService.swift */; };
+		A1234567890ABCDEF081 /* FreeTrialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF082 /* FreeTrialService.swift */; };
+		A1234567890ABCDEF083 /* ErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF084 /* ErrorHandlingService.swift */; };
+		A1234567890ABCDEF085 /* LoggingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF086 /* LoggingService.swift */; };
+		A1234567890ABCDEF087 /* SecurityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF088 /* SecurityService.swift */; };
+		A1234567890ABCDEF089 /* ImageQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF090 /* ImageQuality.swift */; };
+		A1234567890ABCDEF091 /* ImageQualityAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF092 /* ImageQualityAnalysis.swift */; };
+		A1234567890ABCDEF093 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF094 /* Product.swift */; };
+		A1234567890ABCDEF095 /* RealTimePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF096 /* RealTimePreviewView.swift */; };
+		A1234567890ABCDEF097 /* QualitySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF098 /* QualitySelectionView.swift */; };
+		A1234567890ABCDEF099 /* StyleExamplesGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF100 /* StyleExamplesGalleryView.swift */; };
+		A1234567890ABCDEF101 /* StyleExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF102 /* StyleExampleView.swift */; };
+		A1234567890ABCDEF103 /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF104 /* MainAppView.swift */; };
+		A1234567890ABCDEF105 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF106 /* AuthenticationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +90,36 @@
 		A1234567890ABCDEF058 /* VividAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VividAI.entitlements; sourceTree = "<group>"; };
 		A1234567890ABCDEF059 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A1234567890ABCDEF080 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1234567890ABCDEF048 /* UnifiedAppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedAppStateManager.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF050 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF052 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF054 /* ConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF056 /* RealTimeGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimeGenerationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF058 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF060 /* FirebaseConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConfigurationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppCheckService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF064 /* FirebaseValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseValidationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF066 /* ServerValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerValidationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF068 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF070 /* HybridProcessingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridProcessingService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF072 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF074 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF076 /* StyleExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExample.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF078 /* SubscriptionStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStateManager.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF108 /* UsageLimitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLimitService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF082 /* FreeTrialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTrialService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF084 /* ErrorHandlingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF086 /* LoggingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF088 /* SecurityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF090 /* ImageQuality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQuality.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF092 /* ImageQualityAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQualityAnalysis.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF094 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF096 /* RealTimePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimePreviewView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF098 /* QualitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualitySelectionView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF100 /* StyleExamplesGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExamplesGalleryView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF102 /* StyleExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExampleView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF104 /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF106 /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +149,8 @@
 				A1234567890ABCDEF064 /* Views */,
 				A1234567890ABCDEF065 /* Services */,
 				A1234567890ABCDEF077 /* Models */,
+				A1234567890ABCDEF110 /* Coordinators */,
+				A1234567890ABCDEF050 /* DesignSystem.swift */,
 				A1234567890ABCDEF004 /* Assets.xcassets */,
 				A1234567890ABCDEF058 /* VividAI.entitlements */,
 				A1234567890ABCDEF059 /* GoogleService-Info.plist */,
@@ -117,6 +179,12 @@
 				A1234567890ABCDEF019 /* PaywallView.swift */,
 				A1234567890ABCDEF021 /* ShareView.swift */,
 				A1234567890ABCDEF023 /* SettingsView.swift */,
+				A1234567890ABCDEF096 /* RealTimePreviewView.swift */,
+				A1234567890ABCDEF098 /* QualitySelectionView.swift */,
+				A1234567890ABCDEF100 /* StyleExamplesGalleryView.swift */,
+				A1234567890ABCDEF102 /* StyleExampleView.swift */,
+				A1234567890ABCDEF104 /* MainAppView.swift */,
+				A1234567890ABCDEF106 /* AuthenticationView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -132,6 +200,23 @@
 				A1234567890ABCDEF035 /* WatermarkService.swift */,
 				A1234567890ABCDEF037 /* ReferralService.swift */,
 				A1234567890ABCDEF039 /* AnalyticsService.swift */,
+				A1234567890ABCDEF048 /* UnifiedAppStateManager.swift */,
+				A1234567890ABCDEF052 /* ServiceContainer.swift */,
+				A1234567890ABCDEF054 /* ConfigurationService.swift */,
+				A1234567890ABCDEF056 /* RealTimeGenerationService.swift */,
+				A1234567890ABCDEF058 /* AuthenticationService.swift */,
+				A1234567890ABCDEF060 /* FirebaseConfigurationService.swift */,
+				A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */,
+				A1234567890ABCDEF064 /* FirebaseValidationService.swift */,
+				A1234567890ABCDEF066 /* ServerValidationService.swift */,
+				A1234567890ABCDEF068 /* SecureStorageService.swift */,
+				A1234567890ABCDEF070 /* HybridProcessingService.swift */,
+				A1234567890ABCDEF078 /* SubscriptionStateManager.swift */,
+				A1234567890ABCDEF108 /* UsageLimitService.swift */,
+				A1234567890ABCDEF082 /* FreeTrialService.swift */,
+				A1234567890ABCDEF084 /* ErrorHandlingService.swift */,
+				A1234567890ABCDEF086 /* LoggingService.swift */,
+				A1234567890ABCDEF088 /* SecurityService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -140,18 +225,21 @@
 			isa = PBXGroup;
 			children = (
 				A1234567890ABCDEF078 /* OnDevice */,
+				A1234567890ABCDEF076 /* StyleExample.swift */,
+				A1234567890ABCDEF090 /* ImageQuality.swift */,
+				A1234567890ABCDEF092 /* ImageQualityAnalysis.swift */,
+				A1234567890ABCDEF094 /* Product.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF078 /* OnDevice */ = {
+		A1234567890ABCDEF110 /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */,
-				A1234567890ABCDEF044 /* DETRResnet50SemanticSegmentationF16.mlpackage */,
-				A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */,
+				A1234567890ABCDEF072 /* NavigationCoordinator.swift */,
+				A1234567890ABCDEF074 /* AppCoordinator.swift */,
 			);
-			path = OnDevice;
+			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		A1234567890ABCDEF066 /* Preview Content */ = {
@@ -263,6 +351,36 @@
 				A1234567890ABCDEF036 /* WatermarkService.swift in Sources */,
 				A1234567890ABCDEF038 /* ReferralService.swift in Sources */,
 				A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */,
+				A1234567890ABCDEF047 /* UnifiedAppStateManager.swift in Sources */,
+				A1234567890ABCDEF049 /* DesignSystem.swift in Sources */,
+				A1234567890ABCDEF051 /* ServiceContainer.swift in Sources */,
+				A1234567890ABCDEF053 /* ConfigurationService.swift in Sources */,
+				A1234567890ABCDEF055 /* RealTimeGenerationService.swift in Sources */,
+				A1234567890ABCDEF057 /* AuthenticationService.swift in Sources */,
+				A1234567890ABCDEF059 /* FirebaseConfigurationService.swift in Sources */,
+				A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */,
+				A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */,
+				A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */,
+				A1234567890ABCDEF067 /* SecureStorageService.swift in Sources */,
+				A1234567890ABCDEF069 /* HybridProcessingService.swift in Sources */,
+				A1234567890ABCDEF071 /* NavigationCoordinator.swift in Sources */,
+				A1234567890ABCDEF073 /* AppCoordinator.swift in Sources */,
+				A1234567890ABCDEF075 /* StyleExample.swift in Sources */,
+				A1234567890ABCDEF077 /* SubscriptionStateManager.swift in Sources */,
+				A1234567890ABCDEF109 /* UsageLimitService.swift in Sources */,
+				A1234567890ABCDEF081 /* FreeTrialService.swift in Sources */,
+				A1234567890ABCDEF083 /* ErrorHandlingService.swift in Sources */,
+				A1234567890ABCDEF085 /* LoggingService.swift in Sources */,
+				A1234567890ABCDEF087 /* SecurityService.swift in Sources */,
+				A1234567890ABCDEF089 /* ImageQuality.swift in Sources */,
+				A1234567890ABCDEF091 /* ImageQualityAnalysis.swift in Sources */,
+				A1234567890ABCDEF093 /* Product.swift in Sources */,
+				A1234567890ABCDEF095 /* RealTimePreviewView.swift in Sources */,
+				A1234567890ABCDEF097 /* QualitySelectionView.swift in Sources */,
+				A1234567890ABCDEF099 /* StyleExamplesGalleryView.swift in Sources */,
+				A1234567890ABCDEF101 /* StyleExampleView.swift in Sources */,
+				A1234567890ABCDEF103 /* MainAppView.swift in Sources */,
+				A1234567890ABCDEF105 /* AuthenticationView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
