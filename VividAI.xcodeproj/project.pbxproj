@@ -32,6 +32,13 @@
 		A1234567890ABCDEF052 /* Vision in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF051 /* Vision */; };
 		A1234567890ABCDEF054 /* AVFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF053 /* AVFoundation */; };
 		A1234567890ABCDEF056 /* CoreAnimation in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF055 /* CoreAnimation */; };
+		A1234567890ABCDEF088 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF081 /* FirebaseCore */; };
+		A1234567890ABCDEF089 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF082 /* FirebaseAuth */; };
+		A1234567890ABCDEF090 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF083 /* FirebaseFirestore */; };
+		A1234567890ABCDEF091 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF084 /* FirebaseAnalytics */; };
+		A1234567890ABCDEF092 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF085 /* FirebaseAppCheck */; };
+		A1234567890ABCDEF093 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF086 /* FirebaseFunctions */; };
+		A1234567890ABCDEF094 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF087 /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +76,13 @@
 				A1234567890ABCDEF052 /* Vision in Frameworks */,
 				A1234567890ABCDEF054 /* AVFoundation in Frameworks */,
 				A1234567890ABCDEF056 /* CoreAnimation in Frameworks */,
+				A1234567890ABCDEF088 /* FirebaseCore in Frameworks */,
+				A1234567890ABCDEF089 /* FirebaseAuth in Frameworks */,
+				A1234567890ABCDEF090 /* FirebaseFirestore in Frameworks */,
+				A1234567890ABCDEF091 /* FirebaseAnalytics in Frameworks */,
+				A1234567890ABCDEF092 /* FirebaseAppCheck in Frameworks */,
+				A1234567890ABCDEF093 /* FirebaseFunctions in Frameworks */,
+				A1234567890ABCDEF094 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +174,15 @@
 			dependencies = (
 			);
 			name = VividAI;
-			packageProductDependencies = ();
+			packageProductDependencies = (
+				A1234567890ABCDEF081 /* FirebaseCore */,
+				A1234567890ABCDEF082 /* FirebaseAuth */,
+				A1234567890ABCDEF083 /* FirebaseFirestore */,
+				A1234567890ABCDEF084 /* FirebaseAnalytics */,
+				A1234567890ABCDEF085 /* FirebaseAppCheck */,
+				A1234567890ABCDEF086 /* FirebaseFunctions */,
+				A1234567890ABCDEF087 /* GoogleSignIn */,
+			);
 			productName = VividAI;
 			productReference = A1234567890ABCDEF057 /* VividAI.app */;
 			productType = "com.apple.product-type.application";
@@ -213,6 +235,41 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A1234567890ABCDEF081 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		A1234567890ABCDEF082 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		A1234567890ABCDEF083 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		A1234567890ABCDEF084 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		A1234567890ABCDEF085 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		A1234567890ABCDEF086 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		A1234567890ABCDEF087 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1234567890ABCDEF080 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = GoogleSignIn;
+		};
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
