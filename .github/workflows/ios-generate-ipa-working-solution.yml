@@ -158,6 +158,23 @@ jobs:
           echo "✅ No build warnings found"
         fi
         
+        # Check if build actually built anything
+        echo "📁 Build completion analysis:"
+        if grep -i "build succeeded" build_output.log; then
+          echo "✅ Build succeeded"
+        else
+          echo "❌ Build did not succeed"
+        fi
+        
+        if grep -i "target" build_output.log; then
+          echo "📁 Target information:"
+          grep -i "target" build_output.log | head -5
+        fi
+        
+        # Show last 20 lines of build output for debugging
+        echo "📁 Last 20 lines of build output:"
+        tail -20 build_output.log
+        
         echo "📁 Current directory contents after build:"
         ls -la ./
         
@@ -191,6 +208,45 @@ jobs:
         
         echo "📁 Looking in Products directories:"
         find . -name "*Products*" -type d || echo "No Products directories found"
+        
+        # ULTIMATE FALLBACK: Try building without explicit target
+        if [ ! -d "./DerivedData/Build" ] || [ -z "$(find ./DerivedData -name "*.app" -type d)" ]; then
+          echo "🔄 ULTIMATE FALLBACK: Trying build without explicit target..."
+          
+          xcodebuild build \
+            -project VividAI.xcodeproj \
+            -scheme VividAI \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            -derivedDataPath ./DerivedData \
+            DEVELOPMENT_TEAM="" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            PROVISIONING_PROFILE="" \
+            SUPPORTED_PLATFORMS="iphoneos" \
+            VALID_ARCHS="arm64" \
+            ARCHS="arm64" \
+            EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
+            -allowProvisioningUpdates \
+            -resolvePackageDependencies \
+            -verbose \
+            2>&1 | tee build_output_fallback.log
+          
+          echo "📁 Fallback build output analysis:"
+          if grep -i "error" build_output_fallback.log; then
+            echo "❌ Fallback build errors found:"
+            grep -i "error" build_output_fallback.log
+          else
+            echo "✅ No fallback build errors found"
+          fi
+          
+          echo "📁 Last 20 lines of fallback build output:"
+          tail -20 build_output_fallback.log
+          
+          echo "📁 Checking for app bundles after fallback build:"
+          find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData after fallback"
+        fi
         
     - name: Find app bundle using COMPREHENSIVE SEARCH
       run: |
