@@ -6,10 +6,13 @@ import Combine
 
 struct RealTimePreviewView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @StateObject private var styleManager = StyleExampleManager.shared
     
     @State private var selectedImage: UIImage?
     @State private var selectedStyle: AvatarStyle?
+    @State private var selectedStyleExample: StyleExample?
     @State private var isShowingStylePicker = false
+    @State private var isShowingStyleExamples = false
     @State private var previews: [StylePreview] = []
     @State private var isGenerating = false
     @State private var generationProgress: Double = 0.0
@@ -47,6 +50,19 @@ struct RealTimePreviewView: View {
             .navigationBarHidden(true)
             .sheet(isPresented: $isShowingStylePicker) {
                 StylePickerView(selectedStyle: $selectedStyle)
+            }
+            .sheet(isPresented: $isShowingStyleExamples) {
+                StyleExamplesGalleryView(
+                    onExampleSelected: { example in
+                        selectedStyleExample = example
+                        // Convert StyleExample to AvatarStyle if needed
+                        // This would need to be implemented based on your existing AvatarStyle model
+                        isShowingStyleExamples = false
+                    },
+                    onClose: {
+                        isShowingStyleExamples = false
+                    }
+                )
             }
         }
         .onAppear {
@@ -199,9 +215,24 @@ struct RealTimePreviewView: View {
     
     private var styleSelectionSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            Text("Choose Style")
-                .font(DesignSystem.Typography.bodyBold)
-                .foregroundColor(DesignSystem.Colors.textPrimary)
+            HStack {
+                Text("Choose Style")
+                    .font(DesignSystem.Typography.bodyBold)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Spacer()
+                
+                Button("View Examples") {
+                    isShowingStyleExamples = true
+                }
+                .font(DesignSystem.Typography.captionBold)
+                .foregroundColor(DesignSystem.Colors.primary)
+            }
+            
+            // Quick Style Examples Preview
+            if let selectedExample = selectedStyleExample {
+                selectedStyleExampleView
+            }
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DesignSystem.Spacing.md) {
@@ -218,6 +249,95 @@ struct RealTimePreviewView: View {
                 .padding(.horizontal, DesignSystem.Spacing.xs)
             }
         }
+    }
+    
+    // MARK: - Selected Style Example View
+    
+    private var selectedStyleExampleView: some View {
+        HStack(spacing: DesignSystem.Spacing.md) {
+            // Sample Image
+            if let uiImage = selectedStyleExample?.uiImage {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 60, height: 60)
+                    .clipped()
+                    .cornerRadius(DesignSystem.CornerRadius.sm)
+            } else {
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                    .fill(DesignSystem.Colors.neutral)
+                    .frame(width: 60, height: 60)
+                    .overlay(
+                        Image(systemName: "photo")
+                            .font(.system(size: DesignSystem.IconSizes.medium))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    )
+            }
+            
+            // Style Info
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                Text(selectedStyleExample?.styleName ?? "Selected Style")
+                    .font(DesignSystem.Typography.bodyBold)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Text(selectedStyleExample?.description ?? "")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .lineLimit(2)
+                
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    // Category Badge
+                    if let category = selectedStyleExample?.category {
+                        HStack(spacing: DesignSystem.Spacing.xs) {
+                            Image(systemName: category.icon)
+                                .font(.system(size: DesignSystem.IconSizes.xs))
+                                .foregroundColor(category.color)
+                            
+                            Text(category.rawValue)
+                                .font(DesignSystem.Typography.small)
+                                .foregroundColor(category.color)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.xs)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
+                                .fill(category.color.opacity(0.1))
+                        )
+                    }
+                    
+                    // Premium Badge
+                    if selectedStyleExample?.isPremium == true {
+                        Text("PRO")
+                            .font(DesignSystem.Typography.smallBold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, DesignSystem.Spacing.xs)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
+                                    .fill(DesignSystem.Colors.warning)
+                            )
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            // Change Style Button
+            Button("Change") {
+                isShowingStyleExamples = true
+            }
+            .font(DesignSystem.Typography.captionBold)
+            .foregroundColor(DesignSystem.Colors.primary)
+        }
+        .padding(DesignSystem.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .fill(DesignSystem.Colors.primary.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(DesignSystem.Colors.primary.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
     
     // MARK: - Action Buttons Section

@@ -9,7 +9,7 @@ on:
 jobs:
   generate-ipa:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 15 # CRITICAL FIX: Reduced timeout to prevent hanging
     
     steps:
     - name: Checkout repository
@@ -35,11 +35,16 @@ jobs:
         echo "📱 Available simulators:"
         xcrun simctl list devices available
         
-    - name: Create and boot iOS Simulator
+    - name: Create and boot iOS Simulator with CRITICAL TIMEOUT FIX
       run: |
-        echo "📱 Creating and booting iOS Simulator..."
+        echo "📱 Creating and booting iOS Simulator with CRITICAL TIMEOUT FIX..."
         
-        # List available runtimes first
+        # CRITICAL FIX: Kill any existing simulator processes first
+        echo "🔧 Killing existing simulator processes..."
+        sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
+        sudo killall -9 Simulator 2>/dev/null || true
+        
+        # List available iOS runtimes first
         echo "📱 Available iOS runtimes:"
         xcrun simctl list runtimes | grep iOS
         
@@ -47,18 +52,47 @@ jobs:
         IOS_RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | awk '{print $NF}')
         echo "📱 Using iOS runtime: $IOS_RUNTIME"
         
+        # Delete existing simulator if it exists
+        xcrun simctl delete "VividAI-Test" 2>/dev/null || true
+        
         # Create simulator with available runtime
         xcrun simctl create "VividAI-Test" "iPhone 16" "$IOS_RUNTIME" || echo "Simulator already exists"
         
-        # Boot simulator without timeout (use gtimeout if available, otherwise just boot)
-        if command -v gtimeout >/dev/null 2>&1; then
-          gtimeout 30 xcrun simctl boot "VividAI-Test" || echo "Simulator boot timeout or already booted"
-        else
-          xcrun simctl boot "VividAI-Test" || echo "Simulator already booted"
+        # CRITICAL FIX: Boot simulator with strict timeout using background process
+        echo "🔧 Booting simulator with strict timeout..."
+        
+        # Start boot process in background
+        xcrun simctl boot "VividAI-Test" &
+        BOOT_PID=$!
+        
+        # Wait for boot with timeout
+        TIMEOUT=60
+        COUNTER=0
+        
+        while [ $COUNTER -lt $TIMEOUT ]; do
+          if kill -0 $BOOT_PID 2>/dev/null; then
+            echo "⏳ Boot process still running... ($COUNTER/$TIMEOUT)"
+            sleep 2
+            COUNTER=$((COUNTER + 2))
+          else
+            echo "✅ Boot process completed"
+            break
+          fi
+        done
+        
+        # Kill boot process if it's still running
+        if kill -0 $BOOT_PID 2>/dev/null; then
+          echo "⚠️ Boot process timed out, killing..."
+          kill -9 $BOOT_PID 2>/dev/null || true
         fi
         
-        # Wait for simulator to be ready
-        xcrun simctl bootstatus "VividAI-Test" -b || echo "Simulator status check failed"
+        # Check if simulator is actually booted
+        echo "🔍 Checking simulator status..."
+        if xcrun simctl list devices | grep "VividAI-Test" | grep "Booted"; then
+          echo "✅ Simulator is booted successfully"
+        else
+          echo "⚠️ Simulator boot failed, but continuing with build..."
+        fi
         
     - name: Build for iOS Device using SKETCHAI SUCCESS PATTERN
       run: |
