@@ -137,12 +137,12 @@
 		A1234567890ABCDEF077 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF068 /* OnDevice */,
+				A1234567890ABCDEF078 /* OnDevice */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF068 /* OnDevice */ = {
+		A1234567890ABCDEF078 /* OnDevice */ = {
 			isa = PBXGroup;
 			children = (
 				A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */,
