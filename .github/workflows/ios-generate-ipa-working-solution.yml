@@ -294,13 +294,30 @@ jobs:
           APP_PATH=$(find "$BUILT_PRODUCTS_DIR" -name "VividAI.app" -type d | head -1)
         fi
         
-        # Method 3: Look in DerivedData with actual paths
+        # Method 3: Look in system DerivedData (ROOT CAUSE FIX)
         if [ -z "$APP_PATH" ]; then
-          echo "📁 Searching in DerivedData with actual paths..."
+          echo "📁 Searching in system DerivedData (ROOT CAUSE FIX)..."
+          SYSTEM_DERIVED_DATA="/Users/runner/Library/Developer/Xcode/DerivedData"
+          if [ -d "$SYSTEM_DERIVED_DATA" ]; then
+            echo "📁 System DerivedData exists: $SYSTEM_DERIVED_DATA"
+            APP_PATH=$(find "$SYSTEM_DERIVED_DATA" -name "VividAI.app" -type d | head -1)
+            if [ -n "$APP_PATH" ]; then
+              echo "✅ Found app bundle in system DerivedData: $APP_PATH"
+            else
+              echo "❌ No app bundle found in system DerivedData"
+            fi
+          else
+            echo "❌ System DerivedData does not exist"
+          fi
+        fi
+        
+        # Method 4: Look in local DerivedData with actual paths
+        if [ -z "$APP_PATH" ]; then
+          echo "📁 Searching in local DerivedData with actual paths..."
           APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
         fi
         
-        # Method 4: Look anywhere in current directory
+        # Method 5: Look anywhere in current directory
         if [ -z "$APP_PATH" ]; then
           echo "📁 Searching anywhere in current directory..."
           APP_PATH=$(find . -name "VividAI.app" -type d | head -1)
