@@ -113,10 +113,9 @@ jobs:
         echo "🔨 Starting xcodebuild build for iOS Device (FINAL SOLUTION)..."
         echo "📱 Building VividAI target explicitly..."
         
-        # Build with explicit target and comprehensive logging
+        # Build with scheme only (CRITICAL FIX: Cannot use both target and scheme)
         xcodebuild build \
           -project VividAI.xcodeproj \
-          -target VividAI \
           -scheme VividAI \
           -destination 'generic/platform=iOS' \
           -configuration Release \
