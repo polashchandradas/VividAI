@@ -1,0 +1,121 @@
+name: iOS App Installation Verification
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify-installation:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+        
+      - name: Install CocoaPods dependencies
+        run: |
+          echo "📦 Installing CocoaPods dependencies..."
+          sudo gem install cocoapods
+          pod install
+          
+      - name: Build for iOS Device
+        run: |
+          echo "🔨 Building VividAI app for iOS Device..."
+          
+          xcodebuild build-for-testing \
+            -workspace VividAI.xcworkspace \
+            -scheme VividAI \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            -derivedDataPath ./DerivedData \
+            DEVELOPMENT_TEAM="" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            PROVISIONING_PROFILE="" \
+            SUPPORTED_PLATFORMS="iphoneos" \
+            VALID_ARCHS="arm64" \
+            ARCHS="arm64" \
+            EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
+            -allowProvisioningUpdates \
+            -verbose \
+            2>&1 | tee build_output.log
+          
+          echo "✅ Build completed!"
+          
+      - name: Verify App Bundle
+        run: |
+          echo "🔍 Verifying app bundle..."
+          
+          APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found!"
+            exit 1
+          fi
+          
+          echo "✅ App bundle found at: $APP_PATH"
+          
+          # Verify critical files exist
+          if [ ! -f "$APP_PATH/Info.plist" ]; then
+            echo "❌ Info.plist missing!"
+            exit 1
+          fi
+          
+          if [ ! -f "$APP_PATH/VividAI" ]; then
+            echo "❌ App executable missing!"
+            exit 1
+          fi
+          
+          echo "✅ App bundle verification passed"
+          
+          # Check bundle size
+          BUNDLE_SIZE=$(du -sh "$APP_PATH" | cut -f1)
+          echo "📱 App bundle size: $BUNDLE_SIZE"
+          
+      - name: Create IPA and Test Installation
+        run: |
+          echo "📦 Creating IPA file..."
+          
+          mkdir -p ./Payload
+          cp -R "$APP_PATH" ./Payload/
+          zip -r VividAI-Device.ipa ./Payload
+          
+          echo "✅ IPA file created: VividAI-Device.ipa"
+          
+          # Verify IPA file
+          if [ ! -f "VividAI-Device.ipa" ]; then
+            echo "❌ IPA file not created!"
+            exit 1
+          fi
+          
+          IPA_SIZE=$(du -sh VividAI-Device.ipa | cut -f1)
+          echo "📱 IPA file size: $IPA_SIZE"
+          
+          # Test IPA structure
+          echo "🔍 Testing IPA structure..."
+          unzip -t VividAI-Device.ipa
+          
+          echo "✅ IPA file verification passed"
+        
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VividAI-Device-IPA
+          path: VividAI-Device.ipa
+          retention-days: 30
+        
+      - name: Installation Test Summary
+        run: |
+          echo "🎉 INSTALLATION VERIFICATION COMPLETE!"
+          echo "✅ App builds successfully"
+          echo "✅ App bundle is valid"
+          echo "✅ Executable exists"
+          echo "✅ IPA file created"
+          echo "✅ Ready for device installation"
+

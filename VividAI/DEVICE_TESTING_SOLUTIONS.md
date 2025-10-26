@@ -263,3 +263,4 @@ The **Kobiton integration** provides:
 Your VividAI app will be automatically tested on real iOS devices every time you push code, ensuring it installs correctly before users download it.
 
 **Status: ✅ READY TO IMPLEMENT**
+

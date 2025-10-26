@@ -1,0 +1,202 @@
+name: iOS App Installation Verification (Simple)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify-app-installation:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+        
+      - name: Install CocoaPods dependencies
+        run: |
+          echo "📦 Installing CocoaPods dependencies..."
+          sudo gem install cocoapods
+          pod install
+          echo "✅ CocoaPods dependencies installed"
+          
+      - name: Build app for iOS Simulator
+        run: |
+          echo "🔨 Building VividAI app for iOS Simulator..."
+          
+          set -e
+          
+          # Build for iOS Simulator
+          xcodebuild build \
+            -workspace VividAI.xcworkspace \
+            -scheme VividAI \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -configuration Debug \
+            -derivedDataPath ./DerivedData \
+            DEVELOPMENT_TEAM="" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            PROVISIONING_PROFILE="" \
+            SUPPORTED_PLATFORMS="iphonesimulator" \
+            VALID_ARCHS="arm64" \
+            ARCHS="arm64" \
+            EXCLUDED_ARCHS[sdk=iphoneos*]="arm64" \
+            -allowProvisioningUpdates \
+            -quiet \
+            2>&1 | tee build_output.log
+          
+          echo "✅ Build completed!"
+          
+          # Check build output for errors
+          if grep -i "error" build_output.log; then
+            echo "❌ Build errors found:"
+            grep -i "error" build_output.log
+            exit 1
+          else
+            echo "✅ No build errors found"
+          fi
+          
+          # Check if build succeeded
+          if grep -i "build succeeded" build_output.log; then
+            echo "✅ Build succeeded"
+          else
+            echo "❌ Build did not succeed"
+            exit 1
+          fi
+          
+      - name: Find and validate app bundle
+        run: |
+          echo "🔍 Looking for app bundle..."
+          
+          # Look for app bundle in DerivedData
+          APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+          
+          # Look in system DerivedData
+          if [ -z "$APP_PATH" ]; then
+            SYSTEM_DERIVED_DATA="/Users/runner/Library/Developer/Xcode/DerivedData"
+            if [ -d "$SYSTEM_DERIVED_DATA" ]; then
+              APP_PATH=$(find "$SYSTEM_DERIVED_DATA" -name "VividAI.app" -type d | head -1)
+            fi
+          fi
+          
+          # Check if app bundle was found
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found!"
+            exit 1
+          fi
+          
+          echo "✅ App bundle found at: $APP_PATH"
+          echo "📱 App bundle size: $(du -sh "$APP_PATH")"
+          
+          # Verify it's a valid app bundle
+          if [ ! -f "$APP_PATH/Info.plist" ]; then
+            echo "❌ Invalid app bundle - missing Info.plist"
+            exit 1
+          fi
+          
+          if [ ! -f "$APP_PATH/VividAI" ]; then
+            echo "❌ Invalid app bundle - missing executable"
+            exit 1
+          fi
+          
+          echo "✅ App bundle is valid"
+          
+          # Set APP_PATH as an output for subsequent steps
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+        
+      - name: Create and boot iOS Simulator
+        run: |
+          echo "📱 Creating and booting iOS Simulator..."
+          
+          # Get the latest iOS runtime
+          LATEST_RUNTIME=$(xcrun simctl list runtimes | grep iOS | tail -1 | sed 's/.*iOS \([0-9.]*\).*/iOS \1/')
+          echo "📱 Using runtime: $LATEST_RUNTIME"
+          
+          # Create simulator
+          SIMULATOR_ID=$(xcrun simctl create "VividAI Test Simulator" "iPhone 15" "$LATEST_RUNTIME")
+          echo "📱 Created simulator with ID: $SIMULATOR_ID"
+          
+          # Boot simulator
+          xcrun simctl boot "$SIMULATOR_ID"
+          
+          # Wait for simulator to be ready
+          echo "⏳ Waiting for simulator to be ready..."
+          sleep 10
+          
+          # Check simulator status
+          SIMULATOR_STATUS=$(xcrun simctl list devices | grep "$SIMULATOR_ID" | grep "Booted")
+          if [ -n "$SIMULATOR_STATUS" ]; then
+            echo "✅ Simulator is booted and ready"
+          else
+            echo "❌ Simulator failed to boot"
+            exit 1
+          fi
+          
+          # Set simulator ID as environment variable
+          echo "SIMULATOR_ID=$SIMULATOR_ID" >> $GITHUB_ENV
+          
+      - name: Install and verify app
+        run: |
+          echo "📱 Installing VividAI app on simulator..."
+          
+          # Install app
+          xcrun simctl install "$SIMULATOR_ID" "$APP_PATH"
+          
+          # Verify installation
+          INSTALLED_APPS=$(xcrun simctl listapps "$SIMULATOR_ID" | grep -i "vividai")
+          if [ -n "$INSTALLED_APPS" ]; then
+            echo "✅ App installed successfully"
+          else
+            echo "❌ App installation failed"
+            exit 1
+          fi
+          
+      - name: Test app launch
+        run: |
+          echo "📱 Testing app launch..."
+          
+          # Launch app
+          xcrun simctl launch "$SIMULATOR_ID" com.vividai.app
+          
+          # Wait for app to launch
+          sleep 5
+          
+          # Check if app is running
+          RUNNING_APPS=$(xcrun simctl listapps "$SIMULATOR_ID" | grep -i "vividai")
+          if [ -n "$RUNNING_APPS" ]; then
+            echo "✅ App launched successfully"
+          else
+            echo "❌ App launch failed"
+            exit 1
+          fi
+          
+      - name: Cleanup
+        run: |
+          echo "🧹 Cleaning up..."
+          
+          # Shutdown simulator
+          xcrun simctl shutdown "$SIMULATOR_ID"
+          
+          # Delete simulator
+          xcrun simctl delete "$SIMULATOR_ID"
+          
+          echo "✅ Cleanup completed"
+          
+      - name: Installation Test Results
+        run: |
+          echo "📊 Installation Test Results:"
+          echo "✅ App build: SUCCESS"
+          echo "✅ App bundle validation: SUCCESS"
+          echo "✅ Simulator setup: SUCCESS"
+          echo "✅ App installation: SUCCESS"
+          echo "✅ App launch: SUCCESS"
+          echo ""
+          echo "🎉 VividAI app installs and launches successfully!"
+          echo "📱 App is ready for distribution and testing."

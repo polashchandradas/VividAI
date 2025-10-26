@@ -1,0 +1,170 @@
+name: iOS App Testing & Installation Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+        
+      - name: Install CocoaPods dependencies
+        run: |
+          echo "📦 Installing CocoaPods dependencies..."
+          sudo gem install cocoapods
+          pod install
+          echo "✅ CocoaPods dependencies installed"
+          
+      - name: Clean environment
+        run: |
+          echo "🧹 Cleaning build environment..."
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf ./DerivedData
+          rm -rf ./build
+          rm -rf ./archive
+          
+      - name: Build for iOS Device
+        run: |
+          echo "🔨 Building VividAI app for iOS Device..."
+          
+          set -e
+          
+          xcodebuild build-for-testing \
+            -workspace VividAI.xcworkspace \
+            -scheme VividAI \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            -derivedDataPath ./DerivedData \
+            DEVELOPMENT_TEAM="" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            PROVISIONING_PROFILE="" \
+            SUPPORTED_PLATFORMS="iphoneos" \
+            VALID_ARCHS="arm64" \
+            ARCHS="arm64" \
+            EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
+            -allowProvisioningUpdates \
+            -verbose \
+            2>&1 | tee build_output.log
+          
+          echo "✅ Build completed!"
+          
+      - name: Find and Verify App Bundle
+        run: |
+          echo "🔍 Looking for app bundle..."
+          
+          APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found!"
+            exit 1
+          fi
+          
+          echo "✅ App bundle found at: $APP_PATH"
+          echo "📱 App bundle size: $(du -sh "$APP_PATH")"
+          
+          # Verify app bundle contents
+          echo "📱 App bundle contents:"
+          ls -la "$APP_PATH"
+          
+          # Verify executable exists
+          if [ ! -f "$APP_PATH/VividAI" ]; then
+            echo "❌ App executable not found!"
+            exit 1
+          fi
+          
+          echo "✅ App executable found"
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+        
+      - name: Create IPA file
+        run: |
+          echo "📦 Creating IPA file..."
+          
+          mkdir -p ./Payload
+          cp -R "$APP_PATH" ./Payload/
+          zip -r VividAI-Device.ipa ./Payload
+          
+          echo "✅ IPA file created: VividAI-Device.ipa"
+          echo "📱 IPA file size: $(du -sh VividAI-Device.ipa)"
+        
+      - name: Upload to Kobiton for Testing
+        if: env.KOBITON_USERNAME != ''
+        env:
+          KOBITON_USERNAME: ${{ secrets.KOBITON_USERNAME }}
+          KOBITON_API_KEY: ${{ secrets.KOBITON_API_KEY }}
+        run: |
+          echo "📱 Uploading to Kobiton for device testing..."
+          
+          curl -u "$KOBITON_USERNAME:$KOBITON_API_KEY" \
+            -X POST "https://api.kobiton.com/v1/apps" \
+            -F "app=@VividAI-Device.ipa" \
+            -F "appName=VividAI" \
+            -F "appVersion=1.0" \
+            -F "appDescription=AI Photo/Avatar Generation App" \
+            -o kobiton_response.json
+          
+          echo "✅ Upload to Kobiton completed"
+          cat kobiton_response.json
+        
+      - name: Run Tests on Kobiton Devices
+        if: env.KOBITON_USERNAME != ''
+        env:
+          KOBITON_USERNAME: ${{ secrets.KOBITON_USERNAME }}
+          KOBITON_API_KEY: ${{ secrets.KOBITON_API_KEY }}
+        run: |
+          echo "🧪 Running installation tests on Kobiton devices..."
+          
+          # Get app ID from previous response
+          APP_ID=$(cat kobiton_response.json | grep -o '"id":[0-9]*' | cut -d':' -f2)
+          
+          if [ -z "$APP_ID" ]; then
+            echo "❌ Could not get app ID from Kobiton response"
+            exit 1
+          fi
+          
+          echo "📱 App ID: $APP_ID"
+          
+          # Start test session
+          curl -u "$KOBITON_USERNAME:$KOBITON_API_KEY" \
+            -X POST "https://api.kobiton.com/v1/sessions" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "configuration": {
+                "app": "'$APP_ID'",
+                "deviceName": "iPhone 13",
+                "platformName": "iOS",
+                "platformVersion": "15.0"
+              }
+            }' \
+            -o session_response.json
+          
+          echo "✅ Test session started"
+          cat session_response.json
+        
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VividAI-Device-IPA
+          path: VividAI-Device.ipa
+          retention-days: 30
+        
+      - name: Cleanup
+        run: |
+          echo "🧹 Cleaning up..."
+          rm -rf ./Payload
+          rm -rf ./DerivedData
+          rm -rf ./build
+          rm -rf ./archive
+
