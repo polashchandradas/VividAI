@@ -7,298 +7,395 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1234567890ABCDEF001 /* VividAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF000 /* VividAIApp.swift */; };
-		A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* ContentView.swift */; };
-		A1234567890ABCDEF005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* Assets.xcassets */; };
-		A1234567890ABCDEF008 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF007 /* Preview Assets.xcassets */; };
-		A1234567890ABCDEF010 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF009 /* SplashScreenView.swift */; };
-		A1234567890ABCDEF012 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF011 /* HomeView.swift */; };
-		A1234567890ABCDEF014 /* PhotoUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF013 /* PhotoUploadView.swift */; };
-		A1234567890ABCDEF016 /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF015 /* ProcessingView.swift */; };
-		A1234567890ABCDEF018 /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF017 /* ResultsView.swift */; };
-		A1234567890ABCDEF020 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF019 /* PaywallView.swift */; };
-		A1234567890ABCDEF022 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF021 /* ShareView.swift */; };
-		A1234567890ABCDEF024 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF023 /* SettingsView.swift */; };
-		A1234567890ABCDEF026 /* AIHeadshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF025 /* AIHeadshotService.swift */; };
-		A1234567890ABCDEF028 /* BackgroundRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF027 /* BackgroundRemovalService.swift */; };
-		A1234567890ABCDEF030 /* PhotoEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF029 /* PhotoEnhancementService.swift */; };
-		A1234567890ABCDEF032 /* VideoGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF031 /* VideoGenerationService.swift */; };
-		A1234567890ABCDEF034 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF033 /* SubscriptionManager.swift */; };
-		A1234567890ABCDEF036 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF035 /* WatermarkService.swift */; };
-		A1234567890ABCDEF038 /* ReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF037 /* ReferralService.swift */; };
-		A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF039 /* AnalyticsService.swift */; };
-		A1234567890ABCDEF047 /* UnifiedAppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF048 /* UnifiedAppStateManager.swift */; };
-		A1234567890ABCDEF049 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF050 /* DesignSystem.swift */; };
-		A1234567890ABCDEF051 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF052 /* ServiceContainer.swift */; };
-		A1234567890ABCDEF053 /* ConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF054 /* ConfigurationService.swift */; };
-		A1234567890ABCDEF055 /* RealTimeGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF056 /* RealTimeGenerationService.swift */; };
-		A1234567890ABCDEF123 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF124 /* AuthenticationService.swift */; };
-		A1234567890ABCDEF111 /* FirebaseConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF112 /* FirebaseConfigurationService.swift */; };
-		A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */; };
-		A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF064 /* FirebaseValidationService.swift */; };
-		A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF066 /* ServerValidationService.swift */; };
-		A1234567890ABCDEF113 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF114 /* SecureStorageService.swift */; };
-		A1234567890ABCDEF115 /* HybridProcessingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF116 /* HybridProcessingService.swift */; };
-		A1234567890ABCDEF119 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF120 /* NavigationCoordinator.swift */; };
-		A1234567890ABCDEF121 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF122 /* AppCoordinator.swift */; };
-		A1234567890ABCDEF117 /* StyleExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF118 /* StyleExample.swift */; };
-		A1234567890ABCDEF125 /* SubscriptionStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF126 /* SubscriptionStateManager.swift */; };
-		A1234567890ABCDEF109 /* UsageLimitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF108 /* UsageLimitService.swift */; };
-		A1234567890ABCDEF081 /* FreeTrialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF082 /* FreeTrialService.swift */; };
-		A1234567890ABCDEF083 /* ErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF084 /* ErrorHandlingService.swift */; };
-		A1234567890ABCDEF085 /* LoggingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF086 /* LoggingService.swift */; };
-		A1234567890ABCDEF087 /* SecurityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF088 /* SecurityService.swift */; };
-		A1234567890ABCDEF089 /* ImageQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF090 /* ImageQuality.swift */; };
-		A1234567890ABCDEF091 /* ImageQualityAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF092 /* ImageQualityAnalysis.swift */; };
-		A1234567890ABCDEF093 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF094 /* Product.swift */; };
-		A1234567890ABCDEF095 /* RealTimePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF096 /* RealTimePreviewView.swift */; };
-		A1234567890ABCDEF097 /* QualitySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF098 /* QualitySelectionView.swift */; };
-		A1234567890ABCDEF099 /* StyleExamplesGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF100 /* StyleExamplesGalleryView.swift */; };
-		A1234567890ABCDEF101 /* StyleExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF102 /* StyleExampleView.swift */; };
-		A1234567890ABCDEF103 /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF104 /* MainAppView.swift */; };
-		A1234567890ABCDEF105 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF106 /* AuthenticationView.swift */; };
-		A1234567890ABCDEF130 /* FastViTT8F16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF127 /* FastViTT8F16.mlpackage */; };
-		A1234567890ABCDEF131 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF128 /* DETRResnet50SemanticSegmentationF16.mlpackage */; };
-		A1234567890ABCDEF132 /* DepthAnythingV2SmallF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF129 /* DepthAnythingV2SmallF16.mlpackage */; };
+		1A0000012A00000000000001 /* VividAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000002A00000000000001 /* VividAIApp.swift */; };
+		1A0000032A00000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000022A00000000000001 /* ContentView.swift */; };
+		1A0000052A00000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000042A00000000000001 /* Assets.xcassets */; };
+		1A0000082A00000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000072A00000000000001 /* Preview Assets.xcassets */; };
+		1A00000A2A00000000000001 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000092A00000000000001 /* Info.plist */; };
+		1A00000B2A00000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000C2A00000000000001 /* GoogleService-Info.plist */; };
+		1A00000D2A00000000000001 /* VividAI.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000E2A00000000000001 /* VividAI.entitlements */; };
+		1A00000F2A00000000000001 /* FastViTT8F16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000102A00000000000001 /* FastViTT8F16.mlpackage */; };
+		1A0000112A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000122A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage */; };
+		1A0000132A00000000000001 /* DepthAnythingV2SmallF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000142A00000000000001 /* DepthAnythingV2SmallF16.mlpackage */; };
+		
+		/* Views */
+		1A0000152A00000000000001 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000162A00000000000001 /* AuthenticationView.swift */; };
+		1A0000172A00000000000001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000182A00000000000001 /* HomeView.swift */; };
+		1A0000192A00000000000001 /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00001A2A00000000000001 /* MainAppView.swift */; };
+		1A00001B2A00000000000001 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00001C2A00000000000001 /* PaywallView.swift */; };
+		1A00001D2A00000000000001 /* PhotoUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00001E2A00000000000001 /* PhotoUploadView.swift */; };
+		1A00001F2A00000000000001 /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000202A00000000000001 /* ProcessingView.swift */; };
+		1A0000212A00000000000001 /* QualitySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000222A00000000000001 /* QualitySelectionView.swift */; };
+		1A0000232A00000000000001 /* RealTimePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000242A00000000000001 /* RealTimePreviewView.swift */; };
+		1A0000252A00000000000001 /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000262A00000000000001 /* ResultsView.swift */; };
+		1A0000272A00000000000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000282A00000000000001 /* SettingsView.swift */; };
+		1A0000292A00000000000001 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00002A2A00000000000001 /* ShareView.swift */; };
+		1A00002B2A00000000000001 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00002C2A00000000000001 /* SplashScreenView.swift */; };
+		1A00002D2A00000000000001 /* StyleExamplesGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00002E2A00000000000001 /* StyleExamplesGalleryView.swift */; };
+		1A00002F2A00000000000001 /* StyleExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000302A00000000000001 /* StyleExampleView.swift */; };
+		
+		/* Services */
+		1A0000312A00000000000001 /* AIHeadshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000322A00000000000001 /* AIHeadshotService.swift */; };
+		1A0000332A00000000000001 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000342A00000000000001 /* AnalyticsService.swift */; };
+		1A0000352A00000000000001 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000362A00000000000001 /* AuthenticationService.swift */; };
+		1A0000372A00000000000001 /* BackgroundRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000382A00000000000001 /* BackgroundRemovalService.swift */; };
+		1A0000392A00000000000001 /* ConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00003A2A00000000000001 /* ConfigurationService.swift */; };
+		1A00003B2A00000000000001 /* ErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00003C2A00000000000001 /* ErrorHandlingService.swift */; };
+		1A00003D2A00000000000001 /* FirebaseAppCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00003E2A00000000000001 /* FirebaseAppCheckService.swift */; };
+		1A00003F2A00000000000001 /* FirebaseConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000402A00000000000001 /* FirebaseConfigurationService.swift */; };
+		1A0000412A00000000000001 /* FirebaseValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000422A00000000000001 /* FirebaseValidationService.swift */; };
+		1A0000432A00000000000001 /* HybridProcessingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000442A00000000000001 /* HybridProcessingService.swift */; };
+		1A0000452A00000000000001 /* LoggingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000462A00000000000001 /* LoggingService.swift */; };
+		1A0000472A00000000000001 /* PhotoEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000482A00000000000001 /* PhotoEnhancementService.swift */; };
+		1A0000492A00000000000001 /* PhotoValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00004A2A00000000000001 /* PhotoValidationService.swift */; };
+		1A00004B2A00000000000001 /* RealTimeGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00004C2A00000000000001 /* RealTimeGenerationService.swift */; };
+		1A00004D2A00000000000001 /* ReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00004E2A00000000000001 /* ReferralService.swift */; };
+		1A00004F2A00000000000001 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000502A00000000000001 /* SecureStorageService.swift */; };
+		1A0000512A00000000000001 /* SecurityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000522A00000000000001 /* SecurityService.swift */; };
+		1A0000532A00000000000001 /* ServerValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000542A00000000000001 /* ServerValidationService.swift */; };
+		1A0000552A00000000000001 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000562A00000000000001 /* ServiceContainer.swift */; };
+		1A0000572A00000000000001 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000582A00000000000001 /* SubscriptionManager.swift */; };
+		1A0000592A00000000000001 /* SubscriptionStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00005A2A00000000000001 /* SubscriptionStateManager.swift */; };
+		1A00005B2A00000000000001 /* VideoGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00005C2A00000000000001 /* VideoGenerationService.swift */; };
+		1A00005D2A00000000000001 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00005E2A00000000000001 /* WatermarkService.swift */; };
+		1A0000902A00000000000001 /* FreeTrialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000912A00000000000001 /* FreeTrialService.swift */; };
+		1A0000922A00000000000001 /* UsageLimitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000932A00000000000001 /* UsageLimitService.swift */; };
+		
+		/* Coordinators */
+		1A00005F2A00000000000001 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000602A00000000000001 /* AppCoordinator.swift */; };
+		1A0000612A00000000000001 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000622A00000000000001 /* NavigationCoordinator.swift */; };
+		
+		/* Models */
+		1A0000652A00000000000001 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000662A00000000000001 /* Product.swift */; };
+		1A0000672A00000000000001 /* StyleExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000682A00000000000001 /* StyleExample.swift */; };
+		1A00006B2A00000000000001 /* UnifiedAppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00006C2A00000000000001 /* UnifiedAppStateManager.swift */; };
+		1A00008C2A00000000000001 /* ImageQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00008D2A00000000000001 /* ImageQuality.swift */; };
+		1A00008E2A00000000000001 /* ImageQualityAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00008F2A00000000000001 /* ImageQualityAnalysis.swift */; };
+		
+		/* Design System */
+		1A00006D2A00000000000001 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00006E2A00000000000001 /* DesignSystem.swift */; };
+		
+		/* Extensions */
+		1A00006F2A00000000000001 /* View+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000702A00000000000001 /* View+ErrorHandling.swift */; };
+		
+		/* Pods */
+		1A0000712A00000000000001 /* Pods_VividAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000722A00000000000001 /* Pods_VividAI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1234567890ABCDEF000 /* VividAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VividAIApp.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A1234567890ABCDEF007 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		A1234567890ABCDEF009 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF011 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF013 /* PhotoUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF015 /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF017 /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF021 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF023 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF025 /* AIHeadshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIHeadshotService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF027 /* BackgroundRemovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRemovalService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF029 /* PhotoEnhancementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEnhancementService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF031 /* VideoGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoGenerationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF033 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF035 /* WatermarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF037 /* ReferralService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF039 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DepthAnythingV2SmallF16.mlpackage; sourceTree = "<group>"; };
-		A1234567890ABCDEF057 /* VividAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VividAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1234567890ABCDEF058 /* VividAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VividAI.entitlements; sourceTree = "<group>"; };
-		A1234567890ABCDEF059 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		A1234567890ABCDEF080 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1234567890ABCDEF048 /* UnifiedAppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedAppStateManager.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF050 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF052 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF054 /* ConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF056 /* RealTimeGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimeGenerationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF124 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF112 /* FirebaseConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConfigurationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppCheckService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF064 /* FirebaseValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseValidationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF066 /* ServerValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerValidationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF114 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF116 /* HybridProcessingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridProcessingService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF120 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF122 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF118 /* StyleExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExample.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF126 /* SubscriptionStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStateManager.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF108 /* UsageLimitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLimitService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF082 /* FreeTrialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTrialService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF084 /* ErrorHandlingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF086 /* LoggingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF088 /* SecurityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF090 /* ImageQuality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQuality.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF092 /* ImageQualityAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQualityAnalysis.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF094 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF096 /* RealTimePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimePreviewView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF098 /* QualitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualitySelectionView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF100 /* StyleExamplesGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExamplesGalleryView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF102 /* StyleExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExampleView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF104 /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF106 /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF127 /* FastViTT8F16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = FastViTT8F16.mlpackage; sourceTree = "<group>"; };
-		A1234567890ABCDEF128 /* DETRResnet50SemanticSegmentationF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DETRResnet50SemanticSegmentationF16.mlpackage; sourceTree = "<group>"; };
-		A1234567890ABCDEF129 /* DepthAnythingV2SmallF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DepthAnythingV2SmallF16.mlpackage; sourceTree = "<group>"; };
+		1A0000002A00000000000001 /* VividAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VividAIApp.swift; sourceTree = "<group>"; };
+		1A0000022A00000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1A0000042A00000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1A0000072A00000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1A0000092A00000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A00000C2A00000000000001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1A00000E2A00000000000001 /* VividAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VividAI.entitlements; sourceTree = "<group>"; };
+		1A0000102A00000000000001 /* FastViTT8F16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = FastViTT8F16.mlpackage; sourceTree = "<group>"; };
+		1A0000122A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DETRResnet50SemanticSegmentationF16.mlpackage; sourceTree = "<group>"; };
+		1A0000142A00000000000001 /* DepthAnythingV2SmallF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DepthAnythingV2SmallF16.mlpackage; sourceTree = "<group>"; };
+		
+		/* Views */
+		1A0000162A00000000000001 /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
+		1A0000182A00000000000001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1A00001A2A00000000000001 /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
+		1A00001C2A00000000000001 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		1A00001E2A00000000000001 /* PhotoUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadView.swift; sourceTree = "<group>"; };
+		1A0000202A00000000000001 /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
+		1A0000222A00000000000001 /* QualitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualitySelectionView.swift; sourceTree = "<group>"; };
+		1A0000242A00000000000001 /* RealTimePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimePreviewView.swift; sourceTree = "<group>"; };
+		1A0000262A00000000000001 /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
+		1A0000282A00000000000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1A00002A2A00000000000001 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
+		1A00002C2A00000000000001 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		1A00002E2A00000000000001 /* StyleExamplesGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExamplesGalleryView.swift; sourceTree = "<group>"; };
+		1A0000302A00000000000001 /* StyleExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExampleView.swift; sourceTree = "<group>"; };
+		
+		/* Services */
+		1A0000322A00000000000001 /* AIHeadshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIHeadshotService.swift; sourceTree = "<group>"; };
+		1A0000342A00000000000001 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		1A0000362A00000000000001 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		1A0000382A00000000000001 /* BackgroundRemovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRemovalService.swift; sourceTree = "<group>"; };
+		1A00003A2A00000000000001 /* ConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationService.swift; sourceTree = "<group>"; };
+		1A00003C2A00000000000001 /* ErrorHandlingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingService.swift; sourceTree = "<group>"; };
+		1A00003E2A00000000000001 /* FirebaseAppCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppCheckService.swift; sourceTree = "<group>"; };
+		1A0000402A00000000000001 /* FirebaseConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConfigurationService.swift; sourceTree = "<group>"; };
+		1A0000422A00000000000001 /* FirebaseValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseValidationService.swift; sourceTree = "<group>"; };
+		1A0000442A00000000000001 /* HybridProcessingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridProcessingService.swift; sourceTree = "<group>"; };
+		1A0000462A00000000000001 /* LoggingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingService.swift; sourceTree = "<group>"; };
+		1A0000482A00000000000001 /* PhotoEnhancementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEnhancementService.swift; sourceTree = "<group>"; };
+		1A00004A2A00000000000001 /* PhotoValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoValidationService.swift; sourceTree = "<group>"; };
+		1A00004C2A00000000000001 /* RealTimeGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimeGenerationService.swift; sourceTree = "<group>"; };
+		1A00004E2A00000000000001 /* ReferralService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralService.swift; sourceTree = "<group>"; };
+		1A0000502A00000000000001 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
+		1A0000522A00000000000001 /* SecurityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityService.swift; sourceTree = "<group>"; };
+		1A0000542A00000000000001 /* ServerValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerValidationService.swift; sourceTree = "<group>"; };
+		1A0000562A00000000000001 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
+		1A0000582A00000000000001 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		1A00005A2A00000000000001 /* SubscriptionStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStateManager.swift; sourceTree = "<group>"; };
+		1A00005C2A00000000000001 /* VideoGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoGenerationService.swift; sourceTree = "<group>"; };
+		1A00005E2A00000000000001 /* WatermarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkService.swift; sourceTree = "<group>"; };
+		1A0000912A00000000000001 /* FreeTrialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTrialService.swift; sourceTree = "<group>"; };
+		1A0000932A00000000000001 /* UsageLimitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLimitService.swift; sourceTree = "<group>"; };
+		
+		/* Coordinators */
+		1A0000602A00000000000001 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		1A0000622A00000000000001 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
+		
+		/* Models */
+		1A0000642A00000000000001 /* AvatarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarStyle.swift; sourceTree = "<group>"; };
+		1A0000662A00000000000001 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		1A0000682A00000000000001 /* StyleExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExample.swift; sourceTree = "<group>"; };
+		1A00006A2A00000000000001 /* StyleExampleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExampleManager.swift; sourceTree = "<group>"; };
+		1A00006C2A00000000000001 /* UnifiedAppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedAppStateManager.swift; sourceTree = "<group>"; };
+		
+		/* Design System */
+		1A00006E2A00000000000001 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		
+		/* Extensions */
+		1A0000702A00000000000001 /* View+ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ErrorHandling.swift"; sourceTree = "<group>"; };
+		
+		/* Pods */
+		1A0000722A00000000000001 /* Pods_VividAI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VividAI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		
+		/* Project */
+		1A0000732A00000000000001 /* VividAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VividAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A0000742A00000000000001 /* VividAI.xcodeproj */ = {isa = PBXFileReference; explicitFileType = wrapper.pb-project; name = VividAI.xcodeproj; path = VividAI.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A1234567890ABCDEF060 /* Frameworks */ = {
+		1A0000752A00000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A0000712A00000000000001 /* Pods_VividAI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A1234567890ABCDEF061 = {
+		1A0000762A00000000000001 = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF062 /* VividAI */,
-				A1234567890ABCDEF063 /* Products */,
+				1A0000772A00000000000001 /* VividAI */,
+				1A0000782A00000000000001 /* Products */,
+				1A0000792A00000000000001 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF062 /* VividAI */ = {
+		1A0000772A00000000000001 /* VividAI */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF000 /* VividAIApp.swift */,
-				A1234567890ABCDEF002 /* ContentView.swift */,
-				A1234567890ABCDEF064 /* Views */,
-				A1234567890ABCDEF065 /* Services */,
-				A1234567890ABCDEF077 /* Models */,
-				A1234567890ABCDEF110 /* Coordinators */,
-				A1234567890ABCDEF050 /* DesignSystem.swift */,
-				A1234567890ABCDEF004 /* Assets.xcassets */,
-				A1234567890ABCDEF058 /* VividAI.entitlements */,
-				A1234567890ABCDEF059 /* GoogleService-Info.plist */,
-				A1234567890ABCDEF080 /* Info.plist */,
-				A1234567890ABCDEF066 /* Preview Content */,
+				1A00007A2A00000000000001 /* VividAIApp.swift */,
+				1A00007B2A00000000000001 /* ContentView.swift */,
+				1A00007C2A00000000000001 /* Views */,
+				1A00007D2A00000000000001 /* Services */,
+				1A00007E2A00000000000001 /* Coordinators */,
+				1A00007F2A00000000000001 /* Models */,
+				1A0000802A00000000000001 /* DesignSystem */,
+				1A0000812A00000000000001 /* Extensions */,
+				1A0000822A00000000000001 /* Resources */,
+				1A0000832A00000000000001 /* Assets.xcassets */,
+				1A0000842A00000000000001 /* Preview Content */,
 			);
 			path = VividAI;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF063 /* Products */ = {
+		1A0000782A00000000000001 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF057 /* VividAI.app */,
+				1A0000732A00000000000001 /* VividAI.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF064 /* Views */ = {
+		1A0000792A00000000000001 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF009 /* SplashScreenView.swift */,
-				A1234567890ABCDEF011 /* HomeView.swift */,
-				A1234567890ABCDEF013 /* PhotoUploadView.swift */,
-				A1234567890ABCDEF015 /* ProcessingView.swift */,
-				A1234567890ABCDEF017 /* ResultsView.swift */,
-				A1234567890ABCDEF019 /* PaywallView.swift */,
-				A1234567890ABCDEF021 /* ShareView.swift */,
-				A1234567890ABCDEF023 /* SettingsView.swift */,
-				A1234567890ABCDEF096 /* RealTimePreviewView.swift */,
-				A1234567890ABCDEF098 /* QualitySelectionView.swift */,
-				A1234567890ABCDEF100 /* StyleExamplesGalleryView.swift */,
-				A1234567890ABCDEF102 /* StyleExampleView.swift */,
-				A1234567890ABCDEF104 /* MainAppView.swift */,
-				A1234567890ABCDEF106 /* AuthenticationView.swift */,
+				1A0000722A00000000000001 /* Pods_VividAI.framework */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		1A00007A2A00000000000001 /* VividAIApp.swift */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000002A00000000000001 /* VividAIApp.swift */,
+			);
+			path = ".";
+			sourceTree = "<group>";
+		};
+		1A00007B2A00000000000001 /* ContentView.swift */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000022A00000000000001 /* ContentView.swift */,
+			);
+			path = ".";
+			sourceTree = "<group>";
+		};
+		1A00007C2A00000000000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000162A00000000000001 /* AuthenticationView.swift */,
+				1A0000182A00000000000001 /* HomeView.swift */,
+				1A00001A2A00000000000001 /* MainAppView.swift */,
+				1A00001C2A00000000000001 /* PaywallView.swift */,
+				1A00001E2A00000000000001 /* PhotoUploadView.swift */,
+				1A0000202A00000000000001 /* ProcessingView.swift */,
+				1A0000222A00000000000001 /* QualitySelectionView.swift */,
+				1A0000242A00000000000001 /* RealTimePreviewView.swift */,
+				1A0000262A00000000000001 /* ResultsView.swift */,
+				1A0000282A00000000000001 /* SettingsView.swift */,
+				1A00002A2A00000000000001 /* ShareView.swift */,
+				1A00002C2A00000000000001 /* SplashScreenView.swift */,
+				1A00002E2A00000000000001 /* StyleExamplesGalleryView.swift */,
+				1A0000302A00000000000001 /* StyleExampleView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF065 /* Services */ = {
+		1A00007D2A00000000000001 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF025 /* AIHeadshotService.swift */,
-				A1234567890ABCDEF027 /* BackgroundRemovalService.swift */,
-				A1234567890ABCDEF029 /* PhotoEnhancementService.swift */,
-				A1234567890ABCDEF031 /* VideoGenerationService.swift */,
-				A1234567890ABCDEF033 /* SubscriptionManager.swift */,
-				A1234567890ABCDEF035 /* WatermarkService.swift */,
-				A1234567890ABCDEF037 /* ReferralService.swift */,
-				A1234567890ABCDEF039 /* AnalyticsService.swift */,
-				A1234567890ABCDEF048 /* UnifiedAppStateManager.swift */,
-				A1234567890ABCDEF052 /* ServiceContainer.swift */,
-				A1234567890ABCDEF054 /* ConfigurationService.swift */,
-				A1234567890ABCDEF056 /* RealTimeGenerationService.swift */,
-				A1234567890ABCDEF124 /* AuthenticationService.swift */,
-				A1234567890ABCDEF112 /* FirebaseConfigurationService.swift */,
-				A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */,
-				A1234567890ABCDEF064 /* FirebaseValidationService.swift */,
-				A1234567890ABCDEF066 /* ServerValidationService.swift */,
-				A1234567890ABCDEF114 /* SecureStorageService.swift */,
-				A1234567890ABCDEF116 /* HybridProcessingService.swift */,
-				A1234567890ABCDEF126 /* SubscriptionStateManager.swift */,
-				A1234567890ABCDEF108 /* UsageLimitService.swift */,
-				A1234567890ABCDEF082 /* FreeTrialService.swift */,
-				A1234567890ABCDEF084 /* ErrorHandlingService.swift */,
-				A1234567890ABCDEF086 /* LoggingService.swift */,
-				A1234567890ABCDEF088 /* SecurityService.swift */,
+				1A0000322A00000000000001 /* AIHeadshotService.swift */,
+				1A0000342A00000000000001 /* AnalyticsService.swift */,
+				1A0000362A00000000000001 /* AuthenticationService.swift */,
+				1A0000382A00000000000001 /* BackgroundRemovalService.swift */,
+				1A00003A2A00000000000001 /* ConfigurationService.swift */,
+				1A00003C2A00000000000001 /* ErrorHandlingService.swift */,
+				1A00003E2A00000000000001 /* FirebaseAppCheckService.swift */,
+				1A0000402A00000000000001 /* FirebaseConfigurationService.swift */,
+				1A0000422A00000000000001 /* FirebaseValidationService.swift */,
+				1A0000442A00000000000001 /* HybridProcessingService.swift */,
+				1A0000462A00000000000001 /* LoggingService.swift */,
+				1A0000482A00000000000001 /* PhotoEnhancementService.swift */,
+				1A00004A2A00000000000001 /* PhotoValidationService.swift */,
+				1A00004C2A00000000000001 /* RealTimeGenerationService.swift */,
+				1A00004E2A00000000000001 /* ReferralService.swift */,
+				1A0000502A00000000000001 /* SecureStorageService.swift */,
+				1A0000522A00000000000001 /* SecurityService.swift */,
+				1A0000542A00000000000001 /* ServerValidationService.swift */,
+				1A0000562A00000000000001 /* ServiceContainer.swift */,
+				1A0000582A00000000000001 /* SubscriptionManager.swift */,
+				1A00005A2A00000000000001 /* SubscriptionStateManager.swift */,
+				1A00005C2A00000000000001 /* VideoGenerationService.swift */,
+				1A00005E2A00000000000001 /* WatermarkService.swift */,
+				1A0000912A00000000000001 /* FreeTrialService.swift */,
+				1A0000932A00000000000001 /* UsageLimitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF077 /* Models */ = {
+		1A00007E2A00000000000001 /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF078 /* OnDevice */,
-				A1234567890ABCDEF118 /* StyleExample.swift */,
-				A1234567890ABCDEF090 /* ImageQuality.swift */,
-				A1234567890ABCDEF092 /* ImageQualityAnalysis.swift */,
-				A1234567890ABCDEF094 /* Product.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		A1234567890ABCDEF078 /* OnDevice */ = {
-			isa = PBXGroup;
-			children = (
-				A1234567890ABCDEF127 /* FastViTT8F16.mlpackage */,
-				A1234567890ABCDEF128 /* DETRResnet50SemanticSegmentationF16.mlpackage */,
-				A1234567890ABCDEF129 /* DepthAnythingV2SmallF16.mlpackage */,
-			);
-			path = OnDevice;
-			sourceTree = "<group>";
-		};
-		A1234567890ABCDEF110 /* Coordinators */ = {
-			isa = PBXGroup;
-			children = (
-				A1234567890ABCDEF120 /* NavigationCoordinator.swift */,
-				A1234567890ABCDEF122 /* AppCoordinator.swift */,
+				1A0000602A00000000000001 /* AppCoordinator.swift */,
+				1A0000622A00000000000001 /* NavigationCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF066 /* Preview Content */ = {
+		1A00007F2A00000000000001 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF007 /* Preview Assets.xcassets */,
+				1A0000642A00000000000001 /* AvatarStyle.swift */,
+				1A0000662A00000000000001 /* Product.swift */,
+				1A0000682A00000000000001 /* StyleExample.swift */,
+				1A00006A2A00000000000001 /* StyleExampleManager.swift */,
+				1A00006C2A00000000000001 /* UnifiedAppStateManager.swift */,
+				1A0000852A00000000000001 /* OnDevice */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1A0000802A00000000000001 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				1A00006E2A00000000000001 /* DesignSystem.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		1A0000812A00000000000001 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000702A00000000000001 /* View+ErrorHandling.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		1A0000822A00000000000001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000092A00000000000001 /* Info.plist */,
+				1A00000C2A00000000000001 /* GoogleService-Info.plist */,
+				1A00000E2A00000000000001 /* VividAI.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		1A0000832A00000000000001 /* Assets.xcassets */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000042A00000000000001 /* Assets.xcassets */,
+			);
+			path = ".";
+			sourceTree = "<group>";
+		};
+		1A0000842A00000000000001 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000072A00000000000001 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1A0000852A00000000000001 /* OnDevice */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000102A00000000000001 /* FastViTT8F16.mlpackage */,
+				1A0000122A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage */,
+				1A0000142A00000000000001 /* DepthAnythingV2SmallF16.mlpackage */,
+			);
+			path = OnDevice;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1234567890ABCDEF067 /* VividAI */ = {
+		1A0000862A00000000000001 /* VividAI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1234567890ABCDEF068 /* Build configuration list for PBXNativeTarget "VividAI" */;
+			buildConfigurationList = 1A0000872A00000000000001 /* Build configuration list for PBXNativeTarget "VividAI" */;
 			buildPhases = (
-				A1234567890ABCDEF133 /* Sources */,
-				A1234567890ABCDEF060 /* Frameworks */,
-				A1234567890ABCDEF070 /* Resources */,
+				1A0000882A00000000000001 /* Sources */,
+				1A0000752A00000000000001 /* Frameworks */,
+				1A0000892A00000000000001 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = VividAI;
-			packageProductDependencies = (
-			);
 			productName = VividAI;
-			productReference = A1234567890ABCDEF057 /* VividAI.app */;
+			productReference = 1A0000732A00000000000001 /* VividAI.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A1234567890ABCDEF071 /* Project object */ = {
+		1A00008A2A00000000000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					A1234567890ABCDEF067 = {
+					1A0000862A00000000000001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = A1234567890ABCDEF072 /* Build configuration list for PBXProject "VividAI" */;
+			buildConfigurationList = 1A00008B2A00000000000001 /* Build configuration list for PBXProject "VividAI" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -306,99 +403,108 @@
 				en,
 				Base,
 			);
-			mainGroup = A1234567890ABCDEF061;
-			packageReferences = (
-			);
-			productRefGroup = A1234567890ABCDEF063 /* Products */;
+			mainGroup = 1A0000762A00000000000001;
+			productRefGroup = 1A0000782A00000000000001 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1234567890ABCDEF067 /* VividAI */,
+				1A0000862A00000000000001 /* VividAI */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-/* End XCSwiftPackageProductDependency section */
-
 /* Begin PBXResourcesBuildPhase section */
-		A1234567890ABCDEF070 /* Resources */ = {
+		1A0000892A00000000000001 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1234567890ABCDEF008 /* Preview Assets.xcassets in Resources */,
-				A1234567890ABCDEF005 /* Assets.xcassets in Resources */,
-				A1234567890ABCDEF130 /* FastViTT8F16.mlpackage in Resources */,
-				A1234567890ABCDEF131 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */,
-				A1234567890ABCDEF132 /* DepthAnythingV2SmallF16.mlpackage in Resources */,
+				1A0000082A00000000000001 /* Preview Assets.xcassets in Resources */,
+				1A0000052A00000000000001 /* Assets.xcassets in Resources */,
+				1A00000A2A00000000000001 /* Info.plist in Resources */,
+				1A00000B2A00000000000001 /* GoogleService-Info.plist in Resources */,
+				1A00000D2A00000000000001 /* VividAI.entitlements in Resources */,
+				1A00000F2A00000000000001 /* FastViTT8F16.mlpackage in Resources */,
+				1A0000112A00000000000001 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */,
+				1A0000132A00000000000001 /* DepthAnythingV2SmallF16.mlpackage in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A1234567890ABCDEF133 /* Sources */ = {
+		1A0000882A00000000000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1234567890ABCDEF003 /* ContentView.swift in Sources */,
-				A1234567890ABCDEF001 /* VividAIApp.swift in Sources */,
-				A1234567890ABCDEF010 /* SplashScreenView.swift in Sources */,
-				A1234567890ABCDEF012 /* HomeView.swift in Sources */,
-				A1234567890ABCDEF014 /* PhotoUploadView.swift in Sources */,
-				A1234567890ABCDEF016 /* ProcessingView.swift in Sources */,
-				A1234567890ABCDEF018 /* ResultsView.swift in Sources */,
-				A1234567890ABCDEF020 /* PaywallView.swift in Sources */,
-				A1234567890ABCDEF022 /* ShareView.swift in Sources */,
-				A1234567890ABCDEF024 /* SettingsView.swift in Sources */,
-				A1234567890ABCDEF026 /* AIHeadshotService.swift in Sources */,
-				A1234567890ABCDEF028 /* BackgroundRemovalService.swift in Sources */,
-				A1234567890ABCDEF030 /* PhotoEnhancementService.swift in Sources */,
-				A1234567890ABCDEF032 /* VideoGenerationService.swift in Sources */,
-				A1234567890ABCDEF034 /* SubscriptionManager.swift in Sources */,
-				A1234567890ABCDEF036 /* WatermarkService.swift in Sources */,
-				A1234567890ABCDEF038 /* ReferralService.swift in Sources */,
-				A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */,
-				A1234567890ABCDEF047 /* UnifiedAppStateManager.swift in Sources */,
-				A1234567890ABCDEF049 /* DesignSystem.swift in Sources */,
-				A1234567890ABCDEF051 /* ServiceContainer.swift in Sources */,
-				A1234567890ABCDEF053 /* ConfigurationService.swift in Sources */,
-				A1234567890ABCDEF055 /* RealTimeGenerationService.swift in Sources */,
-				A1234567890ABCDEF123 /* AuthenticationService.swift in Sources */,
-				A1234567890ABCDEF111 /* FirebaseConfigurationService.swift in Sources */,
-				A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */,
-				A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */,
-				A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */,
-				A1234567890ABCDEF113 /* SecureStorageService.swift in Sources */,
-				A1234567890ABCDEF115 /* HybridProcessingService.swift in Sources */,
-				A1234567890ABCDEF119 /* NavigationCoordinator.swift in Sources */,
-				A1234567890ABCDEF121 /* AppCoordinator.swift in Sources */,
-				A1234567890ABCDEF117 /* StyleExample.swift in Sources */,
-				A1234567890ABCDEF125 /* SubscriptionStateManager.swift in Sources */,
-				A1234567890ABCDEF109 /* UsageLimitService.swift in Sources */,
-				A1234567890ABCDEF081 /* FreeTrialService.swift in Sources */,
-				A1234567890ABCDEF083 /* ErrorHandlingService.swift in Sources */,
-				A1234567890ABCDEF085 /* LoggingService.swift in Sources */,
-				A1234567890ABCDEF087 /* SecurityService.swift in Sources */,
-				A1234567890ABCDEF089 /* ImageQuality.swift in Sources */,
-				A1234567890ABCDEF091 /* ImageQualityAnalysis.swift in Sources */,
-				A1234567890ABCDEF093 /* Product.swift in Sources */,
-				A1234567890ABCDEF095 /* RealTimePreviewView.swift in Sources */,
-				A1234567890ABCDEF097 /* QualitySelectionView.swift in Sources */,
-				A1234567890ABCDEF099 /* StyleExamplesGalleryView.swift in Sources */,
-				A1234567890ABCDEF101 /* StyleExampleView.swift in Sources */,
-				A1234567890ABCDEF103 /* MainAppView.swift in Sources */,
-				A1234567890ABCDEF105 /* AuthenticationView.swift in Sources */,
+				1A0000032A00000000000001 /* ContentView.swift in Sources */,
+				1A0000012A00000000000001 /* VividAIApp.swift in Sources */,
+				
+				/* Views */
+				1A0000152A00000000000001 /* AuthenticationView.swift in Sources */,
+				1A0000172A00000000000001 /* HomeView.swift in Sources */,
+				1A0000192A00000000000001 /* MainAppView.swift in Sources */,
+				1A00001B2A00000000000001 /* PaywallView.swift in Sources */,
+				1A00001D2A00000000000001 /* PhotoUploadView.swift in Sources */,
+				1A00001F2A00000000000001 /* ProcessingView.swift in Sources */,
+				1A0000212A00000000000001 /* QualitySelectionView.swift in Sources */,
+				1A0000232A00000000000001 /* RealTimePreviewView.swift in Sources */,
+				1A0000252A00000000000001 /* ResultsView.swift in Sources */,
+				1A0000272A00000000000001 /* SettingsView.swift in Sources */,
+				1A0000292A00000000000001 /* ShareView.swift in Sources */,
+				1A00002B2A00000000000001 /* SplashScreenView.swift in Sources */,
+				1A00002D2A00000000000001 /* StyleExamplesGalleryView.swift in Sources */,
+				1A00002F2A00000000000001 /* StyleExampleView.swift in Sources */,
+				
+				/* Services */
+				1A0000312A00000000000001 /* AIHeadshotService.swift in Sources */,
+				1A0000332A00000000000001 /* AnalyticsService.swift in Sources */,
+				1A0000352A00000000000001 /* AuthenticationService.swift in Sources */,
+				1A0000372A00000000000001 /* BackgroundRemovalService.swift in Sources */,
+				1A0000392A00000000000001 /* ConfigurationService.swift in Sources */,
+				1A00003B2A00000000000001 /* ErrorHandlingService.swift in Sources */,
+				1A00003D2A00000000000001 /* FirebaseAppCheckService.swift in Sources */,
+				1A00003F2A00000000000001 /* FirebaseConfigurationService.swift in Sources */,
+				1A0000412A00000000000001 /* FirebaseValidationService.swift in Sources */,
+				1A0000432A00000000000001 /* HybridProcessingService.swift in Sources */,
+				1A0000452A00000000000001 /* LoggingService.swift in Sources */,
+				1A0000472A00000000000001 /* PhotoEnhancementService.swift in Sources */,
+				1A0000492A00000000000001 /* PhotoValidationService.swift in Sources */,
+				1A00004B2A00000000000001 /* RealTimeGenerationService.swift in Sources */,
+				1A00004D2A00000000000001 /* ReferralService.swift in Sources */,
+				1A00004F2A00000000000001 /* SecureStorageService.swift in Sources */,
+				1A0000512A00000000000001 /* SecurityService.swift in Sources */,
+				1A0000532A00000000000001 /* ServerValidationService.swift in Sources */,
+				1A0000552A00000000000001 /* ServiceContainer.swift in Sources */,
+				1A0000572A00000000000001 /* SubscriptionManager.swift in Sources */,
+				1A0000592A00000000000001 /* SubscriptionStateManager.swift in Sources */,
+				1A00005B2A00000000000001 /* VideoGenerationService.swift in Sources */,
+				1A00005D2A00000000000001 /* WatermarkService.swift in Sources */,
+				1A0000902A00000000000001 /* FreeTrialService.swift in Sources */,
+				1A0000922A00000000000001 /* UsageLimitService.swift in Sources */,
+				
+				/* Coordinators */
+				1A00005F2A00000000000001 /* AppCoordinator.swift in Sources */,
+				1A0000612A00000000000001 /* NavigationCoordinator.swift in Sources */,
+				
+				/* Models */
+				1A0000632A00000000000001 /* AvatarStyle.swift in Sources */,
+				1A0000652A00000000000001 /* Product.swift in Sources */,
+				1A0000672A00000000000001 /* StyleExample.swift in Sources */,
+				1A0000692A00000000000001 /* StyleExampleManager.swift in Sources */,
+				1A00006B2A00000000000001 /* UnifiedAppStateManager.swift in Sources */,
+				
+				/* Design System */
+				1A00006D2A00000000000001 /* DesignSystem.swift in Sources */,
+				
+				/* Extensions */
+				1A00006F2A00000000000001 /* View+ErrorHandling.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A1234567890ABCDEF073 /* Debug */ = {
+		1A00008C2A00000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -461,7 +567,7 @@
 			};
 			name = Debug;
 		};
-		A1234567890ABCDEF074 /* Release */ = {
+		1A00008D2A00000000000001 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -517,7 +623,7 @@
 			};
 			name = Release;
 		};
-		A1234567890ABCDEF075 /* Debug */ = {
+		1A00008E2A00000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -526,30 +632,36 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VividAI/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				EXECUTABLE_NAME = VividAI;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VividAI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VividAI;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.vividai.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PRODUCT_BUNDLE_EXECUTABLE_NAME = VividAI;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		A1234567890ABCDEF076 /* Release */ = {
+		1A00008F2A00000000000001 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -558,23 +670,29 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VividAI/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				EXECUTABLE_NAME = VividAI;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VividAI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VividAI;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.vividai.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PRODUCT_BUNDLE_EXECUTABLE_NAME = VividAI;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -584,25 +702,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1234567890ABCDEF068 /* Build configuration list for PBXNativeTarget "VividAI" */ = {
+		1A0000872A00000000000001 /* Build configuration list for PBXNativeTarget "VividAI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1234567890ABCDEF075 /* Debug */,
-				A1234567890ABCDEF076 /* Release */,
+				1A00008E2A00000000000001 /* Debug */,
+				1A00008F2A00000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1234567890ABCDEF072 /* Build configuration list for PBXProject "VividAI" */ = {
+		1A00008B2A00000000000001 /* Build configuration list for PBXProject "VividAI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1234567890ABCDEF073 /* Debug */,
-				A1234567890ABCDEF074 /* Release */,
+				1A00008C2A00000000000001 /* Debug */,
+				1A00008D2A00000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A1234567890ABCDEF071 /* Project object */;
+	rootObject = 1A00008A2A00000000000001 /* Project object */;
 }
