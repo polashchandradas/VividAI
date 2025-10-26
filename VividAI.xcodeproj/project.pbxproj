@@ -36,7 +36,7 @@
 		A1234567890ABCDEF053 /* ConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF054 /* ConfigurationService.swift */; };
 		A1234567890ABCDEF055 /* RealTimeGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF056 /* RealTimeGenerationService.swift */; };
 		A1234567890ABCDEF057 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF058 /* AuthenticationService.swift */; };
-		A1234567890ABCDEF059 /* FirebaseConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF060 /* FirebaseConfigurationService.swift */; };
+		A1234567890ABCDEF111 /* FirebaseConfigurationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF112 /* FirebaseConfigurationService.swift */; };
 		A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */; };
 		A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF064 /* FirebaseValidationService.swift */; };
 		A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF066 /* ServerValidationService.swift */; };
@@ -96,7 +96,7 @@
 		A1234567890ABCDEF054 /* ConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF056 /* RealTimeGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimeGenerationService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF058 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF060 /* FirebaseConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConfigurationService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF112 /* FirebaseConfigurationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConfigurationService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppCheckService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF064 /* FirebaseValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseValidationService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF066 /* ServerValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerValidationService.swift; sourceTree = "<group>"; };
@@ -205,7 +205,7 @@
 				A1234567890ABCDEF054 /* ConfigurationService.swift */,
 				A1234567890ABCDEF056 /* RealTimeGenerationService.swift */,
 				A1234567890ABCDEF058 /* AuthenticationService.swift */,
-				A1234567890ABCDEF060 /* FirebaseConfigurationService.swift */,
+				A1234567890ABCDEF112 /* FirebaseConfigurationService.swift */,
 				A1234567890ABCDEF062 /* FirebaseAppCheckService.swift */,
 				A1234567890ABCDEF064 /* FirebaseValidationService.swift */,
 				A1234567890ABCDEF066 /* ServerValidationService.swift */,
@@ -357,7 +357,7 @@
 				A1234567890ABCDEF053 /* ConfigurationService.swift in Sources */,
 				A1234567890ABCDEF055 /* RealTimeGenerationService.swift in Sources */,
 				A1234567890ABCDEF057 /* AuthenticationService.swift in Sources */,
-				A1234567890ABCDEF059 /* FirebaseConfigurationService.swift in Sources */,
+				A1234567890ABCDEF111 /* FirebaseConfigurationService.swift in Sources */,
 				A1234567890ABCDEF061 /* FirebaseAppCheckService.swift in Sources */,
 				A1234567890ABCDEF063 /* FirebaseValidationService.swift in Sources */,
 				A1234567890ABCDEF065 /* ServerValidationService.swift in Sources */,
