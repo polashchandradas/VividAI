@@ -39,11 +39,19 @@ jobs:
           
           set -e
           
+          # List available simulators
+          echo "📱 Available simulators:"
+          xcrun simctl list devices | grep "iPhone" | head -10
+          
+          # Get first available iPhone simulator
+          AVAILABLE_SIMULATOR=$(xcrun simctl list devices | grep "iPhone" | grep "Available" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
+          echo "📱 Using simulator: $AVAILABLE_SIMULATOR"
+          
           # Build for iOS Simulator
           xcodebuild build \
             -workspace VividAI.xcworkspace \
             -scheme VividAI \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination "platform=iOS Simulator,id=$AVAILABLE_SIMULATOR" \
             -configuration Debug \
             -derivedDataPath ./DerivedData \
             DEVELOPMENT_TEAM="" \
@@ -137,7 +145,7 @@ jobs:
           echo "📱 Using runtime: $LATEST_RUNTIME"
           
           # Create simulator
-          SIMULATOR_ID=$(xcrun simctl create "VividAI Test Simulator" "iPhone 15" "$LATEST_RUNTIME")
+          SIMULATOR_ID=$(xcrun simctl create "VividAI Test Simulator" "iPhone 16 Pro" "$LATEST_RUNTIME")
           echo "📱 Created simulator with ID: $SIMULATOR_ID"
           
           # Set simulator ID as environment variable
