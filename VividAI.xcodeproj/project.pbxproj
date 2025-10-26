@@ -59,6 +59,7 @@
 		A1234567890ABCDEF057 /* VividAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VividAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1234567890ABCDEF058 /* VividAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VividAI.entitlements; sourceTree = "<group>"; };
 		A1234567890ABCDEF059 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A1234567890ABCDEF080 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +92,7 @@
 				A1234567890ABCDEF004 /* Assets.xcassets */,
 				A1234567890ABCDEF058 /* VividAI.entitlements */,
 				A1234567890ABCDEF059 /* GoogleService-Info.plist */,
+				A1234567890ABCDEF080 /* Info.plist */,
 				A1234567890ABCDEF066 /* Preview Content */,
 			);
 			path = VividAI;
@@ -396,7 +398,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VividAI/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				EXECUTABLE_NAME = VividAI;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VividAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -425,7 +429,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VividAI/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				EXECUTABLE_NAME = VividAI;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VividAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
