@@ -244,9 +244,19 @@ jobs:
           echo "📁 Last 20 lines of fallback build output:"
           tail -20 build_output_fallback.log
           
-          echo "📁 Checking for app bundles after fallback build:"
-          find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData after fallback"
-        fi
+        echo "📁 Checking for app bundles after fallback build:"
+        find ./DerivedData -name "*.app" -type d || echo "No .app files in DerivedData after fallback"
+      fi
+      
+    - name: Upload Build Logs for Analysis
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-logs
+        path: |
+          build_output.log
+          build_output_fallback.log
+        retention-days: 7
         
     - name: Find app bundle using COMPREHENSIVE SEARCH
       run: |
