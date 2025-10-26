@@ -19,11 +19,27 @@ jobs:
       - name: Set up Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
         
+      - name: Cache CocoaPods
+        uses: actions/cache@v3
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Cache CocoaPods dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cocoapods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
+
       - name: Install CocoaPods dependencies
         run: |
           echo "📦 Installing CocoaPods dependencies..."
           sudo gem install cocoapods
-          pod install
+          pod install --repo-update
           echo "✅ CocoaPods dependencies installed"
           
       - name: Build app for iOS Device
@@ -42,6 +58,7 @@ jobs:
           -destination 'generic/platform=iOS' \
           -configuration Release \
           -derivedDataPath ./DerivedData \
+          -jobs 4 \
           DEVELOPMENT_TEAM="" \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
