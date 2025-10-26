@@ -12,6 +12,9 @@ struct PhotoUploadView: View {
     @State private var showingPermissionAlert = false
     @State private var permissionAlertMessage = ""
     @State private var isDetectingFaces = false
+    @State private var validationResult: PhotoValidationResult?
+    @State private var showingValidationAlert = false
+    @State private var isValidatingPhoto = false
     
     var body: some View {
         NavigationView {
@@ -53,6 +56,17 @@ struct PhotoUploadView: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text(permissionAlertMessage)
+            }
+            .alert("Photo Not Suitable", isPresented: $showingValidationAlert) {
+                Button("Choose Different Photo") {
+                    selectedImage = nil
+                    validationResult = nil
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                if let result = validationResult, case .rejected(let error) = result {
+                    Text(error.userFriendlyMessage)
+                }
             }
         }
         .onAppear {
@@ -106,7 +120,7 @@ struct PhotoUploadView: View {
                     Button("Continue to Processing") {
                         proceedToProcessing()
                     }
-                    .disabled(isDetectingFaces)
+                    .disabled(isValidatingPhoto || (validationResult?.isAccepted != true))
                     .font(DesignSystem.Typography.button)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -144,23 +158,43 @@ struct PhotoUploadView: View {
                             )
                     }
                     
-                    // Face Detection Indicator
-                    if isDetectingFaces {
+                    // Photo Validation Indicator
+                    if isValidatingPhoto {
                         HStack(spacing: DesignSystem.Spacing.sm) {
                             ModernLoadingIndicator(size: 20, color: DesignSystem.Colors.primary)
                             
-                            Text("Detecting faces...")
+                            Text("Validating photo...")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.primary)
                         }
+                    } else if let validationResult = validationResult {
+                        if validationResult.isAccepted {
+                            HStack(spacing: DesignSystem.Spacing.sm) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(DesignSystem.Colors.success)
+                                
+                                Text("Photo approved")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.success)
+                            }
+                        } else {
+                            HStack(spacing: DesignSystem.Spacing.sm) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(DesignSystem.Colors.error)
+                                
+                                Text("Photo needs attention")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.error)
+                            }
+                        }
                     } else if selectedImage != nil {
                         HStack(spacing: DesignSystem.Spacing.sm) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(DesignSystem.Colors.success)
+                            Image(systemName: "checkmark.circle")
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
                             
-                            Text("Face detected")
+                            Text("Photo selected")
                                 .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.success)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                     } else {
                         HStack(spacing: DesignSystem.Spacing.sm) {
@@ -242,6 +276,8 @@ struct PhotoUploadView: View {
                     Text("• Face the camera directly")
                     Text("• Avoid sunglasses or hats")
                     Text("• High resolution photos work best")
+                    Text("• Only one person in the photo")
+                    Text("• No children or animals")
                 }
                 .font(DesignSystem.Typography.small)
                 .foregroundColor(DesignSystem.Colors.textSecondary)
@@ -279,50 +315,45 @@ struct PhotoUploadView: View {
     private func proceedToProcessing() {
         guard let image = selectedImage else { return }
         
-        analyticsService.track(event: "photo_selected", parameters: [
+        // Only proceed if photo is validated and accepted
+        guard let validationResult = validationResult, validationResult.isAccepted else {
+            // If not validated yet, validate first
+            validateSelectedPhoto()
+            return
+        }
+        
+        ServiceContainer.shared.analyticsService.track(event: "photo_selected", parameters: [
             "image_width": image.size.width,
             "image_height": image.size.height
         ])
         
         // Navigate to quality selection
-        navigationCoordinator.selectedImage = image
-        navigationCoordinator.showQualitySelection()
+        ServiceContainer.shared.navigationCoordinator.selectedImage = image
+        ServiceContainer.shared.navigationCoordinator.showQualitySelection()
     }
     
-    private func detectFacesInImage(_ image: UIImage) {
-        isDetectingFaces = true
+    private func validateSelectedPhoto() {
+        guard let image = selectedImage else { return }
         
-        // First analyze image quality
-        serviceContainer.backgroundRemovalService.analyzeImageQuality(image) { [weak self] (qualityAnalysis: ImageQualityAnalysis) in
+        isValidatingPhoto = true
+        validationResult = nil
+        
+        ServiceContainer.shared.photoValidationService.validatePhoto(image) { [weak self] result in
             DispatchQueue.main.async {
-                if !qualityAnalysis.isGood {
-                    self?.isDetectingFaces = false
-                    self?.permissionAlertMessage = "Image quality issues detected: \(qualityAnalysis.issues.joined(separator: ", ")). \(qualityAnalysis.recommendations.joined(separator: " "))"
-                    self?.showingPermissionAlert = true
-                    return
-                }
+                self?.isValidatingPhoto = false
+                self?.validationResult = result
                 
-                // If quality is good, proceed with face detection
-                self?.serviceContainer.backgroundRemovalService.detectFaces(in: image) { [weak self] (observations: [VNFaceObservation]) in
-                    DispatchQueue.main.async {
-                        self?.isDetectingFaces = false
-                        
-                        if observations.isEmpty {
-                            // No faces detected - show warning
-                            self?.permissionAlertMessage = "No faces detected in the image. Please try a photo with a clear face."
-                            self?.showingPermissionAlert = true
-                        } else {
-                            // Faces detected - proceed
-                            analyticsService.track(event: "faces_detected", parameters: [
-                                "face_count": observations.count,
-                                "image_quality": qualityAnalysis.quality.description
-                            ])
-                        }
-                    }
+                if result.isAccepted {
+                    // Photo is valid, proceed automatically
+                    self?.proceedToProcessing()
+                } else {
+                    // Photo is invalid, show error
+                    self?.showingValidationAlert = true
                 }
             }
         }
     }
+    
 }
 
 // MARK: - Supporting Views
@@ -416,11 +447,6 @@ struct ImagePicker: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     @Environment(\.dismiss) private var dismiss
     
-    func detectFacesInImage(_ image: UIImage) {
-        // This method is called from the coordinator
-        // The actual face detection is handled by the parent view
-    }
-    
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration()
         config.filter = .images
@@ -464,7 +490,7 @@ struct ImagePicker: UIViewControllerRepresentable {
                         }
                         
                         self?.parent.selectedImage = selectedImage
-                        self?.parent.detectFacesInImage(selectedImage)
+                        self?.parent.validateSelectedPhoto()
                     }
                 }
             }
@@ -475,11 +501,6 @@ struct ImagePicker: UIViewControllerRepresentable {
 struct CameraView: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     @Environment(\.dismiss) private var dismiss
-    
-    func detectFacesInImage(_ image: UIImage) {
-        // This method is called from the coordinator
-        // The actual face detection is handled by the parent view
-    }
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
@@ -516,7 +537,7 @@ struct CameraView: UIViewControllerRepresentable {
             
             if let image = selectedImage {
                 parent.selectedImage = image
-                parent.detectFacesInImage(image)
+                parent.validateSelectedPhoto()
             } else {
                 print("Failed to capture image from camera")
             }

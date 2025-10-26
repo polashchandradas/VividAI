@@ -110,6 +110,10 @@ class ServiceContainer: ObservableObject {
         ConfigurationService.shared
     }()
     
+    lazy var photoValidationService: PhotoValidationService = {
+        PhotoValidationService.shared
+    }()
+    
     // MARK: - Initialization
     private init() {
         // Initialize services in proper order to avoid circular dependencies
@@ -147,6 +151,7 @@ class ServiceContainer: ObservableObject {
         _ = videoGenerationService
         _ = hybridProcessingService
         _ = watermarkService
+        _ = photoValidationService
         
         // Initialize navigation last
         _ = navigationCoordinator
@@ -217,6 +222,8 @@ class ServiceContainer: ObservableObject {
             return firebaseAppCheckService as? T
         case is ConfigurationService.Type:
             return configurationService as? T
+        case is PhotoValidationService.Type:
+            return photoValidationService as? T
         default:
             return nil
         }

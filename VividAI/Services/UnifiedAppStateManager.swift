@@ -2,6 +2,8 @@ import Foundation
 import SwiftUI
 import Combine
 import os.log
+import FirebaseAuth
+import StoreKit
 
 // MARK: - Unified App State Manager
 // This replaces all duplicate state management systems with a single source of truth
@@ -424,3 +426,4 @@ extension UnifiedAppStateManager {
         analyticsService.track(event: "user_journey_snapshot", parameters: journey)
     }
 }
+

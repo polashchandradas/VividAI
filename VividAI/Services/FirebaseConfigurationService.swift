@@ -174,3 +174,4 @@ enum FirebaseConfigurationError: Error, LocalizedError {
         }
     }
 }
+
