@@ -87,7 +87,7 @@
 				A1234567890ABCDEF002 /* ContentView.swift */,
 				A1234567890ABCDEF064 /* Views */,
 				A1234567890ABCDEF065 /* Services */,
-				A1234567890ABCDEF071 /* Models */,
+				A1234567890ABCDEF072 /* Models */,
 				A1234567890ABCDEF004 /* Assets.xcassets */,
 				A1234567890ABCDEF058 /* VividAI.entitlements */,
 				A1234567890ABCDEF059 /* GoogleService-Info.plist */,
@@ -134,7 +134,7 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF071 /* Models */ = {
+		A1234567890ABCDEF072 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				A1234567890ABCDEF068 /* OnDevice */,
