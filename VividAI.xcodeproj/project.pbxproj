@@ -27,6 +27,9 @@
 		A1234567890ABCDEF036 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF035 /* WatermarkService.swift */; };
 		A1234567890ABCDEF038 /* ReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF037 /* ReferralService.swift */; };
 		A1234567890ABCDEF040 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF039 /* AnalyticsService.swift */; };
+		A1234567890ABCDEF041 /* FastViTT8F16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */; };
+		A1234567890ABCDEF043 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF044 /* DETRResnet50SemanticSegmentationF16.mlpackage */; };
+		A1234567890ABCDEF045 /* DepthAnythingV2SmallF16.mlpackage in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */; };
 		A1234567890ABCDEF048 /* StoreKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF047 /* StoreKit */; };
 		A1234567890ABCDEF050 /* CoreML in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF049 /* CoreML */; };
 		A1234567890ABCDEF052 /* Vision in Frameworks */ = {isa = PBXBuildFile; productRef = A1234567890ABCDEF051 /* Vision */; };
@@ -55,6 +58,9 @@
 		A1234567890ABCDEF035 /* WatermarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF037 /* ReferralService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralService.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF039 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = FastViTT8F16.mlpackage; sourceTree = "<group>"; };
+		A1234567890ABCDEF044 /* DETRResnet50SemanticSegmentationF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DETRResnet50SemanticSegmentationF16.mlpackage; sourceTree = "<group>"; };
+		A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper.mlpackage; path = DepthAnythingV2SmallF16.mlpackage; sourceTree = "<group>"; };
 		A1234567890ABCDEF057 /* VividAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VividAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1234567890ABCDEF058 /* VividAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VividAI.entitlements; sourceTree = "<group>"; };
 		A1234567890ABCDEF059 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -90,6 +96,7 @@
 				A1234567890ABCDEF002 /* ContentView.swift */,
 				A1234567890ABCDEF064 /* Views */,
 				A1234567890ABCDEF065 /* Services */,
+				A1234567890ABCDEF067 /* Models */,
 				A1234567890ABCDEF004 /* Assets.xcassets */,
 				A1234567890ABCDEF058 /* VividAI.entitlements */,
 				A1234567890ABCDEF059 /* GoogleService-Info.plist */,
@@ -134,6 +141,24 @@
 				A1234567890ABCDEF039 /* AnalyticsService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF067 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF068 /* OnDevice */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF068 /* OnDevice */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF042 /* FastViTT8F16.mlpackage */,
+				A1234567890ABCDEF044 /* DETRResnet50SemanticSegmentationF16.mlpackage */,
+				A1234567890ABCDEF046 /* DepthAnythingV2SmallF16.mlpackage */,
+			);
+			path = OnDevice;
 			sourceTree = "<group>";
 		};
 		A1234567890ABCDEF066 /* Preview Content */ = {
@@ -214,6 +239,9 @@
 			files = (
 				A1234567890ABCDEF008 /* Preview Assets.xcassets in Resources */,
 				A1234567890ABCDEF005 /* Assets.xcassets in Resources */,
+				A1234567890ABCDEF041 /* FastViTT8F16.mlpackage in Resources */,
+				A1234567890ABCDEF043 /* DETRResnet50SemanticSegmentationF16.mlpackage in Resources */,
+				A1234567890ABCDEF045 /* DepthAnythingV2SmallF16.mlpackage in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
