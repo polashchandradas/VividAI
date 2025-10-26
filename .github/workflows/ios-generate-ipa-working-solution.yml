@@ -9,7 +9,7 @@ on:
 jobs:
   generate-ipa:
     runs-on: macos-latest
-    timeout-minutes: 15 # CRITICAL FIX: Reduced timeout to prevent hanging
+    timeout-minutes: 30 # CRITICAL FIX: Reduced timeout to prevent hanging
     
     steps:
       - name: Checkout repository
