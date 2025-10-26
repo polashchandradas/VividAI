@@ -32,8 +32,8 @@ struct HomeView: View {
                         // Smart Trial Status
                         smartTrialStatusSection
                         
-                        // Modern Secondary Features
-                        modernSecondaryFeaturesSection
+                        // Modern Secondary Features with Bento Box Layout
+                        modernBentoBoxFeaturesSection
                         
                         // Social Proof with Animation
                         modernSocialProofSection
@@ -343,7 +343,7 @@ struct HomeView: View {
         .padding(.horizontal, DesignSystem.Spacing.lg)
     }
     
-    // MARK: - Modern Secondary Features Section
+    // MARK: - Modern Secondary Features Section (OLD - Uniform Grid)
     private var modernSecondaryFeaturesSection: some View {
         VStack(spacing: DesignSystem.Spacing.lg) {
             HStack {
@@ -400,6 +400,119 @@ struct HomeView: View {
                     title: "Video",
                     subtitle: "Generation",
                     color: DesignSystem.Colors.success,
+                    action: {
+                        ServiceContainer.shared.analyticsService.track(event: "video_generation_tapped")
+                        ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
+                    }
+                )
+            }
+        }
+    }
+    
+    // MARK: - Modern Bento Box Features Section (2025 Design - Dynamic Masonry Layout)
+    private var modernBentoBoxFeaturesSection: some View {
+        VStack(spacing: DesignSystem.Spacing.lg) {
+            HStack {
+                Text("Explore Features")
+                    .font(DesignSystem.Typography.h3)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Spacer()
+                
+                Text("Bento Box Layout")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .padding(.horizontal, DesignSystem.Spacing.sm)
+                    .padding(.vertical, DesignSystem.Spacing.xs)
+                    .background(
+                        Capsule()
+                            .fill(DesignSystem.Colors.primary.opacity(0.1))
+                    )
+            }
+            
+            // Dynamic Masonry Layout with Bento Box Cards
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: DesignSystem.Spacing.md), count: 2),
+                spacing: DesignSystem.Spacing.md
+            ) {
+                // Large Card - Real-Time Preview (Featured)
+                BentoBoxFeatureCard(
+                    item: MasonryItem(
+                        id: "realtime",
+                        title: "Real-Time Preview",
+                        subtitle: "See results before generating",
+                        icon: "bolt.circle.fill",
+                        badge: "Featured",
+                        gradient: LinearGradient(
+                            colors: [Color.orange, Color.red],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        size: CGSize(width: 1, height: 200)
+                    ),
+                    action: {
+                        ServiceContainer.shared.analyticsService.track(event: "realtime_preview_tapped")
+                        showingRealTimePreview = true
+                    }
+                )
+                
+                // Medium Card - Background Removal
+                BentoBoxFeatureCard(
+                    item: MasonryItem(
+                        id: "background",
+                        title: "Background Removal",
+                        subtitle: "One-tap magic",
+                        icon: "photo.on.rectangle.angled",
+                        badge: nil,
+                        gradient: LinearGradient(
+                            colors: [Color.green, Color.blue],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        size: CGSize(width: 1, height: 150)
+                    ),
+                    action: {
+                        ServiceContainer.shared.analyticsService.track(event: "background_removal_tapped")
+                        ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
+                    }
+                )
+                
+                // Medium Card - Photo Enhancement
+                BentoBoxFeatureCard(
+                    item: MasonryItem(
+                        id: "enhance",
+                        title: "Photo Enhancement",
+                        subtitle: "AI-powered transformation",
+                        icon: "wand.and.stars",
+                        badge: "New",
+                        gradient: LinearGradient(
+                            colors: [Color.pink, Color.orange],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        size: CGSize(width: 1, height: 160)
+                    ),
+                    action: {
+                        ServiceContainer.shared.analyticsService.track(event: "photo_enhancement_tapped")
+                        ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
+                    }
+                )
+                
+                // Large Card - Video Generation
+                BentoBoxFeatureCard(
+                    item: MasonryItem(
+                        id: "video",
+                        title: "Video Generation",
+                        subtitle: "Create stunning transformations",
+                        icon: "video.fill",
+                        badge: "Popular",
+                        gradient: LinearGradient(
+                            colors: [Color.purple, Color.pink],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        size: CGSize(width: 1, height: 190)
+                    ),
                     action: {
                         ServiceContainer.shared.analyticsService.track(event: "video_generation_tapped")
                         ServiceContainer.shared.navigationCoordinator.startPhotoUpload()

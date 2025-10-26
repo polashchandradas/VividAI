@@ -56,7 +56,7 @@
 		1A00005B2A00000000000001 /* VideoGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00005C2A00000000000001 /* VideoGenerationService.swift */; };
 		1A00005D2A00000000000001 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00005E2A00000000000001 /* WatermarkService.swift */; };
 		1A0000902A00000000000001 /* FreeTrialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000912A00000000000001 /* FreeTrialService.swift */; };
-		1A0000922A00000000000001 /* UsageLimitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000932A00000000000001 /* UsageLimitService.swift */; };
+		1A0000952A00000000000001 /* UnifiedAppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000942A00000000000001 /* UnifiedAppStateManager.swift */; };
 		
 		/* Coordinators */
 		1A00005F2A00000000000001 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000602A00000000000001 /* AppCoordinator.swift */; };
@@ -65,7 +65,6 @@
 		/* Models */
 		1A0000652A00000000000001 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000662A00000000000001 /* Product.swift */; };
 		1A0000672A00000000000001 /* StyleExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000682A00000000000001 /* StyleExample.swift */; };
-		1A00006B2A00000000000001 /* UnifiedAppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00006C2A00000000000001 /* UnifiedAppStateManager.swift */; };
 		1A00008C2A00000000000001 /* ImageQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00008D2A00000000000001 /* ImageQuality.swift */; };
 		1A00008E2A00000000000001 /* ImageQualityAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00008F2A00000000000001 /* ImageQualityAnalysis.swift */; };
 		
@@ -73,7 +72,6 @@
 		1A00006D2A00000000000001 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00006E2A00000000000001 /* DesignSystem.swift */; };
 		
 		/* Extensions */
-		1A00006F2A00000000000001 /* View+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000702A00000000000001 /* View+ErrorHandling.swift */; };
 		
 		/* Pods */
 		1A0000712A00000000000001 /* Pods_VividAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000722A00000000000001 /* Pods_VividAI.framework */; };
@@ -132,7 +130,7 @@
 		1A00005C2A00000000000001 /* VideoGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoGenerationService.swift; sourceTree = "<group>"; };
 		1A00005E2A00000000000001 /* WatermarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkService.swift; sourceTree = "<group>"; };
 		1A0000912A00000000000001 /* FreeTrialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTrialService.swift; sourceTree = "<group>"; };
-		1A0000932A00000000000001 /* UsageLimitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLimitService.swift; sourceTree = "<group>"; };
+		1A0000942A00000000000001 /* UnifiedAppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedAppStateManager.swift; sourceTree = "<group>"; };
 		
 		/* Coordinators */
 		1A0000602A00000000000001 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -143,13 +141,11 @@
 		1A0000662A00000000000001 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		1A0000682A00000000000001 /* StyleExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExample.swift; sourceTree = "<group>"; };
 		1A00006A2A00000000000001 /* StyleExampleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleExampleManager.swift; sourceTree = "<group>"; };
-		1A00006C2A00000000000001 /* UnifiedAppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedAppStateManager.swift; sourceTree = "<group>"; };
 		
 		/* Design System */
 		1A00006E2A00000000000001 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		
 		/* Extensions */
-		1A0000702A00000000000001 /* View+ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ErrorHandling.swift"; sourceTree = "<group>"; };
 		
 		/* Pods */
 		1A0000722A00000000000001 /* Pods_VividAI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VividAI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -278,7 +274,7 @@
 				1A00005C2A00000000000001 /* VideoGenerationService.swift */,
 				1A00005E2A00000000000001 /* WatermarkService.swift */,
 				1A0000912A00000000000001 /* FreeTrialService.swift */,
-				1A0000932A00000000000001 /* UsageLimitService.swift */,
+				1A0000942A00000000000001 /* UnifiedAppStateManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -299,7 +295,6 @@
 				1A0000662A00000000000001 /* Product.swift */,
 				1A0000682A00000000000001 /* StyleExample.swift */,
 				1A00006A2A00000000000001 /* StyleExampleManager.swift */,
-				1A00006C2A00000000000001 /* UnifiedAppStateManager.swift */,
 				1A0000852A00000000000001 /* OnDevice */,
 			);
 			path = Models;
@@ -316,7 +311,6 @@
 		1A0000812A00000000000001 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				1A0000702A00000000000001 /* View+ErrorHandling.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -474,7 +468,7 @@
 				1A00005B2A00000000000001 /* VideoGenerationService.swift in Sources */,
 				1A00005D2A00000000000001 /* WatermarkService.swift in Sources */,
 				1A0000902A00000000000001 /* FreeTrialService.swift in Sources */,
-				1A0000922A00000000000001 /* UsageLimitService.swift in Sources */,
+				1A0000952A00000000000001 /* UnifiedAppStateManager.swift in Sources */,
 				
 				/* Coordinators */
 				1A00005F2A00000000000001 /* AppCoordinator.swift in Sources */,
@@ -485,13 +479,11 @@
 				1A0000652A00000000000001 /* Product.swift in Sources */,
 				1A0000672A00000000000001 /* StyleExample.swift in Sources */,
 				1A0000692A00000000000001 /* StyleExampleManager.swift in Sources */,
-				1A00006B2A00000000000001 /* UnifiedAppStateManager.swift in Sources */,
 				
 				/* Design System */
 				1A00006D2A00000000000001 /* DesignSystem.swift in Sources */,
 				
 				/* Extensions */
-				1A00006F2A00000000000001 /* View+ErrorHandling.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

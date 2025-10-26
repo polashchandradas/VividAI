@@ -222,6 +222,11 @@ struct ModernVisualEffects {
             )
     }
     
+    // Glass morphism background for Bento Box cards
+    static func glassMorphismBackground() -> some ShapeStyle {
+        .ultraThinMaterial
+    }
+    
     // Modern card with subtle effects
     static func modernCard(
         cornerRadius: CGFloat = DesignSystem.CornerRadius.lg,
