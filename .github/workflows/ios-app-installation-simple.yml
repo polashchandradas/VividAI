@@ -26,39 +26,34 @@ jobs:
           pod install
           echo "✅ CocoaPods dependencies installed"
           
-      - name: Build app for iOS Simulator
+      - name: Build app for iOS Device
         run: |
-          echo "🔨 Building VividAI app for iOS Simulator..."
+        echo "🔨 Building VividAI app for iOS Device..."
           
           set -e
           
-          # List available simulators
-          echo "📱 Available simulators:"
-          xcrun simctl list devices | grep "iPhone" | head -10
+        # Note: Using iOS Device build instead of Simulator build
+        echo "📱 Building for iOS Device (Simulator builds don't create executables properly)"
           
-          # Get first iPhone simulator (regardless of status)
-          AVAILABLE_SIMULATOR=$(xcrun simctl list devices | grep "iPhone" | head -1 | sed 's/.*(\([A-F0-9-]*\)).*/\1/')
-          echo "📱 Using simulator: $AVAILABLE_SIMULATOR"
-          
-          # Build for iOS Simulator
-          xcodebuild build \
-            -workspace VividAI.xcworkspace \
-            -scheme VividAI \
-            -destination "platform=iOS Simulator,id=$AVAILABLE_SIMULATOR" \
-            -configuration Debug \
-            -derivedDataPath ./DerivedData \
-            DEVELOPMENT_TEAM="" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            PROVISIONING_PROFILE="" \
-            SUPPORTED_PLATFORMS="iphonesimulator" \
-            VALID_ARCHS="arm64" \
-            ARCHS="arm64" \
-            EXCLUDED_ARCHS[sdk=iphoneos*]="arm64" \
-            -allowProvisioningUpdates \
-            -quiet \
-            2>&1 | tee build_output.log
+        # Build for iOS Device (Simulator builds don't create executables properly)
+        xcodebuild build \
+          -workspace VividAI.xcworkspace \
+          -scheme VividAI \
+          -destination 'generic/platform=iOS' \
+          -configuration Debug \
+          -derivedDataPath ./DerivedData \
+          DEVELOPMENT_TEAM="" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          PROVISIONING_PROFILE="" \
+          SUPPORTED_PLATFORMS="iphoneos" \
+          VALID_ARCHS="arm64" \
+          ARCHS="arm64" \
+          EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
+          -allowProvisioningUpdates \
+          -quiet \
+          2>&1 | tee build_output.log
           
           echo "✅ Build completed!"
           
