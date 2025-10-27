@@ -352,37 +352,7 @@ class UnifiedAppStateManager: ObservableObject {
 }
 
 // MARK: - Supporting Types
-
-enum AppView: String, CaseIterable {
-    case splash = "splash"
-    case authentication = "authentication"
-    case home = "home"
-    case photoUpload = "photoUpload"
-    case qualitySelection = "qualitySelection"
-    case realTimePreview = "realTimePreview"
-    case processing = "processing"
-    case results = "results"
-    case paywall = "paywall"
-    case share = "share"
-    case settings = "settings"
-}
-
-enum SubscriptionStatus: String, CaseIterable {
-    case none = "none"
-    case active = "active"
-    case expired = "expired"
-    case cancelled = "cancelled"
-    case pending = "pending"
-}
-
-struct ProcessingResult: Identifiable {
-    let id = UUID()
-    let image: UIImage
-    let style: String
-    let isPremium: Bool
-    let processingTime: TimeInterval
-    let quality: ImageQuality
-}
+// Note: AppView, SubscriptionStatus, and ProcessingResult are now defined in SharedTypes.swift
 
 // MARK: - State Manager Extensions
 

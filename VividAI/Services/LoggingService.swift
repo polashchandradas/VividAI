@@ -130,22 +130,18 @@ class LoggingService: ObservableObject {
     
     // MARK: - Error Logging
     
-    func logError(_ error: Error, context: [String: Any] = [:]) {
-        logError(error, context: context)
-    }
-    
     func logNetworkError(_ error: Error, url: String, context: [String: Any] = [:]) {
-        logError("Network error: \(error.localizedDescription)", context: [
-            "url": url,
-            "error": error.localizedDescription
-        ] + context)
+        var errorContext = context
+        errorContext["url"] = url
+        errorContext["error"] = error.localizedDescription
+        logError(error, context: errorContext)
     }
     
     func logAPIError(_ error: Error, endpoint: String, context: [String: Any] = [:]) {
-        logError("API error: \(error.localizedDescription)", context: [
-            "endpoint": endpoint,
-            "error": error.localizedDescription
-        ] + context)
+        var errorContext = context
+        errorContext["endpoint"] = endpoint
+        errorContext["error"] = error.localizedDescription
+        logError(error, context: errorContext)
     }
     
     // MARK: - Log Management

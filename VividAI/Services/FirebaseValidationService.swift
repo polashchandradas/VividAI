@@ -7,6 +7,10 @@ import CryptoKit
 import os.log
 import UIKit
 
+#if targetEnvironment(simulator)
+import UIKit.UIGestureRecognizerSubclass
+#endif
+
 // MARK: - Firebase Validation Service
 
 class FirebaseValidationService: ObservableObject {
@@ -36,6 +40,14 @@ class FirebaseValidationService: ObservableObject {
         return fingerprint
     }
     
+    private func isRunningOnSimulator() -> Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }
+    
     private func collectDeviceInfo() -> DeviceInfo {
         let device = UIDevice.current
         let screen = UIScreen.main
@@ -55,7 +67,7 @@ class FirebaseValidationService: ObservableObject {
             buildNumber: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "",
             locale: Locale.current.identifier,
             timeZone: TimeZone.current.identifier,
-            isSimulator: TARGET_OS_SIMULATOR != 0,
+            isSimulator: isRunningOnSimulator(),
             timestamp: Date().timeIntervalSince1970
         )
     }
@@ -349,27 +361,7 @@ struct DeviceInfo: Codable {
     }
 }
 
-struct TrialValidationResult {
-    let isValid: Bool
-    let isActive: Bool
-    let daysRemaining: Int
-    let serverValidated: Bool
-    let abuseDetected: Bool
-    let reason: String?
-}
-
-struct AbuseDetectionResult {
-    let isAbuse: Bool
-    let reason: String?
-    let confidence: Double
-    let detectedPatterns: [String]
-}
-
-enum TrialType: String, CaseIterable {
-    case limited = "limited"
-    case unlimited = "unlimited"
-    case freemium = "freemium"
-}
+// Note: TrialValidationResult, AbuseDetectionResult, and TrialType are now defined in SharedTypes.swift
 
 enum ValidationError: Error, LocalizedError {
     case notAuthenticated

@@ -98,6 +98,9 @@ struct DesignSystem {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+        
+        // Shadow color helper (legacy support)
+        static let shadow = Color.black.opacity(0.1)
     }
     
     // MARK: - Modern Corner Radius System
@@ -180,6 +183,7 @@ struct DesignSystem {
     
     // MARK: - Modern Icon Sizes
     struct IconSizes {
+        static let xs: CGFloat = 12      // Extra small
         static let small: CGFloat = 16
         static let medium: CGFloat = 20
         static let large: CGFloat = 24
