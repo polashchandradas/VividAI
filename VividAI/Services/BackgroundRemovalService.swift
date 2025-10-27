@@ -163,7 +163,7 @@ class BackgroundRemovalService: ObservableObject {
         }
         
         // Create mask from segmentation result - VNInstanceMaskObservation
-        let mask = createMaskFromInstanceSegmentation(result, size: image.size)
+        let mask = createMaskFromInstanceSegmentation(result, handler: handler, size: image.size)
         
         // Apply mask to remove background
         return applyMaskToImage(image, mask: mask)
@@ -359,17 +359,15 @@ extension BackgroundRemovalService {
         }
     }
     
-    private func createMaskFromInstanceSegmentation(_ result: VNInstanceMaskObservation, size: CGSize) -> UIImage {
+    private func createMaskFromInstanceSegmentation(_ result: VNInstanceMaskObservation, handler: VNImageRequestHandler, size: CGSize) -> UIImage {
         // For VNInstanceMaskObservation, we need to generate a scaled mask
         // The observation contains instance masks that need to be processed
         do {
             // Generate scaled mask for the image
-            // Note: API may vary by iOS version - using try-catch for compatibility
-            // For VNInstanceMaskObservation, use the correct API signature
-            // The API signature may vary - try the simpler version first
+            // The API requires a VNImageRequestHandler, not a CGRect
             let maskPixelBuffer = try result.generateScaledMaskForImage(
                 forInstances: [0],
-                from: CGRect(origin: .zero, size: size)
+                from: handler
             )
             
             let ciImage = CIImage(cvPixelBuffer: maskPixelBuffer)
