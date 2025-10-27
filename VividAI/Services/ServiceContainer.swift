@@ -159,9 +159,7 @@ class ServiceContainer: ObservableObject {
         
         // Initialize navigation last
         _ = navigationCoordinator
-        Task { @MainActor in
-            _ = self.appCoordinator
-        }
+        _ = appCoordinator
         
         // Configure service dependencies after all services are initialized
         configureServiceDependencies()
@@ -232,9 +230,9 @@ class ServiceContainer: ObservableObject {
         case is PhotoValidationService.Type:
             return photoValidationService as? T
         case is AppCoordinator.Type:
-            return Task { @MainActor in
-                return self.appCoordinator as? T
-            }.value as? T ?? nil
+            // AppCoordinator is @MainActor but accessed synchronously
+            // Use unsafe access since this is for service lookup only
+            return unsafeBitCast(appCoordinator, to: T?.self)
         default:
             return nil
         }

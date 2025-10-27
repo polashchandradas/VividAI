@@ -355,9 +355,13 @@ class AuthenticationService: ObservableObject {
                 throw AuthError.invalidToken
             }
             
-            let provider = OAuthProvider(providerID: "apple.com")
-            // Firebase OAuth credential API - correct method signature for Apple Sign In
-            let firebaseCredential = provider.credential(withIDToken: idTokenString, rawNonce: nonce)
+            // Firebase OAuth credential API for Apple Sign In
+            // Use OAuthProvider.credential static method with correct parameters
+            let firebaseCredential = OAuthProvider.credential(
+                withProviderID: "apple.com",
+                idToken: idTokenString,
+                rawNonce: nonce
+            )
             
             let authResult = try await auth.signIn(with: firebaseCredential)
             let user = authResult.user
