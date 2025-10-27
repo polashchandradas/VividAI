@@ -360,21 +360,20 @@ extension BackgroundRemovalService {
     }
     
     private func createMaskFromInstanceSegmentation(_ result: VNInstanceMaskObservation, size: CGSize) -> UIImage {
-        // Get the mask from the observation
-        do {
-            let mask = try result.generateScaledMaskForImage(forInstances: result.allInstances, from: CGSize(width: size.width, height: size.height))
-            let ciImage = CIImage(cvPixelBuffer: mask)
-            let context = CIContext()
-            
-            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-                return createSimpleMask(size: size)
-            }
-            
-            return UIImage(cgImage: cgImage)
-        } catch {
-            print("Failed to create mask from instance segmentation: \(error.localizedDescription)")
+        // Get the mask from the observation using pixel buffer
+        // For VNInstanceMaskObservation, we need to process the instances
+        guard let pixelBuffer = result.pixelBuffer else {
             return createSimpleMask(size: size)
         }
+        
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+            return createSimpleMask(size: size)
+        }
+        
+        return UIImage(cgImage: cgImage)
     }
     
     private func createMaskFromSegmentation(_ result: VNPixelBufferObservation, size: CGSize) -> UIImage {

@@ -221,7 +221,7 @@ struct TrialData: Codable {
 struct ReferralData: Codable {
     let referralCode: String
     let referralCount: Int
-    let availableRewards: Int
+    var availableRewards: Int
     let deviceId: String
     let serverValidated: Bool
     

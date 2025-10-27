@@ -14,8 +14,8 @@ class AppCoordinator: ObservableObject {
     // Error state is managed by ErrorHandlingService to avoid conflicts
     // Authentication state is managed by AuthenticationService and SubscriptionManager
     // AppCoordinator observes these states but doesn't duplicate them
-    var isPremiumUser: Bool { subscriptionManager.isPremiumUser }
-    var subscriptionStatus: SubscriptionStatus { subscriptionManager.subscriptionStatus }
+    var isPremiumUser: Bool { services.unifiedAppStateManager.isPremiumUser }
+    var subscriptionStatus: SubscriptionStatus { services.unifiedAppStateManager.subscriptionStatus }
     
     // MARK: - Service Container
     

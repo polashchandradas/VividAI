@@ -233,7 +233,7 @@ class AuthenticationService: ObservableObject {
             try auth.signOut()
             
             // 2. Update unified state manager
-            unifiedAppStateManager.signOut()
+            await unifiedAppStateManager.signOut()
             
             // 3. Clear all user data and reset app state
             await performLogoutCleanup()
@@ -303,9 +303,9 @@ class AuthenticationService: ObservableObject {
     
     private func resetAnalytics() async {
         // Reset analytics user properties
-        ServiceContainer.shared.analyticsService.setUserProperty(key: "user_id", value: nil)
-        ServiceContainer.shared.analyticsService.setUserProperty(key: "subscription_status", value: nil)
-        ServiceContainer.shared.analyticsService.setUserProperty(key: "is_premium", value: nil)
+        ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "user_id")
+        ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "subscription_status")
+        ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "is_premium")
         
         logger.info("Analytics reset for logout")
     }
@@ -355,7 +355,7 @@ class AuthenticationService: ObservableObject {
             }
             
             let provider = OAuthProvider(providerID: "apple.com")
-            let firebaseCredential = provider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
+            let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
             
             let authResult = try await auth.signIn(with: firebaseCredential)
             let user = authResult.user

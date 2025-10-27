@@ -61,8 +61,8 @@ enum GenerationLimits {
         switch self {
         case .unlimited:
             return 999
-        case .trial(let used, let max, _):
-            return max(0, max - used)
+        case .trial(let used, let maxValue, _):
+            return Swift.max(0, maxValue - used)
         case .free(let remaining):
             return remaining
         }
@@ -70,11 +70,24 @@ enum GenerationLimits {
 }
 
 // MARK: - Subscription Action
-enum SubscriptionAction {
+enum SubscriptionAction: CustomStringConvertible {
     case startFreeTrial(SubscriptionManager.SubscriptionPlan)
     case purchase(Product)
     case restorePurchases
     case cancelSubscription
+    
+    var description: String {
+        switch self {
+        case .startFreeTrial(let plan):
+            return "startFreeTrial(\(plan))"
+        case .purchase(let product):
+            return "purchase(\(product.id))"
+        case .restorePurchases:
+            return "restorePurchases"
+        case .cancelSubscription:
+            return "cancelSubscription"
+        }
+    }
 }
 
 // MARK: - App View

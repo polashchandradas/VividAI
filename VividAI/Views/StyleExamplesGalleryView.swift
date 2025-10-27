@@ -328,7 +328,8 @@ struct StyleExamplesCategoryView: View {
                             isSelected: false,
                             onTap: {
                                 onExampleSelected(example)
-                            }
+                            },
+                            onInfoTap: nil
                         )
                     }
                 }

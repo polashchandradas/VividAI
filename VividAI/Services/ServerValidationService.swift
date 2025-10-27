@@ -25,7 +25,7 @@ class ServerValidationService: ObservableObject {
     
     func validateTrialStatus() async -> TrialValidationResult {
         guard let trialData = secureStorage.getTrialData() else {
-            return TrialValidationResult(isValid: false, isActive: false, daysRemaining: 0, serverValidated: false)
+            return TrialValidationResult(isValid: false, isActive: false, daysRemaining: 0, serverValidated: false, abuseDetected: false, reason: nil)
         }
         
         // Check if trial is expired locally
@@ -35,7 +35,7 @@ class ServerValidationService: ObservableObject {
         if isExpired {
             // Clear expired trial data
             secureStorage.clearTrialData()
-            return TrialValidationResult(isValid: false, isActive: false, daysRemaining: 0, serverValidated: true)
+            return TrialValidationResult(isValid: false, isActive: false, daysRemaining: 0, serverValidated: true, abuseDetected: false, reason: nil)
         }
         
         // Validate with server
@@ -49,8 +49,10 @@ class ServerValidationService: ObservableObject {
             return TrialValidationResult(
                 isValid: true,
                 isActive: trialData.isActive,
-                daysRemaining: max(0, daysRemaining),
-                serverValidated: false
+                daysRemaining: Swift.max(0, daysRemaining),
+                serverValidated: false,
+                abuseDetected: false,
+                reason: nil
             )
         }
     }
@@ -135,7 +137,7 @@ class ServerValidationService: ObservableObject {
     
     func detectTrialAbuse() async -> AbuseDetectionResult {
         guard let trialData = secureStorage.getTrialData() else {
-            return AbuseDetectionResult(isAbuse: false, reason: nil)
+            return AbuseDetectionResult(isAbuse: false, reason: nil, confidence: 0.0, detectedPatterns: [])
         }
         
         // Check for multiple trial attempts
@@ -143,7 +145,9 @@ class ServerValidationService: ObservableObject {
         if trialHistory.count > 1 {
             return AbuseDetectionResult(
                 isAbuse: true,
-                reason: "Multiple trial attempts detected"
+                reason: "Multiple trial attempts detected",
+                confidence: 0.8,
+                detectedPatterns: ["multiple_trials"]
             )
         }
         
@@ -151,7 +155,9 @@ class ServerValidationService: ObservableObject {
         if await isSuspiciousTrialPattern(trialData) {
             return AbuseDetectionResult(
                 isAbuse: true,
-                reason: "Suspicious trial pattern detected"
+                reason: "Suspicious trial pattern detected",
+                confidence: 0.7,
+                detectedPatterns: ["suspicious_pattern"]
             )
         }
         
@@ -160,14 +166,16 @@ class ServerValidationService: ObservableObject {
     
     func detectReferralAbuse() async -> AbuseDetectionResult {
         guard let referralData = secureStorage.getReferralData() else {
-            return AbuseDetectionResult(isAbuse: false, reason: nil)
+            return AbuseDetectionResult(isAbuse: false, reason: nil, confidence: 0.0, detectedPatterns: [])
         }
         
         // Check for excessive rewards
         if referralData.availableRewards > 100 {
             return AbuseDetectionResult(
                 isAbuse: true,
-                reason: "Excessive rewards detected"
+                reason: "Excessive rewards detected",
+                confidence: 0.9,
+                detectedPatterns: ["excessive_rewards"]
             )
         }
         
@@ -234,22 +242,13 @@ class ServerValidationService: ObservableObject {
 
 // MARK: - Data Models
 
-struct TrialValidationResult {
-    let isValid: Bool
-    let isActive: Bool
-    let daysRemaining: Int
-    let serverValidated: Bool
-}
+// Note: TrialValidationResult and AbuseDetectionResult are defined in SharedTypes.swift
+// This file uses the shared types to avoid duplication
 
 struct ReferralValidationResult {
     let isValid: Bool
     let availableRewards: Int
     let serverValidated: Bool
-}
-
-struct AbuseDetectionResult {
-    let isAbuse: Bool
-    let reason: String?
 }
 
 struct TrialValidationRequest: Codable {

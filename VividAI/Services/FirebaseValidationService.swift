@@ -88,7 +88,7 @@ class FirebaseValidationService: ObservableObject {
     
     // MARK: - Trial Validation with Firebase Functions
     
-    func validateTrialWithFirebase(_ trialData: TrialData) async throws -> SharedTypes.TrialValidationResult {
+    func validateTrialWithFirebase(_ trialData: TrialData) async throws -> TrialValidationResult {
         logger.info("Validating trial with Firebase for device: \(trialData.deviceId)")
         
         // Get Firebase ID token
@@ -118,7 +118,7 @@ class FirebaseValidationService: ObservableObject {
             throw ValidationError.invalidResponse
         }
         
-        return SharedTypes.TrialValidationResult(
+        return TrialValidationResult(
             isValid: data["isValid"] as? Bool ?? false,
             isActive: data["isActive"] as? Bool ?? false,
             daysRemaining: data["daysRemaining"] as? Int ?? 0,
@@ -130,7 +130,7 @@ class FirebaseValidationService: ObservableObject {
     
     // MARK: - Start Trial with Server Validation
     
-    func startTrialWithFirebase(type: TrialType) async throws -> SharedTypes.TrialValidationResult {
+    func startTrialWithFirebase(type: TrialType) async throws -> TrialValidationResult {
         logger.info("Starting trial with Firebase validation: \(type)")
         
         guard let user = auth.currentUser else {
@@ -153,7 +153,7 @@ class FirebaseValidationService: ObservableObject {
             throw ValidationError.invalidResponse
         }
         
-        return SharedTypes.TrialValidationResult(
+        return TrialValidationResult(
             isValid: data["isValid"] as? Bool ?? false,
             isActive: data["isActive"] as? Bool ?? false,
             daysRemaining: data["daysRemaining"] as? Int ?? 0,
@@ -165,7 +165,7 @@ class FirebaseValidationService: ObservableObject {
     
     // MARK: - Abuse Detection
     
-    func detectAbuseWithFirebase() async throws -> SharedTypes.AbuseDetectionResult {
+    func detectAbuseWithFirebase() async throws -> AbuseDetectionResult {
         logger.info("Detecting abuse with Firebase")
         
         guard let user = auth.currentUser else {
@@ -184,7 +184,7 @@ class FirebaseValidationService: ObservableObject {
             throw ValidationError.invalidResponse
         }
         
-        return SharedTypes.AbuseDetectionResult(
+        return AbuseDetectionResult(
             isAbuse: data["isAbuse"] as? Bool ?? false,
             reason: data["reason"] as? String,
             confidence: data["confidence"] as? Double ?? 0.0,

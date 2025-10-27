@@ -13,9 +13,9 @@ struct Product: Identifiable, Hashable {
     let features: [String]
     
     // StoreKit Product
-    let storeKitProduct: Product?
+    let storeKitProduct: StoreKit.Product?
     
-    init(id: String, name: String, description: String, price: String, isPremium: Bool, features: [String], storeKitProduct: Product? = nil) {
+    init(id: String, name: String, description: String, price: String, isPremium: Bool, features: [String], storeKitProduct: StoreKit.Product? = nil) {
         self.id = id
         self.name = name
         self.description = description

@@ -85,22 +85,9 @@ class UnifiedAppStateManager: ObservableObject {
             }
             .store(in: &cancellables)
         
-        // Observe subscription changes
-        subscriptionManager.$isPremiumUser
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isPremium in
-                self?.isPremiumUser = isPremium
-                self?.logger.info("Premium status updated: \(isPremium)")
-            }
-            .store(in: &cancellables)
-        
-        subscriptionManager.$subscriptionStatus
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] status in
-                self?.subscriptionStatus = status
-                self?.logger.info("Subscription status updated: \(status)")
-            }
-            .store(in: &cancellables)
+        // Subscription changes are now handled directly via callbacks
+        // SubscriptionManager updates UnifiedAppStateManager directly through ServiceContainer
+        // No need to observe @Published properties that don't exist
     }
     
     // MARK: - State Persistence
@@ -110,9 +97,9 @@ class UnifiedAppStateManager: ObservableObject {
         isAuthenticated = authenticationService.isAuthenticated
         currentUser = authenticationService.currentUser
         
-        // Load subscription state
-        isPremiumUser = subscriptionManager.isPremiumUser
-        subscriptionStatus = subscriptionManager.subscriptionStatus
+        // Load subscription state from current values
+        isPremiumUser = subscriptionManager.currentIsPremiumUser
+        subscriptionStatus = subscriptionManager.currentSubscriptionStatus
         
         logger.info("Persisted state loaded")
     }
@@ -142,21 +129,21 @@ class UnifiedAppStateManager: ObservableObject {
         isLoading = false
     }
     
-    func signUp(email: String, password: String) async {
+    func signUp(email: String, password: String, fullName: String = "") async {
         isLoading = true
         authenticationError = nil
         
         do {
-            let user = try await authenticationService.signUp(email: email, password: password)
+            let user = try await authenticationService.signUp(email: email, password: password, fullName: fullName)
             currentUser = user
             isAuthenticated = true
             
             analyticsService.track(event: "user_signed_up", parameters: [
                 "user_id": user.uid,
-                "email": user.email
+                "email": user.email ?? ""
             ])
             
-            logger.info("User signed up successfully: \(user.email)")
+            logger.info("User signed up successfully: \(user.email ?? "unknown")")
         } catch {
             authenticationError = error.localizedDescription
             logger.error("Sign up failed: \(error.localizedDescription)")
@@ -183,11 +170,17 @@ class UnifiedAppStateManager: ObservableObject {
         isLoading = true
         subscriptionError = nil
         
+        guard let storeKitProduct = product.storeKitProduct else {
+            subscriptionError = "Product not available"
+            isLoading = false
+            return
+        }
+        
         do {
-            try await subscriptionManager.purchaseSubscription(product)
-            isPremiumUser = true
-            subscriptionStatus = .active
-            subscriptionExpiryDate = Date().addingTimeInterval(365 * 24 * 60 * 60) // 1 year
+            _ = try await subscriptionManager.purchase(product: storeKitProduct)
+            // State will be updated via callbacks from SubscriptionManager
+            isPremiumUser = subscriptionManager.currentIsPremiumUser
+            subscriptionStatus = subscriptionManager.currentSubscriptionStatus
             
             analyticsService.track(event: "subscription_purchased", parameters: [
                 "product_id": product.id,
@@ -208,9 +201,10 @@ class UnifiedAppStateManager: ObservableObject {
         subscriptionError = nil
         
         do {
-            try await subscriptionManager.restorePurchases()
-            isPremiumUser = subscriptionManager.isPremiumUser
-            subscriptionStatus = subscriptionManager.subscriptionStatus
+            subscriptionManager.restorePurchases()
+            // State will be updated via callbacks from SubscriptionManager
+            isPremiumUser = subscriptionManager.currentIsPremiumUser
+            subscriptionStatus = subscriptionManager.currentSubscriptionStatus
             
             analyticsService.track(event: "purchases_restored")
             logger.info("Purchases restored")

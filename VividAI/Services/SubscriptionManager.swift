@@ -294,7 +294,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     // MARK: - Helper Methods
     
-    func getProduct(for plan: SubscriptionPlan) -> Product? {
+    func getProduct(for plan: SubscriptionPlan) -> StoreKit.Product? {
         let productID = plan.productID
         return availableProducts.first { $0.id == productID }
     }
