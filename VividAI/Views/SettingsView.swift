@@ -403,6 +403,6 @@ struct SettingsView: View {
         .environmentObject(UnifiedAppStateManager.shared)
         .environmentObject(NavigationCoordinator())
         .environmentObject(AnalyticsService.shared)
-        .environmentObject(AuthenticationService())
+        .environmentObject(AuthenticationService.shared)
         .environmentObject(AppCoordinator())
 }
