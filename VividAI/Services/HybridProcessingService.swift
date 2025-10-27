@@ -327,7 +327,7 @@ class HybridProcessingService: ObservableObject {
                 case .success(let results):
                     self.updateProgress(1.0, step: "Cloud processing complete")
                     completion(.success(results))
-                case .failure(let error):
+                case .failure:
                     // Try fallback processing
                     self.executeFallbackProcessing(image: image, completion: completion)
                 }

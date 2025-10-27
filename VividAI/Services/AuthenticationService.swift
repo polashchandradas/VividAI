@@ -355,7 +355,7 @@ class AuthenticationService: ObservableObject {
             }
             
             let provider = OAuthProvider(providerID: "apple.com")
-            let firebaseCredential = try await provider.credential(withIDToken: idTokenString, rawNonce: nonce)
+            let firebaseCredential = provider.credential(withIDToken: idTokenString, rawNonce: nonce)
             
             let authResult = try await auth.signIn(with: firebaseCredential)
             let user = authResult.user

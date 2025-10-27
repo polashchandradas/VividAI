@@ -189,27 +189,32 @@ class SubscriptionStateManager: ObservableObject {
     
     private func calculateUnifiedState() {
         // Calculate if user can generate
-        let canGenerate = calculateCanGenerate()
-        
-        // Update published properties
-        self.canGenerate = canGenerate
-        
-        // Log state change
-        logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(self.userStatus)")
-        
-        // Track analytics
-        analyticsService.track(event: "subscription_state_updated", parameters: [
-            "is_premium": ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
-            "is_trial_active": isTrialActive,
-            "trial_type": "\(trialType)",
-            "can_generate": canGenerate,
-            "remaining_generations": remainingGenerations
-        ])
+        Task { @MainActor in
+            let canGenerate = calculateCanGenerate()
+            
+            // Update published properties
+            self.canGenerate = canGenerate
+            
+            // Log state change
+            logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(self.userStatus)")
+            
+            // Track analytics
+            analyticsService.track(event: "subscription_state_updated", parameters: [
+                "is_premium": ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
+                "is_trial_active": isTrialActive,
+                "trial_type": "\(trialType)",
+                "can_generate": canGenerate,
+                "remaining_generations": remainingGenerations
+            ])
+        }
     }
     
     private func calculateCanGenerate() -> Bool {
         // Premium users can always generate
-        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
+        // Note: This function runs on main actor due to being called from calculateUnifiedState
+        // which is called from DispatchQueue.main.async blocks
+        let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
+        if isPremium {
             return true
         }
         
@@ -220,7 +225,7 @@ class SubscriptionStateManager: ObservableObject {
         
         // Check usage limits for free users
         return usageLimitService.canGenerate(
-            isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
+            isPremium: isPremium,
             isTrialActive: isTrialActive
         )
     }
@@ -353,7 +358,7 @@ class SubscriptionStateManager: ObservableObject {
             subscriptionManager.restorePurchases()
             
         case .cancelSubscription:
-            subscriptionManager.cancelSubscription()
+            subscriptionManager.cancelSubscription(for: nil)
         }
     }
 }

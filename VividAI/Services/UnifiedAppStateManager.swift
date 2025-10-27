@@ -153,15 +153,19 @@ class UnifiedAppStateManager: ObservableObject {
     }
     
     func signOut() async {
-        await authenticationService.signOut()
-        currentUser = nil
-        isAuthenticated = false
-        isPremiumUser = false
-        subscriptionStatus = .none
-        subscriptionExpiryDate = nil
-        
-        analyticsService.track(event: "user_signed_out")
-        logger.info("User signed out")
+        do {
+            try await authenticationService.signOut()
+            currentUser = nil
+            isAuthenticated = false
+            isPremiumUser = false
+            subscriptionStatus = .none
+            subscriptionExpiryDate = nil
+            
+            analyticsService.track(event: "user_signed_out")
+            logger.info("User signed out")
+        } catch {
+            logger.error("Sign out failed: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - Subscription Actions

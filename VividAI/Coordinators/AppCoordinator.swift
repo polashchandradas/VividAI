@@ -5,6 +5,7 @@ import UIKit
 
 // MARK: - App Coordinator
 
+@MainActor
 class AppCoordinator: ObservableObject {
     // MARK: - Published Properties
     
@@ -190,7 +191,7 @@ class AppCoordinator: ObservableObject {
         case .restorePurchases:
             subscriptionManager.restorePurchases()
         case .cancelSubscription:
-            subscriptionManager.cancelSubscription()
+            subscriptionManager.cancelSubscription(for: nil)
         }
     }
     

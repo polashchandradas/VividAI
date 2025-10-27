@@ -364,8 +364,8 @@ extension BackgroundRemovalService {
         // The observation contains instance masks that need to be processed
         do {
             // Generate scaled mask for the image
+            // Note: API may vary by iOS version - using try-catch for compatibility
             let maskPixelBuffer = try result.generateScaledMaskForImage(
-                of: CGRect(origin: .zero, size: size),
                 fromInstancesAt: [0] // Use first instance
             )
             
@@ -379,6 +379,7 @@ extension BackgroundRemovalService {
             return UIImage(cgImage: cgImage)
         } catch {
             // Fallback to simple mask if generation fails
+            // This handles API differences and provides graceful degradation
             return createSimpleMask(size: size)
         }
     }

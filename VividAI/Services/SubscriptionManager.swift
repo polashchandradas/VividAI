@@ -417,22 +417,4 @@ enum SubscriptionError: Error, LocalizedError {
             return "Purchase failed"
         }
     }
-    
-    // MARK: - Subscription Cancellation
-    
-    func cancelSubscription(for productID: String? = nil) {
-        Task {
-            // In a real implementation, this would handle cancellation through StoreKit
-            // For now, we'll just update the state
-            await MainActor.run {
-                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = false
-                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .cancelled
-                self.onSubscriptionStateChanged?(false, .cancelled)
-            }
-            
-            analyticsService.track(event: "subscription_cancelled", parameters: [
-                "product_id": productID ?? "unknown"
-            ])
-        }
-    }
 }

@@ -8,6 +8,7 @@ class ServiceContainer: ObservableObject {
     
     // MARK: - Core Services
     // Unified State Management (Single Source of Truth)
+    @MainActor
     lazy var unifiedAppStateManager: UnifiedAppStateManager = {
         UnifiedAppStateManager.shared
     }()
