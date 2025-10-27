@@ -204,18 +204,13 @@ class UnifiedAppStateManager: ObservableObject {
         isLoading = true
         subscriptionError = nil
         
-        do {
-            subscriptionManager.restorePurchases()
-            // State will be updated via callbacks from SubscriptionManager
-            isPremiumUser = subscriptionManager.currentIsPremiumUser
-            subscriptionStatus = subscriptionManager.currentSubscriptionStatus
-            
-            analyticsService.track(event: "purchases_restored")
-            logger.info("Purchases restored")
-        } catch {
-            subscriptionError = error.localizedDescription
-            logger.error("Restore purchases failed: \(error.localizedDescription)")
-        }
+        subscriptionManager.restorePurchases()
+        // State will be updated via callbacks from SubscriptionManager
+        isPremiumUser = subscriptionManager.currentIsPremiumUser
+        subscriptionStatus = subscriptionManager.currentSubscriptionStatus
+        
+        analyticsService.track(event: "purchases_restored")
+        logger.info("Purchases restored")
         
         isLoading = false
     }

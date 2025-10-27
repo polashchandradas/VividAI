@@ -190,17 +190,18 @@ class SubscriptionStateManager: ObservableObject {
     private func calculateUnifiedState() {
         // Calculate if user can generate
         Task { @MainActor in
-            let canGenerate = calculateCanGenerate()
+            let canGenerate = await calculateCanGenerate()
             
             // Update published properties
             self.canGenerate = canGenerate
             
             // Log state change
-            logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(self.userStatus)")
+            logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(await getUserStatus())")
             
             // Track analytics
+            let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
             analyticsService.track(event: "subscription_state_updated", parameters: [
-                "is_premium": ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
+                "is_premium": isPremium,
                 "is_trial_active": isTrialActive,
                 "trial_type": "\(trialType)",
                 "can_generate": canGenerate,
@@ -209,10 +210,20 @@ class SubscriptionStateManager: ObservableObject {
         }
     }
     
+    @MainActor
+    private func getUserStatus() -> UserStatus {
+        if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
+            return .premium
+        } else if isTrialActive {
+            return .trial(trialType)
+        } else {
+            return .free
+        }
+    }
+    
+    @MainActor
     private func calculateCanGenerate() -> Bool {
         // Premium users can always generate
-        // Note: This function runs on main actor due to being called from calculateUnifiedState
-        // which is called from DispatchQueue.main.async blocks
         let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
         if isPremium {
             return true
@@ -358,7 +369,7 @@ class SubscriptionStateManager: ObservableObject {
             subscriptionManager.restorePurchases()
             
         case .cancelSubscription:
-            subscriptionManager.cancelSubscription(for: nil)
+            subscriptionManager.cancelSubscription(for: nil as String?)
         }
     }
 }

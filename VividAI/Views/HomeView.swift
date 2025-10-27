@@ -1,6 +1,9 @@
 import SwiftUI
 import UIKit
 
+// Import MasonryLayoutView types
+// Note: Types are in same module, but explicit reference ensures visibility
+
 struct HomeView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @EnvironmentObject var appCoordinator: AppCoordinator

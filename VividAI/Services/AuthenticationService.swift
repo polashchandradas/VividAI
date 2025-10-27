@@ -25,6 +25,7 @@ class AuthenticationService: ObservableObject {
     @Published var userProfile: UserProfile?
     
     // MARK: - Service Dependencies
+    @MainActor
     private var unifiedAppStateManager: UnifiedAppStateManager {
         return ServiceContainer.shared.unifiedAppStateManager
     }
@@ -355,7 +356,7 @@ class AuthenticationService: ObservableObject {
             }
             
             let provider = OAuthProvider(providerID: "apple.com")
-            let firebaseCredential = provider.credential(withIDToken: idTokenString, rawNonce: nonce)
+            let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
             
             let authResult = try await auth.signIn(with: firebaseCredential)
             let user = authResult.user

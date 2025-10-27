@@ -115,6 +115,7 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
+    @MainActor
     lazy var appCoordinator: AppCoordinator = {
         AppCoordinator()
     }()
@@ -127,7 +128,9 @@ class ServiceContainer: ObservableObject {
     
     private func setupServices() {
         // Initialize unified state manager first (single source of truth)
-        _ = unifiedAppStateManager
+        Task { @MainActor in
+            _ = self.unifiedAppStateManager
+        }
         
         // Initialize services in dependency order (no dependencies first)
         _ = configurationService

@@ -191,7 +191,7 @@ class AppCoordinator: ObservableObject {
         case .restorePurchases:
             subscriptionManager.restorePurchases()
         case .cancelSubscription:
-            subscriptionManager.cancelSubscription(for: nil)
+            subscriptionManager.cancelSubscription(for: nil as String?)
         }
     }
     

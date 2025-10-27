@@ -381,6 +381,21 @@ class SubscriptionManager: NSObject, ObservableObject {
             }
         }
     }
+    
+    // MARK: - Cancel Subscription
+    
+    func cancelSubscription(for productID: String? = nil) {
+        Task {
+            await MainActor.run {
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = false
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .cancelled
+                self.onSubscriptionStateChanged?(false, .cancelled)
+            }
+            ServiceContainer.shared.analyticsService.track(event: "subscription_cancelled", parameters: [
+                "product_id": productID ?? "unknown"
+            ])
+        }
+    }
 }
 
 // MARK: - Data Models
