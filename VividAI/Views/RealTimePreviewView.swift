@@ -6,6 +6,9 @@ import Combine
 
 struct RealTimePreviewView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var appCoordinator: AppCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
     @StateObject private var styleManager = StyleExampleManager.shared
     
     @State private var selectedImage: UIImage?
@@ -81,7 +84,7 @@ struct RealTimePreviewView: View {
     private var headerSection: some View {
         HStack {
             Button(action: {
-                serviceContainer.navigationCoordinator.navigateBack()
+                navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -407,7 +410,7 @@ struct RealTimePreviewView: View {
     // MARK: - Helper Methods
     
     private func setupRealTimePreview() {
-        serviceContainer.analyticsService.track(event: "realtime_preview_opened")
+        analyticsService.track(event: "realtime_preview_opened")
         
         // Start auto-generation if enabled
         if autoGenerate {
@@ -425,7 +428,7 @@ struct RealTimePreviewView: View {
         // For now, use a mock image
         selectedImage = UIImage(systemName: "person.circle.fill")
         
-        serviceContainer.analyticsService.track(event: "image_selected_for_realtime")
+        analyticsService.track(event: "image_selected_for_realtime")
         
         if autoGenerate && selectedStyle != nil {
             generatePreview()
@@ -434,7 +437,7 @@ struct RealTimePreviewView: View {
     
     private func selectStyle(_ style: AvatarStyle) {
         selectedStyle = style
-        serviceContainer.analyticsService.track(event: "style_selected_for_realtime", parameters: ["style": style.name])
+        analyticsService.track(event: "style_selected_for_realtime", parameters: ["style": style.name])
         
         if autoGenerate && selectedImage != nil {
             generatePreview()
@@ -453,7 +456,7 @@ struct RealTimePreviewView: View {
         // For now, use the existing real-time service as fallback
         Task {
             do {
-                let preview = try await serviceContainer.realTimeGenerationService.generateInstantPreview(from: image, style: style)
+                let preview = try await ServiceContainer.shared.realTimeGenerationService.generateInstantPreview(from: image, style: style)
                 
                 DispatchQueue.main.async {
                     self.currentPreview = preview
@@ -461,9 +464,9 @@ struct RealTimePreviewView: View {
                     self.generationProgress = 1.0
                 }
                 
-                serviceContainer.analyticsService.track(event: "realtime_preview_generated", parameters: [
+                analyticsService.track(event: "realtime_preview_generated", parameters: [
                     "style": style.name,
-                    "generation_time": serviceContainer.realTimeGenerationService.getAverageGenerationTime()
+                    "generation_time": ServiceContainer.shared.realTimeGenerationService.getAverageGenerationTime()
                 ])
                 
             } catch {
@@ -472,7 +475,7 @@ struct RealTimePreviewView: View {
                     self.generationProgress = 0.0
                 }
                 
-                serviceContainer.analyticsService.track(event: "realtime_preview_failed", parameters: [
+                analyticsService.track(event: "realtime_preview_failed", parameters: [
                     "error": error.localizedDescription
                 ])
             }
@@ -490,7 +493,7 @@ struct RealTimePreviewView: View {
     private func generateFullQuality() {
         guard let image = selectedImage, let style = selectedStyle else { return }
         
-        serviceContainer.analyticsService.track(event: "full_quality_generation_started", parameters: ["style": style.name])
+        analyticsService.track(event: "full_quality_generation_started", parameters: ["style": style.name])
         
         // Navigate to full processing
         appCoordinator.processImage(image)
@@ -501,7 +504,7 @@ struct RealTimePreviewView: View {
         selectedImage = nil
         selectedStyle = nil
         
-        serviceContainer.analyticsService.track(event: "realtime_preview_cleared")
+        analyticsService.track(event: "realtime_preview_cleared")
     }
     
     private func savePreview() {
@@ -510,7 +513,7 @@ struct RealTimePreviewView: View {
         // Save to photo library
         UIImageWriteToSavedPhotosAlbum(preview, nil, nil, nil)
         
-        serviceContainer.analyticsService.track(event: "realtime_preview_saved")
+        analyticsService.track(event: "realtime_preview_saved")
     }
 }
 
@@ -693,4 +696,7 @@ struct StyleRow: View {
 #Preview {
     RealTimePreviewView()
         .environmentObject(UnifiedAppStateManager.shared)
+        .environmentObject(NavigationCoordinator())
+        .environmentObject(AppCoordinator())
+        .environmentObject(AnalyticsService.shared)
 }

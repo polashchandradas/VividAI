@@ -28,50 +28,6 @@ import GoogleSignIn
 
 // MARK: - Product Model (moved to Models/Product.swift)
 
-// MARK: - Main App View
-
-struct MainAppView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    @EnvironmentObject var unifiedAppStateManager: UnifiedAppStateManager
-    
-    var body: some View {
-        ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
-            
-            Group {
-                switch unifiedAppStateManager.currentView {
-                case .splash:
-                    SplashScreenView()
-                case .authentication:
-                    AuthenticationView()
-                case .home:
-                    HomeView()
-                case .photoUpload:
-                    PhotoUploadView()
-                case .realTimePreview:
-                    RealTimePreviewView()
-                case .processing:
-                    ProcessingView()
-                case .results:
-                    ResultsView()
-                case .paywall:
-                    PaywallView()
-                case .share:
-                    ShareView()
-                case .settings:
-                    SettingsView()
-                }
-            }
-            .animation(.easeInOut(duration: 0.3), value: unifiedAppStateManager.currentView)
-        }
-        .onAppear {
-            appCoordinator.handleAppBecameActive()
-        }
-    }
-}
-
 @main
 struct VividAIApp: App {
     @StateObject private var serviceContainer = ServiceContainer.shared
@@ -88,31 +44,31 @@ struct VividAIApp: App {
             if let error = configurationError {
                 ConfigurationErrorView(error: error)
             } else {
-                          MainAppView()
-                              .environmentObject(appCoordinator)
-                              .environmentObject(serviceContainer.unifiedAppStateManager)
-                              .environmentObject(serviceContainer.navigationCoordinator)
-                              .environmentObject(serviceContainer.subscriptionStateManager)
-                              .environmentObject(serviceContainer.analyticsService)
-                              .environmentObject(serviceContainer.authenticationService)
-                       .environmentObject(serviceContainer.realTimeGenerationService)
-                       .environmentObject(serviceContainer.hybridProcessingService)
-                       .environmentObject(serviceContainer.backgroundRemovalService)
-                       .environmentObject(serviceContainer.photoEnhancementService)
-                       .environmentObject(serviceContainer.aiHeadshotService)
-                       .environmentObject(serviceContainer.videoGenerationService)
-                       .environmentObject(serviceContainer.watermarkService)
-                       .environmentObject(serviceContainer.referralService)
-                       .environmentObject(serviceContainer.securityService)
-                       .environmentObject(serviceContainer.loggingService)
-                       .environmentObject(serviceContainer.errorHandlingService)
-                       .environmentObject(serviceContainer.secureStorageService)
-                       .environmentObject(serviceContainer.serverValidationService)
-                       .environmentObject(serviceContainer.firebaseValidationService)
-                       .environmentObject(serviceContainer.firebaseAppCheckService)
-                       .environmentObject(serviceContainer.firebaseConfigurationService)
-                       .environmentObject(serviceContainer.configurationService)
-                       .errorHandling()
+                MainAppView()
+                    .environmentObject(appCoordinator)
+                    .environmentObject(serviceContainer.unifiedAppStateManager)
+                    .environmentObject(serviceContainer.navigationCoordinator)
+                    .environmentObject(serviceContainer.subscriptionStateManager)
+                    .environmentObject(serviceContainer.analyticsService)
+                    .environmentObject(serviceContainer.authenticationService)
+                    .environmentObject(serviceContainer.realTimeGenerationService)
+                    .environmentObject(serviceContainer.hybridProcessingService)
+                    .environmentObject(serviceContainer.backgroundRemovalService)
+                    .environmentObject(serviceContainer.photoEnhancementService)
+                    .environmentObject(serviceContainer.aiHeadshotService)
+                    .environmentObject(serviceContainer.videoGenerationService)
+                    .environmentObject(serviceContainer.watermarkService)
+                    .environmentObject(serviceContainer.referralService)
+                    .environmentObject(serviceContainer.securityService)
+                    .environmentObject(serviceContainer.loggingService)
+                    .environmentObject(serviceContainer.errorHandlingService)
+                    .environmentObject(serviceContainer.secureStorageService)
+                    .environmentObject(serviceContainer.serverValidationService)
+                    .environmentObject(serviceContainer.firebaseValidationService)
+                    .environmentObject(serviceContainer.firebaseAppCheckService)
+                    .environmentObject(serviceContainer.firebaseConfigurationService)
+                    .environmentObject(serviceContainer.configurationService)
+                    .errorHandling()
                     .onAppear {
                         appCoordinator.handleAppBecameActive()
                     }
@@ -158,18 +114,8 @@ struct VividAIApp: App {
     }
     
     private func initializeAppCheck() {
-        // Configure App Check with DeviceCheck for iOS
-        #if DEBUG
-        // Use debug provider for development
-        let debugProvider = AppCheckDebugProvider()
-        AppCheck.setAppCheckProviderFactory(debugProvider)
-        #else
-        // Use DeviceCheck for production
-        let deviceCheckProvider = DeviceCheckProvider()
-        AppCheck.setAppCheckProviderFactory(deviceCheckProvider)
-        #endif
-        
-        // App Check is now initialized by FirebaseConfigurationService
+        // App Check is initialized by FirebaseConfigurationService
+        // No need to manually configure here
     }
 }
 

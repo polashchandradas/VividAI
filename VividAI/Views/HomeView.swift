@@ -3,6 +3,7 @@ import UIKit
 
 struct HomeView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var appCoordinator: AppCoordinator
     
     // Modern UI State
     @State private var isDarkMode = false
@@ -587,7 +588,7 @@ struct HomeView: View {
                             Spacer()
                             
                             Button("Start Free Trial") {
-                                ServiceContainer.shared.appCoordinator.startFreeTrial(type: .limited)
+                                appCoordinator.startFreeTrial(type: FreeTrialService.TrialType.limited)
                                 ServiceContainer.shared.analyticsService.track(event: "start_free_trial_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
@@ -820,142 +821,6 @@ struct TrustIndicator: View {
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xl)
                 .fill(color.opacity(0.1))
         )
-    }
-}
-
-struct RealTimePreviewView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var selectedImage: UIImage?
-    @State private var selectedStyle: AvatarStyle?
-    @State private var isShowingImagePicker = false
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 24) {
-                // Header
-                Text("Real-Time Preview")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.primary)
-                
-                // Image selection
-                if let image = selectedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxHeight: 200)
-                        .cornerRadius(16)
-                } else {
-                    Button("Select Image") {
-                        isShowingImagePicker = true
-                    }
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 200)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.blue)
-                    )
-                }
-                
-                // Style selection
-                if selectedImage != nil {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(AvatarStyle.allStyles, id: \.id) { style in
-                                StyleSelectionCard(
-                                    style: style,
-                                    isSelected: selectedStyle?.id == style.id,
-                                    onTap: {
-                                        selectedStyle = style
-                                    }
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(.horizontal, 20)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $isShowingImagePicker) {
-            ImagePicker(selectedImage: $selectedImage)
-        }
-    }
-}
-
-struct StyleSelectionCard: View {
-    let style: AvatarStyle
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: 8) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue : Color(.systemGray6))
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(isSelected ? .white : .blue)
-                    )
-                
-                Text(style.name)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    @Environment(\.dismiss) private var dismiss
-    
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        picker.sourceType = .photoLibrary
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: ImagePicker
-        
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-        
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.selectedImage = image
-            }
-            parent.dismiss()
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.dismiss()
-        }
     }
 }
 

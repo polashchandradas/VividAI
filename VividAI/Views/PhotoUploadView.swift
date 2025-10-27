@@ -6,6 +6,8 @@ import CoreML
 
 struct PhotoUploadView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
@@ -338,17 +340,17 @@ struct PhotoUploadView: View {
         isValidatingPhoto = true
         validationResult = nil
         
-        ServiceContainer.shared.photoValidationService.validatePhoto(image) { [weak self] result in
+        ServiceContainer.shared.photoValidationService.validatePhoto(image) { result in
             DispatchQueue.main.async {
-                self?.isValidatingPhoto = false
-                self?.validationResult = result
+                self.isValidatingPhoto = false
+                self.validationResult = result
                 
                 if result.isAccepted {
                     // Photo is valid, proceed automatically
-                    self?.proceedToProcessing()
+                    self.proceedToProcessing()
                 } else {
                     // Photo is invalid, show error
-                    self?.showingValidationAlert = true
+                    self.showingValidationAlert = true
                 }
             }
         }
@@ -490,7 +492,6 @@ struct ImagePicker: UIViewControllerRepresentable {
                         }
                         
                         self?.parent.selectedImage = selectedImage
-                        self?.parent.validateSelectedPhoto()
                     }
                 }
             }
@@ -537,7 +538,6 @@ struct CameraView: UIViewControllerRepresentable {
             
             if let image = selectedImage {
                 parent.selectedImage = image
-                parent.validateSelectedPhoto()
             } else {
                 print("Failed to capture image from camera")
             }

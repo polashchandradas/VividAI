@@ -4,6 +4,10 @@ import UIKit
 
 struct PaywallView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var appCoordinator: AppCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
     @State private var selectedPlan: SubscriptionManager.SubscriptionPlan = .annual
     @State private var showingTrial = false
     
@@ -154,7 +158,7 @@ struct PaywallView: View {
                         icon: "star.fill",
                         color: DesignSystem.Colors.primary,
                         action: {
-                            appCoordinator.startFreeTrial(type: .limited)
+                            appCoordinator.startFreeTrial(type: FreeTrialService.TrialType.limited)
                             analyticsService.track(event: "limited_trial_started")
                         }
                     )
@@ -167,7 +171,7 @@ struct PaywallView: View {
                         icon: "crown.fill",
                         color: DesignSystem.Colors.warning,
                         action: {
-                            appCoordinator.startFreeTrial(type: .unlimited)
+                            appCoordinator.startFreeTrial(type: FreeTrialService.TrialType.unlimited)
                             analyticsService.track(event: "unlimited_trial_started")
                         }
                     )
@@ -241,7 +245,7 @@ struct PaywallView: View {
     private var legalSection: some View {
         HStack(spacing: DesignSystem.Spacing.lg) {
             Button("Restore Purchases") {
-                ServiceContainer.shared.appCoordinator.handleSubscriptionAction(.restorePurchases)
+                appCoordinator.handleSubscriptionAction(.restorePurchases)
             }
             .font(DesignSystem.Typography.caption)
             .foregroundColor(DesignSystem.Colors.primary)
@@ -265,7 +269,7 @@ struct PaywallView: View {
     
     private func startFreeTrial() {
         // Start free trial logic
-        ServiceContainer.shared.appCoordinator.handleSubscriptionAction(.startFreeTrial(SubscriptionManager.SubscriptionPlan(rawValue: selectedPlan.rawValue) ?? .monthly))
+        appCoordinator.handleSubscriptionAction(.startFreeTrial(SubscriptionManager.SubscriptionPlan(rawValue: selectedPlan.rawValue) ?? .monthly))
         showingTrial = true
     }
 }

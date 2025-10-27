@@ -277,7 +277,7 @@ struct SignInForm: View {
                 handleSignIn()
             }) {
                 HStack {
-                    if serviceContainer.authenticationService.isLoading {
+                    if ServiceContainer.shared.authenticationService.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)
@@ -292,7 +292,7 @@ struct SignInForm: View {
                 .background(DesignSystem.Colors.primary)
                 .cornerRadius(DesignSystem.CornerRadius.md)
             }
-            .disabled(serviceContainer.authenticationService.isLoading || email.isEmpty || password.isEmpty)
+            .disabled(ServiceContainer.shared.authenticationService.isLoading || email.isEmpty || password.isEmpty)
         }
         .alert("Authentication Error", isPresented: $showingAlert) {
             Button("OK") { }
@@ -389,7 +389,7 @@ struct SignUpForm: View {
                 handleSignUp()
             }) {
                 HStack {
-                    if serviceContainer.authenticationService.isLoading {
+                    if ServiceContainer.shared.authenticationService.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)

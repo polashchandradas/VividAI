@@ -3,6 +3,7 @@ import UIKit
 
 struct MainAppView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
     var body: some View {
         Group {
@@ -16,7 +17,10 @@ struct MainAppView: View {
             case .photoUpload:
                 PhotoUploadView()
             case .qualitySelection:
-                QualitySelectionView(selectedImage: $navigationCoordinator.selectedImage)
+                QualitySelectionView(selectedImage: Binding(
+                    get: { navigationCoordinator.selectedImage },
+                    set: { navigationCoordinator.selectedImage = $0 }
+                ))
             case .realTimePreview:
                 RealTimePreviewView()
             case .processing:
@@ -38,4 +42,5 @@ struct MainAppView: View {
 #Preview {
     MainAppView()
         .environmentObject(UnifiedAppStateManager.shared)
+        .environmentObject(NavigationCoordinator())
 }

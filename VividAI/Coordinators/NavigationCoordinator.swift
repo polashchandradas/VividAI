@@ -144,21 +144,8 @@ class NavigationCoordinator: ObservableObject {
     }
 }
 
-// MARK: - App View Enum
-
-enum AppView: String, CaseIterable {
-    case splash = "splash"
-    case authentication = "authentication"
-    case home = "home"
-    case photoUpload = "photoUpload"
-    case qualitySelection = "qualitySelection"
-    case realTimePreview = "realTimePreview"
-    case processing = "processing"
-    case results = "results"
-    case paywall = "paywall"
-    case share = "share"
-    case settings = "settings"
-    
+// MARK: - App View Extension
+extension AppView {
     var title: String {
         switch self {
         case .splash:
