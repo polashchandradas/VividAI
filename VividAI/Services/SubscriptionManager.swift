@@ -18,9 +18,11 @@ class SubscriptionManager: NSObject, ObservableObject {
     // MARK: - Private State (Delegated to Unified State Manager)
     // All core state is now managed by UnifiedAppStateManager to avoid duplication
     // These are kept for backward compatibility but delegate to unified state
+    @MainActor
     private var _isPremiumUser: Bool { 
         return ServiceContainer.shared.unifiedAppStateManager.isPremiumUser 
     }
+    @MainActor
     private var _subscriptionStatus: SubscriptionStatus { 
         return ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus 
     }
@@ -301,14 +303,17 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     // MARK: - Current State Access (Delegated to Unified State Manager)
     
+    @MainActor
     var currentIsPremiumUser: Bool {
         return ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
     }
     
+    @MainActor
     var currentSubscriptionStatus: SubscriptionStatus {
         return ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
     }
     
+    @MainActor
     func getSubscriptionInfo() -> SubscriptionInfo {
         return SubscriptionInfo(
             isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
@@ -410,6 +415,24 @@ enum SubscriptionError: Error, LocalizedError {
             return "Product not found"
         case .purchaseFailed:
             return "Purchase failed"
+        }
+    }
+    
+    // MARK: - Subscription Cancellation
+    
+    func cancelSubscription(for productID: String? = nil) {
+        Task {
+            // In a real implementation, this would handle cancellation through StoreKit
+            // For now, we'll just update the state
+            await MainActor.run {
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = false
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = .cancelled
+                self.onSubscriptionStateChanged?(false, .cancelled)
+            }
+            
+            analyticsService.track(event: "subscription_cancelled", parameters: [
+                "product_id": productID ?? "unknown"
+            ])
         }
     }
 }

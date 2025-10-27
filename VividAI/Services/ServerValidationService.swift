@@ -73,7 +73,9 @@ class ServerValidationService: ObservableObject {
                 isValid: result.isValid,
                 isActive: result.isActive,
                 daysRemaining: result.daysRemaining,
-                serverValidated: result.serverValidated
+                serverValidated: result.serverValidated,
+                abuseDetected: result.abuseDetected,
+                reason: result.reason
             )
         } catch {
             logger.error("Firebase validation failed: \(error.localizedDescription)")
@@ -84,7 +86,9 @@ class ServerValidationService: ObservableObject {
                 isValid: daysRemaining > 0,
                 isActive: trialData.isActive && daysRemaining > 0,
                 daysRemaining: daysRemaining,
-                serverValidated: false
+                serverValidated: false,
+                abuseDetected: false,
+                reason: nil
             )
         }
     }
@@ -161,7 +165,7 @@ class ServerValidationService: ObservableObject {
             )
         }
         
-        return AbuseDetectionResult(isAbuse: false, reason: nil)
+        return AbuseDetectionResult(isAbuse: false, reason: nil, confidence: 0.0, detectedPatterns: [])
     }
     
     func detectReferralAbuse() async -> AbuseDetectionResult {
@@ -183,11 +187,13 @@ class ServerValidationService: ObservableObject {
         if await isSuspiciousReferralPattern(referralData) {
             return AbuseDetectionResult(
                 isAbuse: true,
-                reason: "Suspicious referral pattern detected"
+                reason: "Suspicious referral pattern detected",
+                confidence: 0.8,
+                detectedPatterns: ["suspicious_pattern"]
             )
         }
         
-        return AbuseDetectionResult(isAbuse: false, reason: nil)
+        return AbuseDetectionResult(isAbuse: false, reason: nil, confidence: 0.0, detectedPatterns: [])
     }
     
     // MARK: - Helper Methods

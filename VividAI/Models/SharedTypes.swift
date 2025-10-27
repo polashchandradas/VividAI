@@ -16,15 +16,19 @@ enum SubscriptionStatus: String, CaseIterable {
 }
 
 // MARK: - Trial Type
-enum TrialType: String, CaseIterable {
+enum TrialType: String, CaseIterable, CustomStringConvertible {
     case none = "none"
     case limited = "limited"
     case unlimited = "unlimited"
     case freemium = "freemium"
+    
+    var description: String {
+        return rawValue
+    }
 }
 
 // MARK: - User Status
-enum UserStatus {
+enum UserStatus: CustomStringConvertible {
     case free
     case trial(TrialType)
     case premium
@@ -37,6 +41,17 @@ enum UserStatus {
     var isTrialActive: Bool {
         if case .trial = self { return true }
         return false
+    }
+    
+    var description: String {
+        switch self {
+        case .free:
+            return "free"
+        case .trial(let type):
+            return "trial(\(type))"
+        case .premium:
+            return "premium"
+        }
     }
 }
 

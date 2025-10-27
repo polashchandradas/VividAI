@@ -70,7 +70,7 @@ class UsageLimitService: ObservableObject {
         // Check limits
         checkLimits()
         
-        logger.info("Generation recorded: Daily(\(dailyGenerations)), Weekly(\(weeklyGenerations)), Monthly(\(monthlyGenerations))")
+        logger.info("Generation recorded: Daily(\(self.dailyGenerations)), Weekly(\(self.weeklyGenerations)), Monthly(\(self.monthlyGenerations))")
         
         analyticsService.track(event: "generation_recorded", parameters: [
             "daily_count": dailyGenerations,
@@ -316,5 +316,10 @@ class UsageLimitService: ObservableObject {
         
         logger.info("All usage reset")
         analyticsService.track(event: "all_usage_reset")
+    }
+    
+    func refreshLimits() {
+        checkLimits()
+        logger.info("Usage limits refreshed")
     }
 }

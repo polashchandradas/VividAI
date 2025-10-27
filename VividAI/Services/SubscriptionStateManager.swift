@@ -24,16 +24,19 @@ class SubscriptionStateManager: ObservableObject {
     
     // MARK: - Unified State Access (Computed Properties)
     
+    @MainActor
     var isPremiumUser: Bool { 
         return ServiceContainer.shared.unifiedAppStateManager.isPremiumUser 
     }
     
+    @MainActor
     var subscriptionStatus: SubscriptionStatus { 
         return ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus 
     }
     
     // MARK: - Computed Properties
     
+    @MainActor
     var userStatus: UserStatus {
         if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return .premium
@@ -44,6 +47,7 @@ class SubscriptionStateManager: ObservableObject {
         }
     }
     
+    @MainActor
     var generationLimits: GenerationLimits {
         if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return .unlimited
@@ -135,25 +139,27 @@ class SubscriptionStateManager: ObservableObject {
         calculateUnifiedState()
         
         // Sync with unified state manager
-        ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = subscriptionManager.currentIsPremiumUser
-        ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = subscriptionManager.currentSubscriptionStatus
+        Task { @MainActor in
+            ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = await subscriptionManager.currentIsPremiumUser
+            ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = await subscriptionManager.currentSubscriptionStatus
+        }
     }
     
     // MARK: - State Updates
     
     private func updateSubscriptionState() {
-        // Get subscription state from SubscriptionManager
-        let isPremium = subscriptionManager.currentIsPremiumUser
-        let status = subscriptionManager.currentSubscriptionStatus
-        
-        DispatchQueue.main.async {
+        Task { @MainActor in
+            // Get subscription state from SubscriptionManager
+            let isPremium = await subscriptionManager.currentIsPremiumUser
+            let status = await subscriptionManager.currentSubscriptionStatus
+            
             // Update unified state manager
             ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
             ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
             self.calculateUnifiedState()
+            
+            logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
         }
-        
-        logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
     }
     
     private func updateTrialState() {
@@ -237,7 +243,8 @@ class SubscriptionStateManager: ObservableObject {
     func startFreeTrial(type: TrialType) {
         logger.info("Starting free trial: \(type)")
         
-        // Delegate to FreeTrialService
+        // Convert TrialType to FreeTrialService's expected type
+        // Note: FreeTrialService now uses SharedTypes.TrialType
         freeTrialService.startFreeTrial(type: type)
         
         // State will be updated through subscriptions
@@ -261,13 +268,17 @@ class SubscriptionStateManager: ObservableObject {
         updateUsageLimits()
         updateTrialState()
         
-        analyticsService.track(event: "generation_recorded", parameters: [
-            "is_premium": ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
-            "is_trial_active": isTrialActive,
-            "trial_type": "\(trialType)"
-        ])
+        Task { @MainActor in
+            let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
+            analyticsService.track(event: "generation_recorded", parameters: [
+                "is_premium": isPremium,
+                "is_trial_active": isTrialActive,
+                "trial_type": "\(trialType)"
+            ])
+        }
     }
     
+    @MainActor
     func getRemainingGenerations() -> Int {
         if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return 999 // Unlimited
@@ -280,6 +291,7 @@ class SubscriptionStateManager: ObservableObject {
         return remainingGenerations
     }
     
+    @MainActor
     func getLimitMessage() -> String {
         if ServiceContainer.shared.unifiedAppStateManager.isPremiumUser {
             return "You have unlimited generations with Pro"
@@ -292,6 +304,7 @@ class SubscriptionStateManager: ObservableObject {
         return getFreeUserLimitMessage()
     }
     
+    @MainActor
     private func getTrialLimitMessage() -> String {
         switch trialType {
         case .limited:
@@ -305,6 +318,7 @@ class SubscriptionStateManager: ObservableObject {
         }
     }
     
+    @MainActor
     private func getFreeUserLimitMessage() -> String {
         return usageLimitService.getLimitMessage(
             isPremium: ServiceContainer.shared.unifiedAppStateManager.isPremiumUser,
@@ -323,7 +337,17 @@ class SubscriptionStateManager: ObservableObject {
             startFreeTrial(type: trialType)
             
         case .purchase(let product):
-            subscriptionManager.purchase(product: product)
+            guard let storeKitProduct = product.storeKitProduct else {
+                logger.error("Product not available for purchase")
+                return
+            }
+            Task {
+                do {
+                    _ = try await subscriptionManager.purchase(product: storeKitProduct)
+                } catch {
+                    logger.error("Purchase failed: \(error.localizedDescription)")
+                }
+            }
             
         case .restorePurchases:
             subscriptionManager.restorePurchases()

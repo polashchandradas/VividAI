@@ -120,7 +120,7 @@ class UnifiedAppStateManager: ObservableObject {
                 "email": user.email
             ])
             
-            logger.info("User signed in successfully: \(user.email)")
+            logger.info("User signed in successfully: \(user.email ?? "unknown")")
         } catch {
             authenticationError = error.localizedDescription
             logger.error("Sign in failed: \(error.localizedDescription)")
@@ -152,8 +152,8 @@ class UnifiedAppStateManager: ObservableObject {
         isLoading = false
     }
     
-    func signOut() {
-        authenticationService.signOut()
+    func signOut() async {
+        await authenticationService.signOut()
         currentUser = nil
         isAuthenticated = false
         isPremiumUser = false
@@ -270,7 +270,7 @@ class UnifiedAppStateManager: ObservableObject {
             "destination": "\(view)"
         ])
         
-        logger.info("Navigated to: \(view)")
+        logger.info("Navigated to: \(view.rawValue)")
     }
     
     func setSelectedImage(_ image: UIImage?) {
@@ -379,7 +379,7 @@ extension UnifiedAppStateManager {
     // MARK: - Analytics Helpers
     
     func trackUserJourney() {
-        let journey = [
+        let journey: [String: Any] = [
             "is_authenticated": isAuthenticated,
             "is_premium": isPremiumUser,
             "current_view": currentView.rawValue,

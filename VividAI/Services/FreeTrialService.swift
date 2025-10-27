@@ -24,13 +24,7 @@ class FreeTrialService: ObservableObject {
     private let logger = Logger(subsystem: "VividAI", category: "FreeTrial")
     
     // MARK: - Trial Types
-    
-    enum TrialType {
-        case none
-        case limited      // 3 generations, 7 days
-        case unlimited    // Full access, 3 days
-        case freemium     // 1 generation per day
-    }
+    // Note: TrialType is defined in SharedTypes.swift to avoid duplication
     
     // MARK: - Initialization
     
@@ -68,7 +62,7 @@ class FreeTrialService: ObservableObject {
         // Check if user has reached limit
         if generationsUsed >= maxGenerations {
             canGenerate = false
-            logger.info("Generation limit reached: \(generationsUsed)/\(maxGenerations)")
+            logger.info("Generation limit reached: \(self.generationsUsed)/\(self.maxGenerations)")
             
             analyticsService.track(event: "trial_limit_reached", parameters: [
                 "generations_used": generationsUsed,
@@ -116,7 +110,7 @@ class FreeTrialService: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func checkTrialStatus() {
+    func checkTrialStatus() {
         guard let trialData = secureStorage.getTrialData() else {
             isTrialActive = false
             return

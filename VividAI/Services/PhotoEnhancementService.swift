@@ -130,17 +130,30 @@ class PhotoEnhancementService: ObservableObject {
             throw PhotoEnhancementError.imageConversionFailed
         }
         
-        // Use CoreML model for AI enhancement
-        let input = PhotoEnhancementModelInput(image: pixelBuffer)
-        let prediction = try model.prediction(from: input)
-        let output = prediction.featureValue(for: "enhancedImage")
+        // Use CoreML model for AI enhancement with VNCoreMLRequest
+        let vnModel = try VNCoreMLModel(for: model)
+        let request = VNCoreMLRequest(model: vnModel) { request, error in
+            if let error = error {
+                print("CoreML prediction error: \(error.localizedDescription)")
+            }
+        }
         
-        guard let enhancedPixelBuffer = output?.multiArrayValue else {
+        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
+        try handler.perform([request])
+        
+        guard let results = request.results as? [VNPixelBufferObservation],
+              let outputPixelBuffer = results.first?.pixelBuffer else {
             throw PhotoEnhancementError.processingFailed
         }
         
-        // Convert back to UIImage
-        return try pixelBufferToUIImage(pixelBuffer: enhancedPixelBuffer)
+        // Convert output pixel buffer to UIImage
+        let ciImage = CIImage(cvPixelBuffer: outputPixelBuffer)
+        let context = CIContext()
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+            throw PhotoEnhancementError.processingFailed
+        }
+        
+        return UIImage(cgImage: cgImage)
     }
     
     private func applyRestorationEffects(to image: UIImage) -> UIImage {
@@ -305,16 +318,16 @@ extension PhotoEnhancementService {
             &cvPixelBuffer
         )
         
-        guard status == kCVReturnSuccess, let pixelBuffer = cvPixelBuffer else {
+        guard status == kCVReturnSuccess, let outputPixelBuffer = cvPixelBuffer else {
             throw PhotoEnhancementError.processingFailed
         }
         
         // Fill pixel buffer with data from MLMultiArray
-        CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
-        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0)) }
+        CVPixelBufferLockBaseAddress(outputPixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        defer { CVPixelBufferUnlockBaseAddress(outputPixelBuffer, CVPixelBufferLockFlags(rawValue: 0)) }
         
-        let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer)
+        let baseAddress = CVPixelBufferGetBaseAddress(outputPixelBuffer)
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(outputPixelBuffer)
         
         // Convert MLMultiArray data to pixel buffer
         for y in 0..<height {
@@ -327,10 +340,15 @@ extension PhotoEnhancementService {
                     
                     // Convert from MLMultiArray format to ARGB
                     if channels >= 3 {
-                        let r = pixelBuffer[pixelIndex * channels + 0].floatValue
-                        let g = pixelBuffer[pixelIndex * channels + 1].floatValue
-                        let b = pixelBuffer[pixelIndex * channels + 2].floatValue
-                        let a: Float = channels > 3 ? pixelBuffer[pixelIndex * channels + 3].floatValue : 1.0
+                        // Access MLMultiArray using proper API
+                        let rIndex = [y, x, 0] as [NSNumber]
+                        let gIndex = [y, x, 1] as [NSNumber]
+                        let bIndex = [y, x, 2] as [NSNumber]
+                        
+                        let r = pixelBuffer[rIndex].doubleValue
+                        let g = pixelBuffer[gIndex].doubleValue
+                        let b = pixelBuffer[bIndex].doubleValue
+                        let a: Double = channels > 3 ? pixelBuffer[[y, x, 3] as [NSNumber]].doubleValue : 1.0
                         
                         pixelPtr[bufferIndex + 0] = UInt8(max(0, min(255, a * 255)))     // Alpha
                         pixelPtr[bufferIndex + 1] = UInt8(max(0, min(255, r * 255)))     // Red
@@ -342,7 +360,7 @@ extension PhotoEnhancementService {
         }
         
         // Create UIImage from CVPixelBuffer
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let ciImage = CIImage(cvPixelBuffer: outputPixelBuffer)
         let context = CIContext()
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
             throw PhotoEnhancementError.processingFailed

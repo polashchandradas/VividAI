@@ -59,11 +59,20 @@ class HybridProcessingService: ObservableObject {
     }
     
     // MARK: - Processing Quality Levels
-    enum QualityLevel {
+    enum QualityLevel: CustomStringConvertible {
         case preview      // Fast, on-device
         case standard     // Balanced
         case premium      // High-quality, cloud
         case ultra        // Maximum quality, cloud
+        
+        var description: String {
+            switch self {
+            case .preview: return "preview"
+            case .standard: return "standard"
+            case .premium: return "premium"
+            case .ultra: return "ultra"
+            }
+        }
     }
     
     private init() {

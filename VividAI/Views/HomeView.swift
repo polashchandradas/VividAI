@@ -588,7 +588,7 @@ struct HomeView: View {
                             Spacer()
                             
                             Button("Start Free Trial") {
-                                appCoordinator.startFreeTrial(type: FreeTrialService.TrialType.limited)
+                                appCoordinator.startFreeTrial(type: .limited)
                                 ServiceContainer.shared.analyticsService.track(event: "start_free_trial_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)

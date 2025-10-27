@@ -38,7 +38,7 @@ class NavigationCoordinator: ObservableObject {
         let _ = navigationStack.popLast()
         currentView = navigationStack.last ?? .home
         
-        logger.info("Navigated back to: \(currentView.rawValue)")
+        logger.info("Navigated back to: \(self.currentView.rawValue)")
     }
     
     func navigateToRoot() {

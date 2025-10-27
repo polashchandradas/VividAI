@@ -14,7 +14,9 @@ class AppCoordinator: ObservableObject {
     // Error state is managed by ErrorHandlingService to avoid conflicts
     // Authentication state is managed by AuthenticationService and SubscriptionManager
     // AppCoordinator observes these states but doesn't duplicate them
+    @MainActor
     var isPremiumUser: Bool { services.unifiedAppStateManager.isPremiumUser }
+    @MainActor
     var subscriptionStatus: SubscriptionStatus { services.unifiedAppStateManager.subscriptionStatus }
     
     // MARK: - Service Container
@@ -174,7 +176,17 @@ class AppCoordinator: ObservableObject {
         case .startFreeTrial(let plan):
             subscriptionManager.startFreeTrial(plan: plan)
         case .purchase(let product):
-            subscriptionManager.purchase(product: product)
+            guard let storeKitProduct = product.storeKitProduct else {
+                logger.error("Product not available for purchase")
+                return
+            }
+            Task {
+                do {
+                    _ = try await subscriptionManager.purchase(product: storeKitProduct)
+                } catch {
+                    logger.error("Purchase failed: \(error.localizedDescription)")
+                }
+            }
         case .restorePurchases:
             subscriptionManager.restorePurchases()
         case .cancelSubscription:
@@ -502,7 +514,7 @@ class AppCoordinator: ObservableObject {
         )
     }
     
-    func startFreeTrial(type: FreeTrialService.TrialType = .limited) {
+    func startFreeTrial(type: TrialType = .limited) {
         freeTrialService.startFreeTrial(type: type)
         
         analyticsService.track(event: "free_trial_started", parameters: [
