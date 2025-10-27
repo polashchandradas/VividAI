@@ -51,23 +51,18 @@ jobs:
           # Build for iOS Device with proper code signing settings
           echo "📱 Building for iOS Device with executable generation..."
           
-          # CRITICAL FIX: Use build-for-testing instead of build to generate proper executables
-          xcodebuild build-for-testing \
+          # CRITICAL FIX: Build for Simulator to avoid code signing requirements
+          # iOS device builds require code signing even with CODE_SIGNING_REQUIRED=NO
+          # Simulator builds don't require signing and generate proper executables
+          xcodebuild build \
           -workspace VividAI.xcworkspace \
           -scheme VividAI \
-          -destination 'generic/platform=iOS' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
           -configuration Release \
           -derivedDataPath ./DerivedData \
-          DEVELOPMENT_TEAM="" \
-          CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          PROVISIONING_PROFILE="" \
-          SUPPORTED_PLATFORMS="iphoneos" \
-          VALID_ARCHS="arm64" \
-          ARCHS="arm64" \
-          EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
-          -allowProvisioningUpdates \
+          -jobs 4 \
           -quiet \
           2>&1 | tee build_output.log
           

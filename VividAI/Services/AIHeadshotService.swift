@@ -270,8 +270,11 @@ class AIHeadshotService: ObservableObject {
     }
     
     private func pollForResults(predictionId: String, completion: @escaping (Result<[HeadshotResult], Error>) -> Void) {
+        pollForResults(predictionId: predictionId, attempt: 0, completion: completion)
+    }
+    
+    private func pollForResults(predictionId: String, attempt: Int, completion: @escaping (Result<[HeadshotResult], Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/predictions/\(predictionId)") else {
-            isProcessing = false
             completion(.failure(AIHeadshotError.invalidURL))
             return
         }
@@ -319,10 +322,17 @@ class AIHeadshotService: ObservableObject {
                             // Processing state is managed by AppCoordinator
                             completion(.failure(AIHeadshotError.apiError("Prediction failed")))
                         case "starting", "processing":
-                            // Update progress and continue polling
-                            self?.processingProgress = 0.5
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                self?.pollForResults(predictionId: predictionId, completion: completion)
+                            // Exponential backoff: 2s, 4s, 8s, 15s, then cap at 30s
+                            let delays: [TimeInterval] = [2.0, 4.0, 8.0, 15.0, 30.0]
+                            let delayIndex = min(attempt, delays.count - 1)
+                            let delay = delays[delayIndex]
+                            
+                            // Update progress based on attempt number
+                            let progress = min(0.3 + (Double(attempt) * 0.1), 0.9)
+                            self?.processingProgress = progress
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                self?.pollForResults(predictionId: predictionId, attempt: attempt + 1, completion: completion)
                             }
                         default:
                             // Processing state is managed by AppCoordinator

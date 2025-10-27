@@ -51,24 +51,18 @@ jobs:
           # Note: Using iOS Device build instead of Simulator build
           echo "📱 Building for iOS Device (Simulator builds don't create executables properly)"
           
-          # CRITICAL FIX: Use build-for-testing instead of build to generate proper executables
-          xcodebuild build-for-testing \
+          # CRITICAL FIX: Build for Simulator to avoid code signing requirements
+          # iOS device builds require code signing even with CODE_SIGNING_REQUIRED=NO
+          # Simulator builds don't require signing and generate proper executables
+          xcodebuild build \
           -workspace VividAI.xcworkspace \
           -scheme VividAI \
-          -destination 'generic/platform=iOS' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
           -configuration Release \
           -derivedDataPath ./DerivedData \
-          -jobs 4 \
-          DEVELOPMENT_TEAM="" \
-          CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
-          PROVISIONING_PROFILE="" \
-          SUPPORTED_PLATFORMS="iphoneos" \
-          VALID_ARCHS="arm64" \
-          ARCHS="arm64" \
-          EXCLUDED_ARCHS[sdk=iphonesimulator*]="arm64" \
-          -allowProvisioningUpdates \
+          -jobs 4 \
           -quiet \
           2>&1 | tee build_output.log
           
@@ -129,17 +123,23 @@ jobs:
             fi
           done
           
-          # Fallback: Look for app bundle directly (in case build-for-testing didn't work as expected)
+          # Look for app bundle directly (for Simulator builds)
           if [ -z "$APP_PATH" ]; then
-            echo "📁 Fallback: Looking for app bundle directly..."
-            APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
+            echo "📁 Looking for app bundle in Simulator build output..."
+            # Simulator builds output to Release-iphonesimulator directory
+            APP_PATH=$(find ./DerivedData -path "*/Release-iphonesimulator/VividAI.app" -type d | head -1)
             
-            # Look in system DerivedData
+            # Fallback: Look in system DerivedData
             if [ -z "$APP_PATH" ]; then
               SYSTEM_DERIVED_DATA="/Users/runner/Library/Developer/Xcode/DerivedData"
               if [ -d "$SYSTEM_DERIVED_DATA" ]; then
-                APP_PATH=$(find "$SYSTEM_DERIVED_DATA" -name "VividAI.app" -type d | head -1)
+                APP_PATH=$(find "$SYSTEM_DERIVED_DATA" -path "*/Release-iphonesimulator/VividAI.app" -type d | head -1)
               fi
+            fi
+            
+            # Last resort: search anywhere
+            if [ -z "$APP_PATH" ]; then
+              APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
             fi
           fi
           

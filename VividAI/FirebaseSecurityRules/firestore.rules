@@ -13,12 +13,11 @@ service cloud.firestore {
                      (resource.data.userId == request.auth.uid || 
                       request.auth.token.admin == true);
       
-      // Only authenticated users can create trials
-      allow create: if request.auth != null && 
-                      request.auth.uid == resource.data.userId &&
-                      validateTrialData(request.resource.data);
+      // SECURITY FIX: Prevent direct client creation - only Firebase Functions can create trials
+      // This ensures all trial creation goes through server-side validation and abuse detection
+      allow create: if false;
       
-      // Only server can update trial status
+      // Only server (via Firebase Functions) or admins can update trial status
       allow update: if request.auth != null && 
                       (request.auth.token.admin == true || 
                        request.auth.uid == resource.data.userId) &&
