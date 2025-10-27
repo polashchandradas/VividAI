@@ -114,11 +114,10 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
-    var appCoordinator: AppCoordinator {
-        MainActor.assumeIsolated {
-            AppCoordinator()
-        }
-    }
+    @MainActor
+    lazy var appCoordinator: AppCoordinator = {
+        return AppCoordinator()
+    }()
     
     // MARK: - Initialization
     private init() {
@@ -161,7 +160,9 @@ class ServiceContainer: ObservableObject {
         
         // Initialize navigation last
         _ = navigationCoordinator
-        _ = appCoordinator
+        Task { @MainActor in
+            _ = self.appCoordinator
+        }
         
         // Configure service dependencies after all services are initialized
         configureServiceDependencies()
