@@ -19,27 +19,33 @@ jobs:
       - name: Set up Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
         
+      # CRITICAL OPTIMIZATION: Cache CocoaPods
       - name: Cache CocoaPods
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: Pods
+          path: |
+            Pods
+            ~/.cocoapods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile') }}
           restore-keys: |
             ${{ runner.os }}-pods-
-
-      - name: Cache CocoaPods dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cocoapods
-          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile') }}
-          restore-keys: |
-            ${{ runner.os }}-cocoapods-
-
+      
       - name: Install CocoaPods dependencies
         run: |
           echo "📦 Installing CocoaPods dependencies..."
-          sudo gem install cocoapods
-          pod install --repo-update
+          if ! command -v pod &> /dev/null; then
+            sudo gem install cocoapods --no-document
+          fi
+          
+          # Check if Pods directory exists from cache
+          if [ -d "Pods" ] && [ -f "Podfile.lock" ]; then
+            echo "✅ Using cached CocoaPods (Pods directory exists)"
+            echo "📦 Verifying dependencies (no repo update)..."
+            pod install --no-repo-update || pod install
+          else
+            echo "⚠️  Cache miss - installing CocoaPods with repo update..."
+            pod install --repo-update
+          fi
           echo "✅ CocoaPods dependencies installed"
           
       - name: Build app for iOS Device
