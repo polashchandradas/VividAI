@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile') }}
           restore-keys: |
             ${{ runner.os }}-pods-
 
@@ -31,7 +31,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cocoapods
-          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile.lock') }}
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile') }}
           restore-keys: |
             ${{ runner.os }}-cocoapods-
 

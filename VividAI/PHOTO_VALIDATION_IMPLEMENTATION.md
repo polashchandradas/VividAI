@@ -326,3 +326,4 @@ The photo validation system is now fully implemented and provides:
 This implementation ensures that VividAI users get the best possible experience with high-quality, appropriate photos that produce excellent AI-generated results while maintaining legal compliance and platform safety.
 
 
+
