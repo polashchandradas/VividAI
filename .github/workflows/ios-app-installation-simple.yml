@@ -11,7 +11,7 @@ on:
 jobs:
   verify-app-installation:
     runs-on: macos-latest
-    timeout-minutes: 20  # Reduced from 30 with optimizations
+    timeout-minutes: 60  # Increased for large iOS builds with dependencies
     
     steps:
       - name: Checkout repository
@@ -91,6 +91,8 @@ jobs:
           # - Use derivedDataPath for caching
           # - Skip code signing entirely
           # - Enable module compilation optimization
+          # - Skip dSYM generation for faster builds
+          # - Disable bitcode for simulator builds
           xcodebuild build \
           -workspace VividAI.xcworkspace \
           -scheme VividAI \
@@ -101,6 +103,9 @@ jobs:
           CODE_SIGNING_ALLOWED=NO \
           COMPILER_INDEX_STORE_ENABLE=NO \
           SWIFT_COMPILATION_MODE=wholemodule \
+          DEBUG_INFORMATION_FORMAT=dwarf \
+          ENABLE_BITCODE=NO \
+          ONLY_ACTIVE_ARCH=YES \
           -jobs $(sysctl -n hw.ncpu) \
           -quiet \
           2>&1 | tee build_output.log
