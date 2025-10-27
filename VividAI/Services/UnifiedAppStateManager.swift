@@ -117,7 +117,7 @@ class UnifiedAppStateManager: ObservableObject {
             
             analyticsService.track(event: "user_signed_in", parameters: [
                 "user_id": user.uid,
-                "email": user.email
+                "email": user.email ?? ""
             ])
             
             logger.info("User signed in successfully: \(user.email ?? "unknown")")

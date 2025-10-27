@@ -309,7 +309,7 @@ class AppCoordinator: ObservableObject {
             
             DispatchQueue.main.async {
                 switch result {
-                case .success(let preview):
+                case .success(let _):
                     // Handle successful preview generation
                     self.analyticsService.track(event: "realtime_preview_generated", parameters: [
                         "style": style.name

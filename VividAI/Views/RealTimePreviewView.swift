@@ -234,7 +234,7 @@ struct RealTimePreviewView: View {
             }
             
             // Quick Style Examples Preview
-            if let selectedExample = selectedStyleExample {
+            if selectedStyleExample != nil {
                 selectedStyleExampleView
             }
             

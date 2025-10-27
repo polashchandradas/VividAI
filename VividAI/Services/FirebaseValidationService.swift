@@ -96,10 +96,9 @@ class FirebaseValidationService: ObservableObject {
             throw ValidationError.notAuthenticated
         }
         
-        let idToken = try await user.getIDToken()
-        
-        // Get App Check token
-        let appCheckToken = try await appCheck.token(forcingRefresh: false)
+        // Validate authentication tokens (not used but ensures user is authenticated)
+        let _ = try await user.getIDToken()
+        let _ = try await appCheck.token(forcingRefresh: false)
         
         // Prepare request data
         let requestData: [String: Any] = [
@@ -137,8 +136,9 @@ class FirebaseValidationService: ObservableObject {
             throw ValidationError.notAuthenticated
         }
         
-        let idToken = try await user.getIDToken()
-        let appCheckToken = try await appCheck.token(forcingRefresh: false)
+        // Validate authentication tokens (not used but ensures user is authenticated)
+        let _ = try await user.getIDToken()
+        let _ = try await appCheck.token(forcingRefresh: false)
         
         let requestData: [String: Any] = [
             "trialType": type.rawValue,
@@ -281,8 +281,9 @@ class FirebaseValidationService: ObservableObject {
             throw ValidationError.notAuthenticated
         }
         
-        let idToken = try await user.getIDToken()
-        let appCheckToken = try await appCheck.token(forcingRefresh: false)
+        // Validate authentication tokens (not used but ensures user is authenticated)
+        let _ = try await user.getIDToken()
+        let _ = try await appCheck.token(forcingRefresh: false)
         
         let requestData: [String: Any] = [
             "deviceId": referralData.deviceId,

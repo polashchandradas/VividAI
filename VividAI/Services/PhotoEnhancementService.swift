@@ -332,7 +332,7 @@ extension PhotoEnhancementService {
         // Convert MLMultiArray data to pixel buffer
         for y in 0..<height {
             for x in 0..<width {
-                let pixelIndex = y * width + x
+                let _ = y * width + x  // pixelIndex
                 let bufferIndex = (y * bytesPerRow + x * 4)
                 
                 if let baseAddress = baseAddress {

@@ -110,7 +110,7 @@ class VideoGenerationService: ObservableObject {
         
         // Generate frames
         let totalFrames = Int(duration * Double(frameRate))
-        let frameDuration = CMTime(value: 1, timescale: frameRate)
+        let _ = CMTime(value: 1, timescale: frameRate)  // frameDuration
         
         for frameIndex in 0..<totalFrames {
             let currentTime = CMTime(value: Int64(frameIndex), timescale: frameRate)
@@ -129,7 +129,7 @@ class VideoGenerationService: ObservableObject {
             )
             
             // Convert frame to pixel buffer
-            guard let pixelBuffer = createPixelBuffer(from: frame, size: videoSize) else {
+            guard let _ = createPixelBuffer(from: frame, size: videoSize) else {
                 continue
             }
             
@@ -201,7 +201,7 @@ class VideoGenerationService: ObservableObject {
         
         // Generate frames asynchronously
         let totalFrames = Int(duration * Double(frameRate))
-        let frameDuration = CMTime(value: 1, timescale: frameRate)
+        let _ = CMTime(value: 1, timescale: frameRate)  // frameDuration
         
         for frameIndex in 0..<totalFrames {
             let currentTime = CMTime(value: Int64(frameIndex), timescale: frameRate)
@@ -220,7 +220,7 @@ class VideoGenerationService: ObservableObject {
             )
             
             // Convert frame to pixel buffer
-            guard let pixelBuffer = createPixelBuffer(from: frame, size: videoSize) else {
+            guard let _ = createPixelBuffer(from: frame, size: videoSize) else {
                 continue
             }
             

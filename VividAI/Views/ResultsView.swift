@@ -173,7 +173,7 @@ struct ResultsView: View {
                     if let originalImage = navigationCoordinator.selectedImage,
                        let firstResult = navigationCoordinator.processingResults.first {
                         // Use actual AI-generated headshot for video generation
-                        let enhancedImage = loadHeadshotImage(from: firstResult.imageURL) ?? originalImage
+                        let _ = loadHeadshotImage(from: firstResult.imageURL) ?? originalImage
                         // Video generation handled by coordinator
                         // appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
                     }

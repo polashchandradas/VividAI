@@ -78,10 +78,9 @@ class FirebaseConfigurationService: ObservableObject {
     }
     
     private func configureFirestore() {
-        // Configure Firestore settings
+        // Configure Firestore settings with new cacheSettings API
         let settings = FirestoreSettings()
-        settings.isPersistenceEnabled = true
-        settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
+        settings.cacheSettings = PersistentCacheSettings(sizeBytes: FirestoreCacheSizeUnlimited)
         firestore.settings = settings
         
         logger.info("Firestore configured with persistence enabled")

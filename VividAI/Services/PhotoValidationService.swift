@@ -272,7 +272,7 @@ class PhotoValidationService: ObservableObject {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try handler.perform([request])
-                let faceObservations = request.results as? [VNFaceObservation] ?? []
+                let faceObservations = request.results ?? []
                 DispatchQueue.main.async {
                     completion(faceObservations)
                 }
@@ -370,7 +370,7 @@ class PhotoValidationService: ObservableObject {
             do {
                 try handler.perform([request])
                 
-                if let observations = request.results as? [VNClassificationObservation] {
+                if let observations = request.results {
                     let contentError = self.analyzeContentClassifications(observations)
                     DispatchQueue.main.async {
                         completion(contentError)

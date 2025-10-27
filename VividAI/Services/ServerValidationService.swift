@@ -216,7 +216,7 @@ class ServerValidationService: ObservableObject {
         // - Trials started at suspicious times
         // - Unusual device characteristics
         
-        let currentHour = Calendar.current.component(.hour, from: Date())
+        let _ = Calendar.current.component(.hour, from: Date())  // currentHour
         let trialHour = Calendar.current.component(.hour, from: trialData.startDate)
         
         // Check if trial was started at suspicious time (e.g., 3 AM)

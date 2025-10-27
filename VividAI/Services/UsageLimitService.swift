@@ -53,7 +53,7 @@ class UsageLimitService: ObservableObject {
     
     func recordGeneration() {
         let today = Date()
-        let calendar = Calendar.current
+        let _ = Calendar.current  // calendar
         
         // Update counters
         dailyGenerations += 1

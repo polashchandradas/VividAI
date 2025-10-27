@@ -243,7 +243,7 @@ class BackgroundRemovalService: ObservableObject {
                 try handler.perform([faceRectanglesRequest, faceLandmarksRequest])
                 
                 // Get face rectangles (more reliable for basic detection)
-                let faceObservations = faceRectanglesRequest.results as? [VNFaceObservation] ?? []
+                let faceObservations = faceRectanglesRequest.results ?? []
                 
                 DispatchQueue.main.async {
                     completion(faceObservations)
@@ -344,7 +344,7 @@ extension BackgroundRemovalService {
     
     func applyMask(_ mask: UIImage, to image: UIImage) -> UIImage? {
         // Apply the mask to the image to remove background
-        guard let cgImage = image.cgImage,
+        guard let _ = image.cgImage,
               let maskCGImage = mask.cgImage else { return nil }
         
         let size = image.size
@@ -399,7 +399,7 @@ extension BackgroundRemovalService {
     }
     
     private func applyMaskToImage(_ image: UIImage, mask: UIImage) -> UIImage {
-        guard let cgImage = image.cgImage,
+        guard let _ = image.cgImage,
               let maskCGImage = mask.cgImage else {
             return image
         }

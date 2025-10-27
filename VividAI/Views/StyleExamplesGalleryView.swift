@@ -73,7 +73,7 @@ struct StyleExamplesGalleryView: View {
                 
                 TextField("Search styles...", text: $styleManager.searchText)
                     .textFieldStyle(PlainTextFieldStyle())
-                    .onChange(of: styleManager.searchText) { _ in
+                    .onChange(of: styleManager.searchText) {
                         styleManager.updateFilteredExamples()
                     }
                 

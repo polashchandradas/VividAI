@@ -144,7 +144,7 @@ class SecurityService: ObservableObject {
     
     private func hasHardcodedSecrets() -> Bool {
         // Check for common hardcoded patterns
-        let suspiciousPatterns = [
+        let _ = [
             "password",
             "secret",
             "key",
@@ -169,7 +169,7 @@ class SecurityService: ObservableObject {
     }
     
     private func calculateSecurityScore(vulnerabilities: [SecurityVulnerability]) -> Int {
-        let totalVulnerabilities = vulnerabilities.count
+        let _ = vulnerabilities.count  // totalVulnerabilities
         let highSeverityCount = vulnerabilities.filter { $0.severity == .high }.count
         let mediumSeverityCount = vulnerabilities.filter { $0.severity == .medium }.count
         let lowSeverityCount = vulnerabilities.filter { $0.severity == .low }.count

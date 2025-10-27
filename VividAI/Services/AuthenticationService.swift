@@ -114,7 +114,7 @@ class AuthenticationService: ObservableObject {
     
     func setupSubscriptionStateListener() {
         // Set up callback-based communication with SubscriptionManager
-        ServiceContainer.shared.subscriptionManager.onSubscriptionStateChanged = { [weak self] isPremium, status in
+        ServiceContainer.shared.subscriptionManager.onSubscriptionStateChanged = { isPremium, status in
             DispatchQueue.main.async {
                 // Update unified state manager instead
                 ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium

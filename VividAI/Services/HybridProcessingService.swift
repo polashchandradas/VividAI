@@ -204,7 +204,7 @@ class HybridProcessingService: ObservableObject {
     private func determineProcessingStrategy(for quality: QualityLevel) -> ProcessingStrategy {
         let networkScore = getNetworkScore()
         let deviceScore = getDevicePerformanceScore()
-        let imageComplexity = estimateImageComplexity()
+        let _ = estimateImageComplexity()
         
         switch quality {
         case .preview:
