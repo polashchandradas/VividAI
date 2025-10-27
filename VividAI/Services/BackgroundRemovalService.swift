@@ -366,8 +366,10 @@ extension BackgroundRemovalService {
             // Generate scaled mask for the image
             // Note: API may vary by iOS version - using try-catch for compatibility
             // For VNInstanceMaskObservation, use the correct API signature
+            // The API requires forInstances and from parameters
             let maskPixelBuffer = try result.generateScaledMaskForImage(
-                forInstances: [0]
+                forInstances: [0],
+                from: CGRect(origin: .zero, size: size)
             )
             
             let ciImage = CIImage(cvPixelBuffer: maskPixelBuffer)

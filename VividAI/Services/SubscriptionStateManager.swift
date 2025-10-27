@@ -152,8 +152,8 @@ class SubscriptionStateManager: ObservableObject {
     private func updateSubscriptionState() {
         Task { @MainActor in
             // Get subscription state from SubscriptionManager
-            let isPremium = await subscriptionManager.currentIsPremiumUser
-            let status = await subscriptionManager.currentSubscriptionStatus
+            let isPremium: Bool = await subscriptionManager.currentIsPremiumUser
+            let status: SubscriptionStatus = await subscriptionManager.currentSubscriptionStatus
             
             // Update unified state manager
             ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
