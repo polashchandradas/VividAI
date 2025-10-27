@@ -11,7 +11,7 @@ on:
 jobs:
   verify-app-installation:
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 30  # Increased from 15 to allow full build with caching
     
     steps:
       - name: Checkout repository
