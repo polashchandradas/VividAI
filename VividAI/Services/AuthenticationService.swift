@@ -304,9 +304,11 @@ class AuthenticationService: ObservableObject {
     
     private func resetAnalytics() async {
         // Reset analytics user properties
-        ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "user_id")
-        ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "subscription_status")
-        ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "is_premium")
+        await MainActor.run {
+            ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "user_id")
+            ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "subscription_status")
+            ServiceContainer.shared.analyticsService.setUserProperty(nil, forName: "is_premium")
+        }
         
         logger.info("Analytics reset for logout")
     }
@@ -356,10 +358,10 @@ class AuthenticationService: ObservableObject {
             }
             
             // Firebase OAuth credential API for Apple Sign In
-            // Use OAuthCredential initializer for Apple Sign In
-            let firebaseCredential = OAuthCredential(
-                providerID: "apple.com",
-                idToken: idTokenString,
+            // Create OAuthProvider and get credential
+            let provider = OAuthProvider(providerID: "apple.com")
+            let firebaseCredential = provider.credential(
+                withIDToken: idTokenString,
                 rawNonce: nonce
             )
             

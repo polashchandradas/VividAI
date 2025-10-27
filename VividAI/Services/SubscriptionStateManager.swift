@@ -151,7 +151,7 @@ class SubscriptionStateManager: ObservableObject {
     
     private func updateSubscriptionState() {
         // Execute task without storing reference to avoid type ambiguity
-        let updateTask = Task<Void, Never> { @MainActor in
+        Task { @MainActor in
             // Get subscription state directly from UnifiedAppStateManager
             let isPremium: Bool = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
             let status: SubscriptionStatus = ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
@@ -159,9 +159,8 @@ class SubscriptionStateManager: ObservableObject {
             // Update local state
             self.calculateUnifiedState()
             
-            logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
+            self.logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
         }
-        _ = updateTask
     }
     
     private func updateTrialState() {
