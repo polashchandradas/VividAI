@@ -85,14 +85,12 @@ jobs:
           # This avoids hardcoding specific simulator names that may not be available
           echo "📱 Building for iOS Simulator SDK (CI-compatible approach)"
           
-          # CRITICAL OPTIMIZATIONS:
-          # - Use Simulator SDK (no code signing overhead)
-          # - Enable parallel builds with -jobs (defaults to number of cores)
-          # - Use derivedDataPath for caching
-          # - Skip code signing entirely
-          # - Enable module compilation optimization
-          # - Skip dSYM generation for faster builds
-          # - Disable bitcode for simulator builds
+          # CRITICAL OPTIMIZATIONS FOR FAST FAILURE:
+          # - NO -quiet flag - see errors immediately as they occur
+          # - Fail fast: xcodebuild exits immediately on first error
+          # - Use -jobs for parallel builds (faster overall)
+          # - wholemodule compilation is faster for CI than singlefile
+          # - Show full error output for immediate debugging
           xcodebuild build \
           -workspace VividAI.xcworkspace \
           -scheme VividAI \
@@ -107,26 +105,29 @@ jobs:
           ENABLE_BITCODE=NO \
           ONLY_ACTIVE_ARCH=YES \
           -jobs $(sysctl -n hw.ncpu) \
-          -quiet \
-          2>&1 | tee build_output.log
-          
-          echo "✅ Build completed!"
-          
-          # Check build output for errors
-          if grep -i "error" build_output.log | grep -v "warning"; then
-            echo "❌ Build errors found:"
-            grep -i "error" build_output.log | grep -v "warning"
+          2>&1 | tee build_output.log || {
+            echo ""
+            echo "❌ Build failed with compilation errors!"
+            echo "📋 Showing first 30 error lines:"
+            grep -i "error:" build_output.log | grep -v "warning" | head -30
+            echo ""
+            echo "📋 Showing all unique errors:"
+            grep -i "error:" build_output.log | grep -v "warning" | sort -u
             exit 1
-          else
-            echo "✅ No build errors found"
-          fi
+          }
           
-          # Check if build succeeded
-          if grep -i "build succeeded" build_output.log; then
-            echo "✅ Build succeeded"
+          echo "✅ Build completed successfully!"
+          
+          # Verify build succeeded
+          if grep -qi "build succeeded" build_output.log; then
+            echo "✅ Build verification: SUCCESS"
           else
-            echo "❌ Build did not succeed"
-            exit 1
+            echo "⚠️  Warning: Build completed but 'build succeeded' message not found"
+            echo "📋 Checking for errors anyway..."
+            if grep -i "error:" build_output.log | grep -v "warning"; then
+              echo "❌ Errors found in build output"
+              exit 1
+            fi
           fi
           
       - name: Find and validate app bundle

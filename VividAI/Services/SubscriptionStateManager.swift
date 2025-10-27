@@ -139,11 +139,13 @@ class SubscriptionStateManager: ObservableObject {
         calculateUnifiedState()
         
         // Sync with unified state manager
-        Task { @MainActor in
-            let isPremium = await subscriptionManager.currentIsPremiumUser
-            let status = await subscriptionManager.currentSubscriptionStatus
-            ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
-            ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
+        Task {
+            await MainActor.run {
+                let isPremium = await subscriptionManager.currentIsPremiumUser
+                let status = await subscriptionManager.currentSubscriptionStatus
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
+            }
         }
     }
     
@@ -151,16 +153,17 @@ class SubscriptionStateManager: ObservableObject {
     
     private func updateSubscriptionState() {
         // Execute task without storing reference to avoid type ambiguity
-        Task { @MainActor in
-            // Get subscription state directly from UnifiedAppStateManager
-            let isPremium: Bool = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
-            let status: SubscriptionStatus = ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
-            
-            // Update local state
-            self.calculateUnifiedState()
-            
-            self.logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
-            return ()
+        Task {
+            await MainActor.run {
+                // Get subscription state directly from UnifiedAppStateManager
+                let isPremium: Bool = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
+                let status: SubscriptionStatus = ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
+                
+                // Update local state
+                self.calculateUnifiedState()
+                
+                self.logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
+            }
         }
     }
     
@@ -287,13 +290,15 @@ class SubscriptionStateManager: ObservableObject {
         updateUsageLimits()
         updateTrialState()
         
-        Task { @MainActor in
-            let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
-            analyticsService.track(event: "generation_recorded", parameters: [
-                "is_premium": isPremium,
-                "is_trial_active": isTrialActive,
-                "trial_type": "\(trialType)"
-            ])
+        Task {
+            await MainActor.run {
+                let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
+                analyticsService.track(event: "generation_recorded", parameters: [
+                    "is_premium": isPremium,
+                    "is_trial_active": isTrialActive,
+                    "trial_type": "\(trialType)"
+                ])
+            }
         }
     }
     
