@@ -30,6 +30,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       
+      # OPTIMIZATION: Cache DerivedData for faster builds
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: DerivedData
+          key: ${{ runner.os }}-derived-${{ hashFiles('**/*.swift', '**/Podfile') }}
+          restore-keys: |
+            ${{ runner.os }}-derived-
+      
       - name: Install CocoaPods dependencies
         run: |
           echo "📦 Installing CocoaPods dependencies..."
