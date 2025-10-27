@@ -159,7 +159,7 @@ struct PaywallView: View {
                         color: DesignSystem.Colors.primary,
                         action: {
                             appCoordinator.startFreeTrial(type: .limited)
-                            analyticsService.track(event: "limited_trial_started")
+                            ServiceContainer.shared.analyticsService.track(event: "limited_trial_started")
                         }
                     )
                     
@@ -172,7 +172,7 @@ struct PaywallView: View {
                         color: DesignSystem.Colors.warning,
                         action: {
                             appCoordinator.startFreeTrial(type: .unlimited)
-                            analyticsService.track(event: "unlimited_trial_started")
+                            ServiceContainer.shared.analyticsService.track(event: "unlimited_trial_started")
                         }
                     )
                 }
@@ -271,6 +271,9 @@ struct PaywallView: View {
         // Start free trial logic
         appCoordinator.handleSubscriptionAction(.startFreeTrial(selectedPlan))
         showingTrial = true
+        ServiceContainer.shared.analyticsService.track(event: "free_trial_started_from_paywall", parameters: [
+            "plan": selectedPlan.rawValue
+        ])
     }
 }
 

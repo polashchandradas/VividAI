@@ -39,12 +39,10 @@ struct ProcessingView: View {
         .onAppear {
             startProcessing()
         }
-        .onReceive(unifiedState.$processingProgress) { newProgress in
-            withAnimation(DesignSystem.Animations.standard) {
-                self.progress = newProgress
-            }
-        }
         .onChange(of: unifiedState.processingProgress) { oldValue, newValue in
+            withAnimation(DesignSystem.Animations.standard) {
+                self.progress = newValue
+            }
             // Update current step based on progress
             let stepIndex = Int((newValue * Double(processingSteps.count - 1)).rounded())
             if stepIndex >= 0 && stepIndex < processingSteps.count {
