@@ -264,14 +264,14 @@ struct QualitySelectionView: View {
         
         showingProcessing = true
         
-        analyticsService.track(event: "processing_started_with_quality", parameters: [
+        ServiceContainer.shared.analyticsService.track(event: "processing_started_with_quality", parameters: [
             "quality": "\(selectedQuality)",
             "image_width": image.size.width,
             "image_height": image.size.height
         ])
         
         // Use hybrid processing with selected quality
-        appCoordinator.processImageWithQuality(image, quality: selectedQuality)
+        ServiceContainer.shared.appCoordinator.processImageWithQuality(image, quality: selectedQuality)
     }
 }
 

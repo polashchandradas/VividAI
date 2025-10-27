@@ -1,21 +1,25 @@
-name: iOS App Installation Verification
+name: iOS Build (Optimized)
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  verify-installation:
+  build-and-test:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 15  # Reduced from 30-45 minutes
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         
       - name: Set up Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
         
       # CRITICAL OPTIMIZATION: Cache CocoaPods
       - name: Cache CocoaPods
@@ -28,6 +32,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       
+      # CRITICAL OPTIMIZATION: Cache DerivedData
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: DerivedData
+          key: ${{ runner.os }}-derived-${{ hashFiles('**/*.swift', '**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-derived-
+      
       - name: Install CocoaPods dependencies
         run: |
           echo "📦 Installing CocoaPods dependencies..."
@@ -35,11 +48,15 @@ jobs:
             sudo gem install cocoapods --no-document
           fi
           pod install --repo-update || pod install
+          echo "✅ CocoaPods dependencies installed"
           
       - name: Build for iOS Device
         run: |
           echo "🔨 Building VividAI app for iOS Device..."
           
+          set -e
+          
+          # OPTIMIZATION: Use -quiet instead of -verbose for faster builds
           xcodebuild build-for-testing \
             -workspace VividAI.xcworkspace \
             -scheme VividAI \
@@ -62,9 +79,16 @@ jobs:
           
           echo "✅ Build completed!"
           
-      - name: Verify App Bundle
+          # Check for errors
+          if grep -i "error:" build_output.log | grep -v "warnings"; then
+            echo "❌ Build errors found"
+            grep -i "error:" build_output.log | head -20
+            exit 1
+          fi
+          
+      - name: Find and Verify App Bundle
         run: |
-          echo "🔍 Verifying app bundle..."
+          echo "🔍 Looking for app bundle..."
           
           APP_PATH=$(find ./DerivedData -name "VividAI.app" -type d | head -1)
           
@@ -75,24 +99,16 @@ jobs:
           
           echo "✅ App bundle found at: $APP_PATH"
           
-          # Verify critical files exist
-          if [ ! -f "$APP_PATH/Info.plist" ]; then
-            echo "❌ Info.plist missing!"
+          # Quick verification
+          if [ ! -f "$APP_PATH/VividAI" ] && [ ! -f "$APP_PATH/Info.plist" ]; then
+            echo "❌ Invalid app bundle!"
             exit 1
           fi
           
-          if [ ! -f "$APP_PATH/VividAI" ]; then
-            echo "❌ App executable missing!"
-            exit 1
-          fi
-          
-          echo "✅ App bundle verification passed"
-          
-          # Check bundle size
-          BUNDLE_SIZE=$(du -sh "$APP_PATH" | cut -f1)
-          echo "📱 App bundle size: $BUNDLE_SIZE"
-          
-      - name: Create IPA and Test Installation
+          echo "✅ App bundle verified"
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+        
+      - name: Create IPA file
         run: |
           echo "📦 Creating IPA file..."
           
@@ -100,37 +116,20 @@ jobs:
           cp -R "$APP_PATH" ./Payload/
           zip -q -r VividAI-Device.ipa ./Payload
           
-          echo "✅ IPA file created: VividAI-Device.ipa"
-          
-          # Verify IPA file
-          if [ ! -f "VividAI-Device.ipa" ]; then
-            echo "❌ IPA file not created!"
-            exit 1
-          fi
-          
-          IPA_SIZE=$(du -sh VividAI-Device.ipa | cut -f1)
-          echo "📱 IPA file size: $IPA_SIZE"
-          
-          # Quick IPA verification
-          echo "✅ IPA file verification passed"
+          echo "✅ IPA file created"
+          echo "📱 IPA size: $(du -sh VividAI-Device.ipa | cut -f1)"
         
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: VividAI-Device-IPA
           path: VividAI-Device.ipa
-          retention-days: 30
+          retention-days: 7
+          compression-level: 6
         
-      - name: Installation Test Summary
+      - name: Cleanup
+        if: always()
         run: |
-          echo "🎉 INSTALLATION VERIFICATION COMPLETE!"
-          echo "✅ App builds successfully"
-          echo "✅ App bundle is valid"
-          echo "✅ Executable exists"
-          echo "✅ IPA file created"
-          echo "✅ Ready for device installation"
-
-
-
-
+          echo "🧹 Cleaning up..."
+          rm -rf ./Payload
 

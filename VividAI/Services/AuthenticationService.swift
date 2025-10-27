@@ -104,8 +104,6 @@ class AuthenticationService: ObservableObject {
             self.currentUser = nil
             self.isAuthenticated = false
             self.authState = .unauthenticated
-            self.isPremiumUser = false
-            self.subscriptionStatus = .none
             self.userProfile = nil
             
             logger.info("User signed out")
@@ -117,8 +115,9 @@ class AuthenticationService: ObservableObject {
         // Set up callback-based communication with SubscriptionManager
         ServiceContainer.shared.subscriptionManager.onSubscriptionStateChanged = { [weak self] isPremium, status in
             DispatchQueue.main.async {
-                self?.isPremiumUser = isPremium
-                self?.subscriptionStatus = status
+                // Update unified state manager instead
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
             }
         }
     }
@@ -143,8 +142,9 @@ class AuthenticationService: ObservableObject {
                 
                 await MainActor.run {
                     self.userProfile = userProfile
-                    self.isPremiumUser = userProfile.isPremium
-                    self.subscriptionStatus = userProfile.subscriptionStatus
+                    // Update unified state manager
+                    ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = userProfile.isPremium
+                    ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = userProfile.subscriptionStatus
                 }
             }
         } catch {
@@ -275,13 +275,18 @@ class AuthenticationService: ObservableObject {
         let secureStorage = ServiceContainer.shared.secureStorageService
         
         // Clear trial data
-        try? secureStorage.clearTrialData()
+        secureStorage.clearTrialData()
         
-        // Clear referral data
-        try? secureStorage.clearReferralData()
-        
-        // Clear device ID (optional - you might want to keep this)
-        // try? secureStorage.clearDeviceId()
+        // Clear referral data - updateReferralRewards sets to 0
+        if var referralData = secureStorage.getReferralData() {
+            referralData = ReferralData(
+                referralCode: referralData.referralCode,
+                referralCount: 0,
+                availableRewards: 0,
+                deviceId: referralData.deviceId
+            )
+            secureStorage.storeReferralData(referralData)
+        }
         
         logger.info("Secure storage cleared")
     }
@@ -349,9 +354,8 @@ class AuthenticationService: ObservableObject {
                 throw AuthError.invalidToken
             }
             
-            let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                              idToken: idTokenString,
-                                                              rawNonce: nonce)
+            let provider = OAuthProvider(providerID: "apple.com")
+            let firebaseCredential = provider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
             
             let authResult = try await auth.signIn(with: firebaseCredential)
             let user = authResult.user

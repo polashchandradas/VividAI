@@ -63,10 +63,10 @@ struct SplashScreenView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 withAnimation(DesignSystem.Animations.standard) {
                     // Check centralized authentication status and navigate accordingly
-                    if serviceContainer.authenticationService.isAuthenticated {
-                        serviceContainer.navigationCoordinator.navigateTo(.home)
+                    if ServiceContainer.shared.authenticationService.isAuthenticated {
+                        ServiceContainer.shared.navigationCoordinator.navigateTo(.home)
                     } else {
-                        serviceContainer.navigationCoordinator.navigateTo(.authentication)
+                        ServiceContainer.shared.navigationCoordinator.navigateTo(.authentication)
                     }
                 }
             }

@@ -206,8 +206,8 @@ struct TrialData: Codable {
     let startDate: Date
     let isActive: Bool
     let deviceId: String
-    let trialId: String
-    let serverValidated: Bool
+    var trialId: String
+    var serverValidated: Bool
     
     init(startDate: Date, isActive: Bool, deviceId: String) {
         self.startDate = startDate

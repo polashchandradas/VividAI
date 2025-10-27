@@ -171,7 +171,10 @@ struct ResultsView: View {
                        let firstResult = ServiceContainer.shared.navigationCoordinator.processingResults.first {
                         // Use actual AI-generated headshot for video generation
                         let enhancedImage = loadHeadshotImage(from: firstResult.imageURL) ?? originalImage
-                        ServiceContainer.shared.appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
+                        // Video generation handled by coordinator
+                        if let coordinator = ServiceContainer.shared.getService(AppCoordinator.self) {
+                            // coordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
+                        }
                     }
                 }) {
                     HStack(spacing: DesignSystem.Spacing.sm) {

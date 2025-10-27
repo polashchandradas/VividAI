@@ -134,12 +134,14 @@ class HybridProcessingService: ObservableObject {
     
     func generateRealTimePreview(_ image: UIImage, style: AvatarStyle, completion: @escaping (Result<UIImage, Error>) -> Void) {
         // Always use on-device processing for real-time previews
-        realTimeService.generateInstantPreview(from: image, style: style) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let preview):
+        Task {
+            do {
+                let preview = try await realTimeService.generateInstantPreview(from: image, style: style)
+                DispatchQueue.main.async {
                     completion(.success(preview))
-                case .failure(let error):
+                }
+            } catch {
+                DispatchQueue.main.async {
                     completion(.failure(error))
                 }
             }

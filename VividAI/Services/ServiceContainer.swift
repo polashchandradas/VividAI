@@ -114,6 +114,10 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
+    lazy var appCoordinator: AppCoordinator = {
+        AppCoordinator()
+    }()
+    
     // MARK: - Initialization
     private init() {
         // Initialize services in proper order to avoid circular dependencies
@@ -155,6 +159,7 @@ class ServiceContainer: ObservableObject {
         
         // Initialize navigation last
         _ = navigationCoordinator
+        _ = appCoordinator
         
         // Configure service dependencies after all services are initialized
         configureServiceDependencies()
@@ -224,6 +229,8 @@ class ServiceContainer: ObservableObject {
             return configurationService as? T
         case is PhotoValidationService.Type:
             return photoValidationService as? T
+        case is AppCoordinator.Type:
+            return appCoordinator as? T
         default:
             return nil
         }

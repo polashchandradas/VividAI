@@ -162,8 +162,8 @@ class BackgroundRemovalService: ObservableObject {
             return createMockBackgroundRemoval(image: image)
         }
         
-        // Create mask from segmentation result
-        let mask = createMaskFromSegmentation(result, size: image.size)
+        // Create mask from segmentation result - VNInstanceMaskObservation
+        let mask = createMaskFromInstanceSegmentation(result, size: image.size)
         
         // Apply mask to remove background
         return applyMaskToImage(image, mask: mask)
@@ -190,7 +190,7 @@ class BackgroundRemovalService: ObservableObject {
             try handler.perform([request])
             
             if let result = request.results?.first {
-                let mask = createMaskFromSegmentation(result, size: image.size)
+                let mask = createMaskFromInstanceSegmentation(result, size: image.size)
                 return applyMaskToImage(image, mask: mask)
             }
         } catch {
@@ -356,6 +356,24 @@ extension BackgroundRemovalService {
             
             // Draw the original image
             image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    
+    private func createMaskFromInstanceSegmentation(_ result: VNInstanceMaskObservation, size: CGSize) -> UIImage {
+        // Get the mask from the observation
+        do {
+            let mask = try result.generateScaledMaskForImage(forInstances: result.allInstances, from: CGSize(width: size.width, height: size.height))
+            let ciImage = CIImage(cvPixelBuffer: mask)
+            let context = CIContext()
+            
+            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+                return createSimpleMask(size: size)
+            }
+            
+            return UIImage(cgImage: cgImage)
+        } catch {
+            print("Failed to create mask from instance segmentation: \(error.localizedDescription)")
+            return createSimpleMask(size: size)
         }
     }
     

@@ -157,7 +157,7 @@ struct ShareView: View {
         VStack(spacing: DesignSystem.Spacing.md) {
             // Primary Share Button
             Button(action: {
-                analyticsService.track(event: "share_video_tapped")
+                ServiceContainer.shared.analyticsService.track(event: "share_video_tapped")
                 showingShareSheet = true
             }) {
                 HStack(spacing: DesignSystem.Spacing.md) {
@@ -185,7 +185,7 @@ struct ShareView: View {
             
             // Save Video Button
             Button(action: {
-                analyticsService.track(event: "save_video_tapped")
+                ServiceContainer.shared.analyticsService.track(event: "save_video_tapped")
                 saveVideoToPhotos()
             }) {
                 HStack(spacing: DesignSystem.Spacing.sm) {
@@ -253,21 +253,21 @@ struct ShareView: View {
         }
         
         do {
-            let videoURL = try await serviceContainer.videoGenerationService.generateTransformationVideoAsync(
+            let videoURL = try await ServiceContainer.shared.videoGenerationService.generateTransformationVideoAsync(
                 from: originalImage,
                 to: enhancedImage
             )
             
             await MainActor.run {
                 self.generatedVideoURL = videoURL
-                self.navigationCoordinator.generatedVideoURL = videoURL
+                ServiceContainer.shared.navigationCoordinator.generatedVideoURL = videoURL
                 self.isGeneratingVideo = false
-                self.analyticsService.track(event: "video_generated")
+                ServiceContainer.shared.analyticsService.track(event: "video_generated")
             }
         } catch {
             await MainActor.run {
                 self.isGeneratingVideo = false
-                self.analyticsService.track(event: "video_generation_failed", parameters: [
+                ServiceContainer.shared.analyticsService.track(event: "video_generation_failed", parameters: [
                     "error": error.localizedDescription
                 ])
             }
@@ -285,16 +285,16 @@ struct ShareView: View {
                 }) { success, error in
                     DispatchQueue.main.async {
                         if success {
-                            self.analyticsService.track(event: "video_saved_to_photos")
+                            ServiceContainer.shared.analyticsService.track(event: "video_saved_to_photos")
                         } else {
-                            self.analyticsService.track(event: "video_save_failed", parameters: [
+                            ServiceContainer.shared.analyticsService.track(event: "video_save_failed", parameters: [
                                 "error": error?.localizedDescription ?? "Unknown error"
                             ])
                         }
                     }
                 }
             case .denied, .restricted:
-                self.analyticsService.track(event: "video_save_permission_denied")
+                ServiceContainer.shared.analyticsService.track(event: "video_save_permission_denied")
             case .notDetermined:
                 break
             @unknown default:

@@ -43,7 +43,6 @@ class AIHeadshotService: ObservableObject {
         // Check if API is configured
         guard configuration.isReplicateConfigured else {
             DispatchQueue.main.async {
-                self.isProcessing = false
                 completion(.failure(AIHeadshotError.apiNotConfigured))
             }
             return
