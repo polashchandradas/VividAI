@@ -6,6 +6,9 @@ import Photos
 
 struct ShareView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var videoGenerationService: VideoGenerationService
     @State private var isGeneratingVideo = false
     @State private var generatedVideoURL: URL?
     @State private var showingShareSheet = false
@@ -42,9 +45,9 @@ struct ShareView: View {
             }
         }
         .onAppear {
-            ServiceContainer.shared.analyticsService.track(event: "share_screen_viewed")
+            analyticsService.track(event: "share_screen_viewed")
             // Get video URL from navigation coordinator
-            if let videoURL = ServiceContainer.shared.navigationCoordinator.generatedVideoURL {
+            if let videoURL = navigationCoordinator.generatedVideoURL {
                 generatedVideoURL = videoURL
             } else {
                 generateTransformationVideo()
@@ -55,7 +58,7 @@ struct ShareView: View {
     private var headerSection: some View {
         HStack {
             Button(action: { 
-                ServiceContainer.shared.navigationCoordinator.navigateBack()
+                navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -157,7 +160,7 @@ struct ShareView: View {
         VStack(spacing: DesignSystem.Spacing.md) {
             // Primary Share Button
             Button(action: {
-                ServiceContainer.shared.analyticsService.track(event: "share_video_tapped")
+                analyticsService.track(event: "share_video_tapped")
                 showingShareSheet = true
             }) {
                 HStack(spacing: DesignSystem.Spacing.md) {
@@ -185,7 +188,7 @@ struct ShareView: View {
             
             // Save Video Button
             Button(action: {
-                ServiceContainer.shared.analyticsService.track(event: "save_video_tapped")
+                analyticsService.track(event: "save_video_tapped")
                 saveVideoToPhotos()
             }) {
                 HStack(spacing: DesignSystem.Spacing.sm) {
@@ -216,7 +219,7 @@ struct ShareView: View {
     
     private func platformButton(icon: String, name: String, color: Color) -> some View {
         Button(action: {
-            ServiceContainer.shared.analyticsService.track(event: "platform_share_tapped", parameters: ["platform": name])
+            analyticsService.track(event: "platform_share_tapped", parameters: ["platform": name])
             showingShareSheet = true
         }) {
             VStack(spacing: DesignSystem.Spacing.sm) {
@@ -244,8 +247,8 @@ struct ShareView: View {
     }
     
     private func generateVideoAsync() async {
-        guard let originalImage = ServiceContainer.shared.navigationCoordinator.selectedImage,
-              let enhancedImage = ServiceContainer.shared.navigationCoordinator.processingResults.first?.image else {
+        guard let originalImage = navigationCoordinator.selectedImage,
+              let enhancedImage = navigationCoordinator.processingResults.first?.image else {
             await MainActor.run {
                 self.isGeneratingVideo = false
             }
@@ -253,21 +256,21 @@ struct ShareView: View {
         }
         
         do {
-            let videoURL = try await ServiceContainer.shared.videoGenerationService.generateTransformationVideoAsync(
+            let videoURL = try await videoGenerationService.generateTransformationVideoAsync(
                 from: originalImage,
                 to: enhancedImage
             )
             
             await MainActor.run {
                 self.generatedVideoURL = videoURL
-                ServiceContainer.shared.navigationCoordinator.generatedVideoURL = videoURL
+                navigationCoordinator.generatedVideoURL = videoURL
                 self.isGeneratingVideo = false
-                ServiceContainer.shared.analyticsService.track(event: "video_generated")
+                analyticsService.track(event: "video_generated")
             }
         } catch {
             await MainActor.run {
                 self.isGeneratingVideo = false
-                ServiceContainer.shared.analyticsService.track(event: "video_generation_failed", parameters: [
+                analyticsService.track(event: "video_generation_failed", parameters: [
                     "error": error.localizedDescription
                 ])
             }
@@ -285,16 +288,16 @@ struct ShareView: View {
                 }) { success, error in
                     DispatchQueue.main.async {
                         if success {
-                            ServiceContainer.shared.analyticsService.track(event: "video_saved_to_photos")
+                            analyticsService.track(event: "video_saved_to_photos")
                         } else {
-                            ServiceContainer.shared.analyticsService.track(event: "video_save_failed", parameters: [
+                            analyticsService.track(event: "video_save_failed", parameters: [
                                 "error": error?.localizedDescription ?? "Unknown error"
                             ])
                         }
                     }
                 }
             case .denied, .restricted:
-                ServiceContainer.shared.analyticsService.track(event: "video_save_permission_denied")
+                analyticsService.track(event: "video_save_permission_denied")
             case .notDetermined:
                 break
             @unknown default:
@@ -319,4 +322,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 #Preview {
     ShareView()
         .environmentObject(UnifiedAppStateManager.shared)
+        .environmentObject(NavigationCoordinator())
+        .environmentObject(AnalyticsService.shared)
+        .environmentObject(VideoGenerationService())
 }

@@ -2,6 +2,9 @@ import SwiftUI
 
 struct QualitySelectionView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @Binding var selectedImage: UIImage?
     @State private var selectedQuality: HybridProcessingService.QualityLevel = .standard
     @State private var showingProcessing = false
@@ -36,14 +39,14 @@ struct QualitySelectionView: View {
             .navigationBarHidden(true)
         }
         .onAppear {
-            ServiceContainer.shared.analyticsService.track(event: "quality_selection_viewed")
+            analyticsService.track(event: "quality_selection_viewed")
         }
     }
     
     private var headerSection: some View {
         HStack {
             Button(action: {
-                ServiceContainer.shared.navigationCoordinator.navigateBack()
+                navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -264,14 +267,14 @@ struct QualitySelectionView: View {
         
         showingProcessing = true
         
-        ServiceContainer.shared.analyticsService.track(event: "processing_started_with_quality", parameters: [
+        analyticsService.track(event: "processing_started_with_quality", parameters: [
             "quality": "\(selectedQuality)",
             "image_width": image.size.width,
             "image_height": image.size.height
         ])
         
         // Use hybrid processing with selected quality
-        ServiceContainer.shared.appCoordinator.processImageWithQuality(image, quality: selectedQuality)
+        appCoordinator.processImageWithQuality(image, quality: selectedQuality)
     }
 }
 

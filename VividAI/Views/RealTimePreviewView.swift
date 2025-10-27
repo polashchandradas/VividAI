@@ -9,6 +9,7 @@ struct RealTimePreviewView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var realTimeGenerationService: RealTimeGenerationService
     @StateObject private var styleManager = StyleExampleManager.shared
     
     @State private var selectedImage: UIImage?
@@ -456,7 +457,7 @@ struct RealTimePreviewView: View {
         // For now, use the existing real-time service as fallback
         Task {
             do {
-                let preview = try await ServiceContainer.shared.realTimeGenerationService.generateInstantPreview(from: image, style: style)
+                let preview = try await realTimeGenerationService.generateInstantPreview(from: image, style: style)
                 
                 DispatchQueue.main.async {
                     self.currentPreview = preview
@@ -466,7 +467,7 @@ struct RealTimePreviewView: View {
                 
                 analyticsService.track(event: "realtime_preview_generated", parameters: [
                     "style": style.name,
-                    "generation_time": ServiceContainer.shared.realTimeGenerationService.getAverageGenerationTime()
+                    "generation_time": realTimeGenerationService.getAverageGenerationTime()
                 ])
                 
             } catch {
@@ -699,4 +700,5 @@ struct StyleRow: View {
         .environmentObject(NavigationCoordinator())
         .environmentObject(AppCoordinator())
         .environmentObject(AnalyticsService.shared)
+        .environmentObject(RealTimeGenerationService())
 }

@@ -45,14 +45,14 @@ struct PaywallView: View {
             .navigationBarHidden(true)
             .alert("Free Trial Started", isPresented: $showingTrial) {
                 Button("OK") {
-                    ServiceContainer.shared.navigationCoordinator.navigateBack()
+                    navigationCoordinator.navigateBack()
                 }
             } message: {
                 Text("Your 3-day free trial has started. You can cancel anytime.")
             }
         }
         .onAppear {
-            ServiceContainer.shared.analyticsService.track(event: "paywall_viewed")
+            analyticsService.track(event: "paywall_viewed")
         }
     }
     
@@ -197,11 +197,11 @@ struct PaywallView: View {
                         
                         HStack {
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                Text("\(ServiceContainer.shared.subscriptionStateManager.trialGenerationsUsed)/\(ServiceContainer.shared.subscriptionStateManager.trialMaxGenerations) generations used")
+                                Text("\(subscriptionStateManager.trialGenerationsUsed)/\(subscriptionStateManager.trialMaxGenerations) generations used")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textSecondary)
                                 
-                                Text("\(ServiceContainer.shared.subscriptionStateManager.trialDaysRemaining) days remaining")
+                                Text("\(subscriptionStateManager.trialDaysRemaining) days remaining")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textSecondary)
                             }
@@ -210,7 +210,7 @@ struct PaywallView: View {
                             
                             Button("Upgrade Now") {
                                 // Handle subscription purchase
-                                ServiceContainer.shared.analyticsService.track(event: "upgrade_from_trial_tapped")
+                                analyticsService.track(event: "upgrade_from_trial_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
                             .foregroundColor(.white)
@@ -271,7 +271,7 @@ struct PaywallView: View {
         // Start free trial logic
         appCoordinator.handleSubscriptionAction(.startFreeTrial(selectedPlan))
         showingTrial = true
-        ServiceContainer.shared.analyticsService.track(event: "free_trial_started_from_paywall", parameters: [
+        analyticsService.track(event: "free_trial_started_from_paywall", parameters: [
             "plan": selectedPlan.rawValue
         ])
     }

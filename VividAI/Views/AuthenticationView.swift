@@ -4,6 +4,7 @@ import FirebaseAuth
 
 struct AuthenticationView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var authenticationService: AuthenticationService
     @State private var selectedTab: AuthTab = .signIn
     @State private var showingAlert = false
     @State private var alertMessage = ""
@@ -43,7 +44,7 @@ struct AuthenticationView: View {
         } message: {
             Text(alertMessage)
         }
-        .onReceive(ServiceContainer.shared.authenticationService.$errorMessage) { errorMessage in
+        .onReceive(authenticationService.$errorMessage) { errorMessage in
             if let error = errorMessage {
                 alertMessage = error
                 showingAlert = true
@@ -138,7 +139,7 @@ struct AuthenticationView: View {
                 SignInWithAppleButton(
                     onRequest: { request in
                         request.requestedScopes = [.fullName, .email]
-                        request.nonce = ServiceContainer.shared.authenticationService.generateNonce()
+                        request.nonce = authenticationService.generateNonce()
                     },
                     onCompletion: { result in
                         handleAppleSignIn(result)
@@ -207,8 +208,8 @@ struct AuthenticationView: View {
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
                 Task {
                     do {
-                        _ = try await ServiceContainer.shared.authenticationService.signInWithApple(credential: appleIDCredential)
-                        ServiceContainer.shared.navigationCoordinator.navigateTo(.home)
+                        _ = try await authenticationService.signInWithApple(credential: appleIDCredential)
+                        // Navigation handled by unified state manager
                     } catch {
                         // Error is handled by the service
                     }
@@ -232,6 +233,8 @@ struct AuthenticationView: View {
 
 struct SignInForm: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var authenticationService: AuthenticationService
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @State private var email = ""
     @State private var password = ""
     @State private var showingAlert = false
@@ -277,7 +280,7 @@ struct SignInForm: View {
                 handleSignIn()
             }) {
                 HStack {
-                    if ServiceContainer.shared.authenticationService.isLoading {
+                    if authenticationService.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)
@@ -292,7 +295,7 @@ struct SignInForm: View {
                 .background(DesignSystem.Colors.primary)
                 .cornerRadius(DesignSystem.CornerRadius.md)
             }
-            .disabled(ServiceContainer.shared.authenticationService.isLoading || email.isEmpty || password.isEmpty)
+            .disabled(authenticationService.isLoading || email.isEmpty || password.isEmpty)
         }
         .alert("Authentication Error", isPresented: $showingAlert) {
             Button("OK") { }
@@ -304,8 +307,8 @@ struct SignInForm: View {
     private func handleSignIn() {
         Task {
             do {
-                _ = try await ServiceContainer.shared.authenticationService.signIn(email: email, password: password)
-                ServiceContainer.shared.navigationCoordinator.navigateTo(.home)
+                _ = try await authenticationService.signIn(email: email, password: password)
+                navigationCoordinator.navigateTo(.home)
             } catch {
                 alertMessage = error.localizedDescription
                 showingAlert = true
@@ -316,7 +319,7 @@ struct SignInForm: View {
     private func handleForgotPassword() {
         Task {
             do {
-                try await ServiceContainer.shared.authenticationService.resetPassword(email: email)
+                try await authenticationService.resetPassword(email: email)
                 alertMessage = "Password reset email sent to \(email)"
                 showingAlert = true
             } catch {
@@ -331,6 +334,8 @@ struct SignInForm: View {
 
 struct SignUpForm: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var authenticationService: AuthenticationService
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @State private var fullName = ""
     @State private var email = ""
     @State private var password = ""
@@ -389,7 +394,7 @@ struct SignUpForm: View {
                 handleSignUp()
             }) {
                 HStack {
-                    if ServiceContainer.shared.authenticationService.isLoading {
+                    if authenticationService.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)
@@ -404,7 +409,7 @@ struct SignUpForm: View {
                 .background(DesignSystem.Colors.primary)
                 .cornerRadius(DesignSystem.CornerRadius.md)
             }
-            .disabled(ServiceContainer.shared.authenticationService.isLoading || !isFormValid)
+            .disabled(authenticationService.isLoading || !isFormValid)
         }
         .alert("Authentication Error", isPresented: $showingAlert) {
             Button("OK") { }
@@ -437,8 +442,8 @@ struct SignUpForm: View {
         
         Task {
             do {
-                _ = try await ServiceContainer.shared.authenticationService.signUp(email: email, password: password, fullName: fullName)
-                ServiceContainer.shared.navigationCoordinator.navigateTo(.home)
+                _ = try await authenticationService.signUp(email: email, password: password, fullName: fullName)
+                navigationCoordinator.navigateTo(.home)
             } catch {
                 alertMessage = error.localizedDescription
                 showingAlert = true

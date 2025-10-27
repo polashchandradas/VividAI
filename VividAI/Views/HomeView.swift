@@ -4,6 +4,9 @@ import UIKit
 struct HomeView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @EnvironmentObject var appCoordinator: AppCoordinator
+    @EnvironmentObject var subscriptionStateManager: SubscriptionStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
     
     // Modern UI State
     @State private var isDarkMode = false
@@ -47,7 +50,7 @@ struct HomeView: View {
             .preferredColorScheme(isDarkMode ? .dark : .light)
         }
         .onAppear {
-            ServiceContainer.shared.analyticsService.track(event: "home_screen_viewed")
+            analyticsService.track(event: "home_screen_viewed")
             startAnimations()
         }
         .sheet(isPresented: $showingRealTimePreview) {
@@ -128,7 +131,7 @@ struct HomeView: View {
                 
                 // Settings Button
                 Button(action: { 
-                    ServiceContainer.shared.navigationCoordinator.showSettings()
+                    navigationCoordinator.showSettings()
                 }) {
                     Image(systemName: "gearshape.fill")
                         .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -165,11 +168,11 @@ struct HomeView: View {
             
             // Modern Primary CTA Button with Animation
             Button(action: {
-                ServiceContainer.shared.analyticsService.track(event: "create_headshot_tapped")
+                analyticsService.track(event: "create_headshot_tapped")
                 withAnimation(DesignSystem.Animations.spring) {
                     showMicroInteractions.toggle()
                 }
-                ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
+                navigationCoordinator.startPhotoUpload()
             }) {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "camera.fill")
@@ -210,7 +213,7 @@ struct HomeView: View {
                 Spacer()
                 
                 Button(action: {
-                    ServiceContainer.shared.analyticsService.track(event: "realtime_preview_tapped")
+                    analyticsService.track(event: "realtime_preview_tapped")
                     showingRealTimePreview = true
                 }) {
                     HStack(spacing: 8) {
@@ -237,10 +240,10 @@ struct HomeView: View {
                     ForEach(AvatarStyle.allStyles.prefix(4), id: \.id) { style in
                         RealTimePreviewCard(
                             style: style,
-                            isGenerating: ServiceContainer.shared.realTimeGenerationService.isGeneratingPreview,
+                            isGenerating: false, // Will be updated via unified state
                             onTap: {
                                 selectedStyle = style
-                                ServiceContainer.shared.analyticsService.track(event: "style_preview_tapped", parameters: ["style": style.name])
+                                analyticsService.track(event: "style_preview_tapped", parameters: ["style": style.name])
                             }
                         )
                     }
@@ -490,7 +493,7 @@ struct HomeView: View {
     // MARK: - Smart Trial Status Section
     private var smartTrialStatusSection: some View {
         VStack(spacing: DesignSystem.Spacing.md) {
-            if ServiceContainer.shared.subscriptionStateManager.isTrialActive {
+            if subscriptionStateManager.isTrialActive {
                 // Active Trial Status
                 ModernCard(
                     padding: DesignSystem.Spacing.md,
@@ -508,19 +511,19 @@ struct HomeView: View {
                             
                             Spacer()
                             
-                            Text("\(ServiceContainer.shared.subscriptionStateManager.trialDaysRemaining) days left")
+                            Text("\(subscriptionStateManager.trialDaysRemaining) days left")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                         
                         HStack {
-                            Text("\(ServiceContainer.shared.subscriptionStateManager.trialGenerationsUsed)/\(ServiceContainer.shared.subscriptionStateManager.trialMaxGenerations) generations used")
+                            Text("\(subscriptionStateManager.trialGenerationsUsed)/\(subscriptionStateManager.trialMaxGenerations) generations used")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             
                             Spacer()
                             
-                            if ServiceContainer.shared.subscriptionStateManager.canGenerate {
+                            if subscriptionStateManager.canGenerate {
                                 Text("Can generate")
                                     .font(DesignSystem.Typography.captionBold)
                                     .foregroundColor(DesignSystem.Colors.success)
@@ -553,22 +556,22 @@ struct HomeView: View {
                             
                             Button("Start Free Trial") {
                                 appCoordinator.startFreeTrial(type: .limited)
-                                ServiceContainer.shared.analyticsService.track(event: "start_free_trial_tapped")
+                                analyticsService.track(event: "start_free_trial_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
                             .foregroundColor(DesignSystem.Colors.primary)
                         }
                         
                         HStack {
-                            Text("\(ServiceContainer.shared.subscriptionStateManager.getRemainingGenerations()) generations remaining today")
+                            Text("\(subscriptionStateManager.getRemainingGenerations()) generations remaining today")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             
                             Spacer()
                             
                             Button("Upgrade to Pro") {
-                                ServiceContainer.shared.navigationCoordinator.showPaywall()
-                                ServiceContainer.shared.analyticsService.track(event: "upgrade_to_pro_tapped")
+                                navigationCoordinator.showPaywall()
+                                analyticsService.track(event: "upgrade_to_pro_tapped")
                             }
                             .font(DesignSystem.Typography.captionBold)
                             .foregroundColor(DesignSystem.Colors.success)
@@ -791,4 +794,8 @@ struct TrustIndicator: View {
 #Preview {
     HomeView()
         .environmentObject(UnifiedAppStateManager.shared)
+        .environmentObject(SubscriptionStateManager.shared)
+        .environmentObject(NavigationCoordinator())
+        .environmentObject(AppCoordinator())
+        .environmentObject(AnalyticsService.shared)
 }

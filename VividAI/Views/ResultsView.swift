@@ -3,6 +3,9 @@ import UIKit
 
 struct ResultsView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @State private var selectedHeadshot: HeadshotStyle?
     @State private var showingPaywall = false
     @State private var showingShareView = false
@@ -10,7 +13,7 @@ struct ResultsView: View {
     
     // Get headshot styles from navigation coordinator
     private var headshotStyles: [HeadshotStyle] {
-        ServiceContainer.shared.navigationCoordinator.processingResults.map { result in
+        navigationCoordinator.processingResults.map { result in
             HeadshotStyle(
                 id: result.id,
                 name: result.style,
@@ -58,14 +61,14 @@ struct ResultsView: View {
             }
         }
         .onAppear {
-            ServiceContainer.shared.analyticsService.track(event: "results_screen_viewed")
+            analyticsService.track(event: "results_screen_viewed")
         }
     }
     
     private var headerSection: some View {
         HStack {
             Button(action: { 
-                ServiceContainer.shared.navigationCoordinator.navigateBack()
+                navigationCoordinator.navigateBack()
             }) {
                 Image(systemName: "arrow.left")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -81,7 +84,7 @@ struct ResultsView: View {
             Spacer()
             
             Button(action: { 
-                ServiceContainer.shared.navigationCoordinator.showSettings()
+                navigationCoordinator.showSettings()
             }) {
                 Image(systemName: "gearshape")
                     .font(.system(size: DesignSystem.IconSizes.medium, weight: .semibold))
@@ -103,7 +106,7 @@ struct ResultsView: View {
                         onTap: {
                             selectedHeadshot = headshot
                             if headshot.isPremium && !unifiedState.isPremiumUser {
-                                ServiceContainer.shared.navigationCoordinator.showPaywall()
+                                navigationCoordinator.showPaywall()
                             } else {
                                 showingFullScreen = true
                             }
@@ -144,8 +147,8 @@ struct ResultsView: View {
         VStack(spacing: DesignSystem.Spacing.md) {
             // Primary CTA - Remove Watermark
             Button(action: {
-                ServiceContainer.shared.analyticsService.track(event: "remove_watermark_tapped")
-                ServiceContainer.shared.navigationCoordinator.showPaywall()
+                analyticsService.track(event: "remove_watermark_tapped")
+                navigationCoordinator.showPaywall()
             }) {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "lock.open.fill")
@@ -165,16 +168,14 @@ struct ResultsView: View {
             // Secondary Actions
             HStack(spacing: DesignSystem.Spacing.md) {
                 Button(action: {
-                    ServiceContainer.shared.analyticsService.track(event: "share_tapped")
+                    analyticsService.track(event: "share_tapped")
                     // Generate video and show share view
-                    if let originalImage = ServiceContainer.shared.navigationCoordinator.selectedImage,
-                       let firstResult = ServiceContainer.shared.navigationCoordinator.processingResults.first {
+                    if let originalImage = navigationCoordinator.selectedImage,
+                       let firstResult = navigationCoordinator.processingResults.first {
                         // Use actual AI-generated headshot for video generation
                         let enhancedImage = loadHeadshotImage(from: firstResult.imageURL) ?? originalImage
                         // Video generation handled by coordinator
-                        if let coordinator = ServiceContainer.shared.getService(AppCoordinator.self) {
-                            // coordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
-                        }
+                        // appCoordinator.generateTransformationVideo(from: originalImage, to: enhancedImage)
                     }
                 }) {
                     HStack(spacing: DesignSystem.Spacing.sm) {
@@ -192,7 +193,7 @@ struct ResultsView: View {
                 }
                 
                 Button(action: {
-                    ServiceContainer.shared.analyticsService.track(event: "save_tapped")
+                    analyticsService.track(event: "save_tapped")
                     // Save functionality
                 }) {
                     HStack(spacing: DesignSystem.Spacing.sm) {
@@ -367,4 +368,7 @@ struct HeadshotStyle: Identifiable {
 #Preview {
     ResultsView()
         .environmentObject(UnifiedAppStateManager.shared)
+        .environmentObject(NavigationCoordinator())
+        .environmentObject(AnalyticsService.shared)
+        .environmentObject(AppCoordinator())
 }

@@ -229,9 +229,13 @@ class SubscriptionManager: NSObject, ObservableObject {
                 }
             }
             
+            // Capture the subscription state to avoid concurrent access warnings
+            let finalHasActiveSubscription = hasActiveSubscription
+            let isTrialActive = self.isFreeTrialActive()
+            
             await MainActor.run {
-                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = hasActiveSubscription || self.isFreeTrialActive()
-                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = hasActiveSubscription ? .active : (self.isFreeTrialActive() ? .trial : .none)
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = finalHasActiveSubscription || isTrialActive
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = finalHasActiveSubscription ? .active : (isTrialActive ? .trial : .none)
                 self.onSubscriptionStateChanged?(ServiceContainer.shared.unifiedAppStateManager.isPremiumUser, ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus)
             }
         }

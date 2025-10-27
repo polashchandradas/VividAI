@@ -5,6 +5,11 @@ struct SplashScreenView: View {
     @State private var size = 0.8
     @State private var opacity = 0.5
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject var authenticationService: AuthenticationService
+    @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var backgroundRemovalService: BackgroundRemovalService
+    @EnvironmentObject var photoEnhancementService: PhotoEnhancementService
     
     var body: some View {
         ZStack {
@@ -63,10 +68,10 @@ struct SplashScreenView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 withAnimation(DesignSystem.Animations.standard) {
                     // Check centralized authentication status and navigate accordingly
-                    if ServiceContainer.shared.authenticationService.isAuthenticated {
-                        ServiceContainer.shared.navigationCoordinator.navigateTo(.home)
+                    if authenticationService.isAuthenticated {
+                        navigationCoordinator.navigateTo(.home)
                     } else {
-                        ServiceContainer.shared.navigationCoordinator.navigateTo(.authentication)
+                        navigationCoordinator.navigateTo(.authentication)
                     }
                 }
             }
@@ -77,12 +82,12 @@ struct SplashScreenView: View {
         // Initialize CoreML models in background
         DispatchQueue.global(qos: .background).async {
             // Load background removal model
-            ServiceContainer.shared.backgroundRemovalService.loadModel()
+            backgroundRemovalService.loadModel()
             
             // Load photo enhancement model
-            ServiceContainer.shared.photoEnhancementService.loadModel()
+            photoEnhancementService.loadModel()
             
-            ServiceContainer.shared.analyticsService.track(event: "splash_screen_displayed")
+            analyticsService.track(event: "splash_screen_displayed")
         }
     }
 }

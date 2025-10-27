@@ -8,6 +8,7 @@ struct PhotoUploadView: View {
     @EnvironmentObject var unifiedState: UnifiedAppStateManager
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject var analyticsService: AnalyticsService
+    @EnvironmentObject var photoValidationService: PhotoValidationService
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
@@ -324,14 +325,14 @@ struct PhotoUploadView: View {
             return
         }
         
-        ServiceContainer.shared.analyticsService.track(event: "photo_selected", parameters: [
+        analyticsService.track(event: "photo_selected", parameters: [
             "image_width": image.size.width,
             "image_height": image.size.height
         ])
         
         // Navigate to quality selection
-        ServiceContainer.shared.navigationCoordinator.selectedImage = image
-        ServiceContainer.shared.navigationCoordinator.showQualitySelection()
+        navigationCoordinator.selectedImage = image
+        navigationCoordinator.showQualitySelection()
     }
     
     private func validateSelectedPhoto() {
@@ -340,7 +341,7 @@ struct PhotoUploadView: View {
         isValidatingPhoto = true
         validationResult = nil
         
-        ServiceContainer.shared.photoValidationService.validatePhoto(image) { result in
+        photoValidationService.validatePhoto(image) { result in
             DispatchQueue.main.async {
                 self.isValidatingPhoto = false
                 self.validationResult = result

@@ -4,7 +4,7 @@ import SwiftUI
 /// Centralized service container to manage all app services
 /// This ensures single instances and proper dependency management
 class ServiceContainer: ObservableObject {
-    static let shared = ServiceContainer()
+    nonisolated static let shared = ServiceContainer()
     
     // MARK: - Core Services
     // Unified State Management (Single Source of Truth)
