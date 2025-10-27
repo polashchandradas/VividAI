@@ -8,7 +8,6 @@ class ServiceContainer: ObservableObject {
     
     // MARK: - Core Services
     // Unified State Management (Single Source of Truth)
-    @MainActor
     lazy var unifiedAppStateManager: UnifiedAppStateManager = {
         UnifiedAppStateManager.shared
     }()
@@ -115,7 +114,6 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
-    @MainActor
     lazy var appCoordinator: AppCoordinator = {
         AppCoordinator()
     }()
@@ -128,9 +126,7 @@ class ServiceContainer: ObservableObject {
     
     private func setupServices() {
         // Initialize unified state manager first (single source of truth)
-        Task { @MainActor in
-            _ = self.unifiedAppStateManager
-        }
+        _ = unifiedAppStateManager
         
         // Initialize services in dependency order (no dependencies first)
         _ = configurationService
@@ -163,9 +159,7 @@ class ServiceContainer: ObservableObject {
         
         // Initialize navigation last
         _ = navigationCoordinator
-        Task { @MainActor in
-            _ = self.appCoordinator
-        }
+        _ = appCoordinator
         
         // Configure service dependencies after all services are initialized
         configureServiceDependencies()
@@ -186,10 +180,7 @@ class ServiceContainer: ObservableObject {
     func getService<T>(_ type: T.Type) -> T? {
         switch type {
         case is UnifiedAppStateManager.Type:
-            // Synchronous access - unifiedAppStateManager is @MainActor lazy, access it safely
-            return MainActor.assumeIsolated {
-                self.unifiedAppStateManager as? T
-            }
+            return unifiedAppStateManager as? T
         case is NavigationCoordinator.Type:
             return navigationCoordinator as? T
         case is SubscriptionStateManager.Type:
@@ -239,10 +230,7 @@ class ServiceContainer: ObservableObject {
         case is PhotoValidationService.Type:
             return photoValidationService as? T
         case is AppCoordinator.Type:
-            // Synchronous access - appCoordinator is @MainActor lazy, access it safely
-            return MainActor.assumeIsolated {
-                self.appCoordinator as? T
-            }
+            return appCoordinator as? T
         default:
             return nil
         }
