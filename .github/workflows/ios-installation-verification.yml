@@ -1,8 +1,9 @@
 name: iOS App Installation Verification
 
 on:
-  push:
-    branches: [ main ]
+  # Disabled push trigger - only run manually
+  # push:
+  #   branches: [ main ]
   workflow_dispatch:
 
 jobs:

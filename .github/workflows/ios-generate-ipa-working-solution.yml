@@ -1,10 +1,12 @@
 name: Generate iOS Device IPA (Working Solution)
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # Disabled push trigger - only run manually
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   generate-ipa:
