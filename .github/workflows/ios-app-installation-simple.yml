@@ -47,10 +47,11 @@ jobs:
             sudo gem install cocoapods --no-document
           fi
           
-          # Check if Pods directory exists from cache
-          if [ -d "Pods" ] && [ -f "Podfile.lock" ]; then
-            echo "✅ Using cached CocoaPods (Pods directory exists)"
-            echo "📦 Verifying dependencies (no repo update)..."
+          # Check if Pods directory exists from cache (more lenient check)
+          if [ -d "Pods" ] && [ "$(ls -A Pods 2>/dev/null)" ]; then
+            echo "✅ Using cached CocoaPods (Pods directory exists and is not empty)"
+            echo "📦 Verifying dependencies (skip repo update for speed)..."
+            # Use --no-repo-update to skip slow spec repo update
             pod install --no-repo-update || pod install
           else
             echo "⚠️  Cache miss - installing CocoaPods with repo update..."
