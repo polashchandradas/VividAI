@@ -160,6 +160,7 @@ class SubscriptionStateManager: ObservableObject {
             self.calculateUnifiedState()
             
             self.logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
+            return ()
         }
     }
     
