@@ -190,7 +190,7 @@ class BackgroundRemovalService: ObservableObject {
             try handler.perform([request])
             
             if let result = request.results?.first {
-                let mask = createMaskFromInstanceSegmentation(result, size: image.size)
+                let mask = createMaskFromInstanceSegmentation(result, handler: handler, size: image.size)
                 return applyMaskToImage(image, mask: mask)
             }
         } catch {
