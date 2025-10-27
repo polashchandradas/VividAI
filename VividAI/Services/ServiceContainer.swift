@@ -9,9 +9,6 @@ class ServiceContainer: ObservableObject {
     // MARK: - Core Services
     // Unified State Management (Single Source of Truth)
     lazy var unifiedAppStateManager: UnifiedAppStateManager = {
-        Task { @MainActor in
-            return UnifiedAppStateManager.shared
-        }
         return UnifiedAppStateManager.shared
     }()
     
@@ -117,12 +114,11 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
-    lazy var appCoordinator: AppCoordinator = {
-        Task { @MainActor in
-            return AppCoordinator()
+    var appCoordinator: AppCoordinator {
+        MainActor.assumeIsolated {
+            AppCoordinator()
         }
-        return AppCoordinator()
-    }()
+    }
     
     // MARK: - Initialization
     private init() {
