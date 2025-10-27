@@ -163,7 +163,9 @@ class ServiceContainer: ObservableObject {
         
         // Initialize navigation last
         _ = navigationCoordinator
-        _ = appCoordinator
+        Task { @MainActor in
+            _ = self.appCoordinator
+        }
         
         // Configure service dependencies after all services are initialized
         configureServiceDependencies()
@@ -184,7 +186,9 @@ class ServiceContainer: ObservableObject {
     func getService<T>(_ type: T.Type) -> T? {
         switch type {
         case is UnifiedAppStateManager.Type:
-            return unifiedAppStateManager as? T
+            return Task { @MainActor in
+                return self.unifiedAppStateManager as? T
+            } as? T ?? nil
         case is NavigationCoordinator.Type:
             return navigationCoordinator as? T
         case is SubscriptionStateManager.Type:
@@ -234,7 +238,9 @@ class ServiceContainer: ObservableObject {
         case is PhotoValidationService.Type:
             return photoValidationService as? T
         case is AppCoordinator.Type:
-            return appCoordinator as? T
+            return Task { @MainActor in
+                return self.appCoordinator as? T
+            } as? T ?? nil
         default:
             return nil
         }

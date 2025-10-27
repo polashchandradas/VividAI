@@ -140,8 +140,10 @@ class SubscriptionStateManager: ObservableObject {
         
         // Sync with unified state manager
         Task { @MainActor in
-            ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = await subscriptionManager.currentIsPremiumUser
-            ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = await subscriptionManager.currentSubscriptionStatus
+            let isPremium = await subscriptionManager.currentIsPremiumUser
+            let status = await subscriptionManager.currentSubscriptionStatus
+            ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
+            ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
         }
     }
     
@@ -196,7 +198,8 @@ class SubscriptionStateManager: ObservableObject {
             self.canGenerate = canGenerate
             
             // Log state change
-            logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(await getUserStatus())")
+            let userStatusValue = await getUserStatus()
+            logger.info("Unified state calculated: canGenerate=\(canGenerate), userStatus=\(userStatusValue)")
             
             // Track analytics
             let isPremium = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
