@@ -114,7 +114,6 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
-    @MainActor
     lazy var appCoordinator: AppCoordinator = {
         return AppCoordinator()
     }()
@@ -233,7 +232,9 @@ class ServiceContainer: ObservableObject {
         case is PhotoValidationService.Type:
             return photoValidationService as? T
         case is AppCoordinator.Type:
-            return appCoordinator as? T
+            return Task { @MainActor in
+                return self.appCoordinator as? T
+            }.value as? T ?? nil
         default:
             return nil
         }

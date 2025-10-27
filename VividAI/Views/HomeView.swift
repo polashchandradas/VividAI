@@ -431,89 +431,53 @@ struct HomeView: View {
                     )
             }
             
-            // Dynamic Masonry Layout with Bento Box Cards
+            // Use ModernFeatureCard instead of BentoBoxFeatureCard for now
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible(), spacing: DesignSystem.Spacing.md), count: 2),
                 spacing: DesignSystem.Spacing.md
             ) {
-                // Large Card - Real-Time Preview (Featured)
-                BentoBoxFeatureCard(
-                    item: MasonryItem(
-                        id: "realtime",
-                        title: "Real-Time Preview",
-                        subtitle: "See results before generating",
-                        icon: "bolt.circle.fill",
-                        badge: "Featured",
-                        gradient: LinearGradient(
-                            colors: [Color.orange, Color.red],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        size: CGSize(width: 1, height: 200)
-                    ),
+                // Real-Time Preview
+                ModernFeatureCard(
+                    icon: "bolt.circle.fill",
+                    title: "Real-Time",
+                    subtitle: "Preview",
+                    color: DesignSystem.Colors.warning,
                     action: {
                         ServiceContainer.shared.analyticsService.track(event: "realtime_preview_tapped")
                         showingRealTimePreview = true
                     }
                 )
                 
-                // Medium Card - Background Removal
-                BentoBoxFeatureCard(
-                    item: MasonryItem(
-                        id: "background",
-                        title: "Background Removal",
-                        subtitle: "One-tap magic",
-                        icon: "photo.on.rectangle.angled",
-                        badge: nil,
-                        gradient: LinearGradient(
-                            colors: [Color.green, Color.blue],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        size: CGSize(width: 1, height: 150)
-                    ),
+                // Background Removal
+                ModernFeatureCard(
+                    icon: "photo.on.rectangle.angled",
+                    title: "Background",
+                    subtitle: "Removal",
+                    color: DesignSystem.Colors.primary,
                     action: {
                         ServiceContainer.shared.analyticsService.track(event: "background_removal_tapped")
                         ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
                     }
                 )
                 
-                // Medium Card - Photo Enhancement
-                BentoBoxFeatureCard(
-                    item: MasonryItem(
-                        id: "enhance",
-                        title: "Photo Enhancement",
-                        subtitle: "AI-powered transformation",
-                        icon: "wand.and.stars",
-                        badge: "New",
-                        gradient: LinearGradient(
-                            colors: [Color.pink, Color.orange],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        size: CGSize(width: 1, height: 160)
-                    ),
+                // Photo Enhancement
+                ModernFeatureCard(
+                    icon: "wand.and.stars",
+                    title: "Photo",
+                    subtitle: "Enhance",
+                    color: DesignSystem.Colors.secondary,
                     action: {
                         ServiceContainer.shared.analyticsService.track(event: "photo_enhancement_tapped")
                         ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
                     }
                 )
                 
-                // Large Card - Video Generation
-                BentoBoxFeatureCard(
-                    item: MasonryItem(
-                        id: "video",
-                        title: "Video Generation",
-                        subtitle: "Create stunning transformations",
-                        icon: "video.fill",
-                        badge: "Popular",
-                        gradient: LinearGradient(
-                            colors: [Color.purple, Color.pink],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        size: CGSize(width: 1, height: 190)
-                    ),
+                // Video Generation
+                ModernFeatureCard(
+                    icon: "video.fill",
+                    title: "Video",
+                    subtitle: "Generation",
+                    color: DesignSystem.Colors.success,
                     action: {
                         ServiceContainer.shared.analyticsService.track(event: "video_generation_tapped")
                         ServiceContainer.shared.navigationCoordinator.startPhotoUpload()
