@@ -150,7 +150,8 @@ class SubscriptionStateManager: ObservableObject {
     // MARK: - State Updates
     
     private func updateSubscriptionState() {
-        Task { @MainActor in
+        // Explicitly type the Task to avoid ambiguity
+        let updateTask: Task<Void, Never> = Task { @MainActor in
             // Get subscription state from SubscriptionManager
             let isPremium: Bool = await subscriptionManager.currentIsPremiumUser
             let status: SubscriptionStatus = await subscriptionManager.currentSubscriptionStatus

@@ -114,8 +114,11 @@ class ServiceContainer: ObservableObject {
         PhotoValidationService.shared
     }()
     
+    // AppCoordinator must be initialized on MainActor
     lazy var appCoordinator: AppCoordinator = {
-        return AppCoordinator()
+        return MainActor.assumeIsolated {
+            AppCoordinator()
+        }
     }()
     
     // MARK: - Initialization
@@ -230,9 +233,10 @@ class ServiceContainer: ObservableObject {
         case is PhotoValidationService.Type:
             return photoValidationService as? T
         case is AppCoordinator.Type:
-            // AppCoordinator is @MainActor but accessed synchronously
-            // Use unsafe access since this is for service lookup only
-            return unsafeBitCast(appCoordinator, to: T?.self)
+            // AppCoordinator is @MainActor - access it properly
+            return MainActor.assumeIsolated {
+                self.appCoordinator as? T
+            }
         default:
             return nil
         }

@@ -356,10 +356,10 @@ class AuthenticationService: ObservableObject {
             }
             
             // Firebase OAuth credential API for Apple Sign In
-            // Use OAuthProvider.credential static method with correct parameters
-            let firebaseCredential = OAuthProvider.credential(
-                withProviderID: "apple.com",
-                idToken: idTokenString,
+            // The credential method is an instance method, not static
+            let provider = OAuthProvider(providerID: "apple.com")
+            let firebaseCredential = provider.credential(
+                withIDToken: idTokenString,
                 rawNonce: nonce
             )
             
