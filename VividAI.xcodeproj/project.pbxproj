@@ -57,6 +57,8 @@
 		1A00005D2A00000000000001 /* WatermarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00005E2A00000000000001 /* WatermarkService.swift */; };
 		1A0000902A00000000000001 /* FreeTrialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000912A00000000000001 /* FreeTrialService.swift */; };
 		1A0000952A00000000000001 /* UnifiedAppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000942A00000000000001 /* UnifiedAppStateManager.swift */; };
+		1A0000962A00000000000001 /* UsageLimitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000972A00000000000001 /* UsageLimitService.swift */; };
+		1A0000982A00000000000001 /* SharedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000992A00000000000001 /* SharedTypes.swift */; };
 		
 		/* Coordinators */
 		1A00005F2A00000000000001 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000602A00000000000001 /* AppCoordinator.swift */; };
@@ -131,6 +133,8 @@
 		1A00005E2A00000000000001 /* WatermarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkService.swift; sourceTree = "<group>"; };
 		1A0000912A00000000000001 /* FreeTrialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTrialService.swift; sourceTree = "<group>"; };
 		1A0000942A00000000000001 /* UnifiedAppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedAppStateManager.swift; sourceTree = "<group>"; };
+		1A0000972A00000000000001 /* UsageLimitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLimitService.swift; sourceTree = "<group>"; };
+		1A0000992A00000000000001 /* SharedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTypes.swift; sourceTree = "<group>"; };
 		
 		/* Coordinators */
 		1A0000602A00000000000001 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -275,6 +279,7 @@
 				1A00005E2A00000000000001 /* WatermarkService.swift */,
 				1A0000912A00000000000001 /* FreeTrialService.swift */,
 				1A0000942A00000000000001 /* UnifiedAppStateManager.swift */,
+				1A0000972A00000000000001 /* UsageLimitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -296,6 +301,7 @@
 				1A0000682A00000000000001 /* StyleExample.swift */,
 				1A00006A2A00000000000001 /* StyleExampleManager.swift */,
 				1A0000852A00000000000001 /* OnDevice */,
+				1A0000992A00000000000001 /* SharedTypes.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -469,6 +475,7 @@
 				1A00005D2A00000000000001 /* WatermarkService.swift in Sources */,
 				1A0000902A00000000000001 /* FreeTrialService.swift in Sources */,
 				1A0000952A00000000000001 /* UnifiedAppStateManager.swift in Sources */,
+				1A0000962A00000000000001 /* UsageLimitService.swift in Sources */,
 				
 				/* Coordinators */
 				1A00005F2A00000000000001 /* AppCoordinator.swift in Sources */,
@@ -479,6 +486,7 @@
 				1A0000652A00000000000001 /* Product.swift in Sources */,
 				1A0000672A00000000000001 /* StyleExample.swift in Sources */,
 				1A0000692A00000000000001 /* StyleExampleManager.swift in Sources */,
+				1A0000982A00000000000001 /* SharedTypes.swift in Sources */,
 				
 				/* Design System */
 				1A00006D2A00000000000001 /* DesignSystem.swift in Sources */,
