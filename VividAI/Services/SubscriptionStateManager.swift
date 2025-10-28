@@ -151,17 +151,27 @@ class SubscriptionStateManager: ObservableObject {
     
     // MARK: - State Updates
     
-    private func updateSubscriptionState() {
-        // Execute task without storing reference to avoid type ambiguity
+private func updateSubscriptionState() {
+        // Fetch values asynchronously first
         Task {
+            let isPremium = await subscriptionManager.currentIsPremiumUser
+            let status = await subscriptionManager.currentSubscriptionStatus
+
+            // Now update the UI synchronously on the main thread
             await MainActor.run {
                 // Get subscription state directly from UnifiedAppStateManager
-                let isPremium: Bool = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
-                let status: SubscriptionStatus = ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
-                
-                // Update local state
-                self.calculateUnifiedState()
-                
+                // No need to access unifiedAppStateManager here as we already fetched the values
+                // let isPremium: Bool = ServiceContainer.shared.unifiedAppStateManager.isPremiumUser
+                // let status: SubscriptionStatus = ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus
+
+                // Update local state based on fetched values
+                self.calculateUnifiedState() // This method uses the fetched values indirectly via computed properties
+
+                // Update UnifiedAppStateManager directly (if needed, though redundant if computed properties are used correctly)
+                ServiceContainer.shared.unifiedAppStateManager.isPremiumUser = isPremium
+                ServiceContainer.shared.unifiedAppStateManager.subscriptionStatus = status
+
+
                 self.logger.info("Subscription state updated: isPremium=\(isPremium), status=\(status)")
             }
         }
